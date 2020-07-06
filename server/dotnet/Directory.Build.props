@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <PackageVersion>1.0.3</PackageVersion>
+        <Authors>Daniel Earwicker</Authors>
+        <PackageOutputPath>./nupkg</PackageOutputPath>
+    </PropertyGroup>
+</Project>

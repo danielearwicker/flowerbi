@@ -1,0 +1,27 @@
+{
+    "name": "tinybi-react",
+    "version": "1.0.4",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "React helpers for TinyBI",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "@types/json-stable-stringify": "^1.0.32",
+        "@types/react": "^16.9.0",
+        "json-stable-stringify": "^1.0.1",
+        "tinybi": "^1.0.4"
+    },
+    "devDependencies": {
+        "prettier": "^2.0.5",
+        "typescript": "~3.7.2"
+    },    
+    "peerDependencies": {
+        "react": "^16.13.1"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "prepare": "npm run build"
+    }
+}
