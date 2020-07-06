@@ -28,7 +28,7 @@ namespace TinyBI
         }
 
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
-select
+select {{#if top}}top {{top}}{{/if}}
     
     {{#each selectColumns}}
         {{this}} Select{{@index}},
@@ -36,8 +36,7 @@ select
 
     {{#if Function}} {{Function}} ({{/if}}
         main.[{{Column.DbName}}] 
-    {{#if Function}} ) {{/if}} [Value]
-
+    {{#if Function}} ) {{/if}} Value0
 
 from [{{Column.Table.Schema.DbName}}].[{{Column.Table.DbName}}] main
 
@@ -61,6 +60,10 @@ where
         {{#unless @last}} , {{/unless}}
     {{/each}}
 {{/if}}
+
+{{#if top}}
+    order by main.Value0 desc
+{{/if}}
 ");
 
         private string GenerateSelect(
@@ -68,7 +71,8 @@ where
             IEnumerable<Filter> outerFilters,
             FilterParameters filterParams,
             IEnumerable<IColumn> groupByColumns,
-            Joins joins)
+            Joins joins,
+            int? top = null)
         {
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
@@ -84,7 +88,8 @@ where
                 {
                     Alias = joins[x.Table],
                     Column = x.DbName
-                }).ToList();
+                })
+                .ToList();
 
             return _template(new
             {
@@ -98,7 +103,8 @@ where
                     Alias = x.Value,
                     ForeignKey = Column.Table.GetForeignKeyTo(x.Key)                    
                 }),
-                groupBy
+                groupBy,
+                top
             });
         }
 
@@ -106,7 +112,8 @@ where
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             FilterParameters filterParams,
-            bool totals)
+            bool totals,
+            int? top = null)
         {
             var joins = new Joins("main", Column.Table);
 
@@ -114,7 +121,7 @@ where
 
             var unionOf = new List<string>
             {
-                GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins)
+                GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, top)
             };
 
             if (totals)

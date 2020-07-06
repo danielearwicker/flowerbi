@@ -43,7 +43,7 @@ select top {{Top}}
 {{/each}}
 
 {{#each Aggregations}}
-    a{{@index}}.[Value] Value{{@index}}
+    a{{@index}}.Value0 Value{{@index}}
     {{#unless @last}},{{/unless}}
 {{/each}}
 
@@ -58,12 +58,17 @@ from Aggregation0 a0
     {{/unless}}
 {{/each}}
 
-order by a0.[Value] desc
+order by a0.Value0 desc
 ");
 
 
         public string ToSql(FilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
         {
+            if (Aggregations.Count == 1)
+            {
+                return Aggregations[0].ToSql(Select, outerFilters.Concat(Filters), filterParams, Totals, top);
+            }
+
             return _template(new
             {
                 Top = top,

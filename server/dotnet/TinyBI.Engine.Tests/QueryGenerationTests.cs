@@ -66,13 +66,9 @@ namespace TinyBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new FilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                with [Aggregation0] as (
-                    select main.[VendorName] [Value]
-                    from [TestSchema].[Vendor] main
-                )
-                select top 10 a0.[Value] Value0
-                from Aggregation0 a0
-                order by a0.[Value] desc
+                select top 10 main.[VendorName] Value0
+                from [TestSchema].[Vendor] main
+                order by main.Value0 desc
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -105,14 +101,10 @@ namespace TinyBI.Engine.Tests
 
             // As filter is on PK of Vendor, can just use FK of Invoice, avoid join
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                with [Aggregation0] as (
-                    select main.[Amount] [Value]
-                    from [TestSchema].[Invoice] main
-                    where main.[VendorId] = @filter0
-                )
-                select top 10 a0.[Value] Value0
-                from Aggregation0 a0
-                order by a0.[Value] desc
+                select top 10 main.[Amount] Value0
+                from [TestSchema].[Invoice] main
+                where main.[VendorId] = @filter0
+                order by main.Value0 desc
             ");
             filterParams.Names.Should().HaveCount(1);
         }
@@ -136,15 +128,11 @@ namespace TinyBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new FilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                with [Aggregation0] as (
-                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) [Value]
-                    from [TestSchema].[Invoice] main
-                    join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
-                    group by join0.[VendorName]
-                )
-                select top 10 a0.Select0, a0.[Value] Value0
-                from Aggregation0 a0
-                order by a0.[Value] desc
+                select top 10 join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
+                from [TestSchema].[Invoice] main
+                join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
+                group by join0.[VendorName]
+                order by main.Value0 desc
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -175,21 +163,21 @@ namespace TinyBI.Engine.Tests
             var filterParams = new FilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
-                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) [Value]
+                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
                     from [TestSchema].[Invoice] main
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 ) ,
                 [Aggregation1] as (
-                    select join0.[VendorName] Select0, Count ( main.[Id] ) [Value]
+                    select join0.[VendorName] Select0, Count ( main.[Id] ) Value0
                     from [TestSchema].[Invoice] main
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.[Value] Value0 , a1.[Value] Value1
+                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
-                order by a0.[Value] desc
+                order by a0.Value0 desc
             ");
 
             filterParams.Names.Should().HaveCount(0);
@@ -230,22 +218,22 @@ namespace TinyBI.Engine.Tests
             var filterParams = new FilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
-                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) [Value]
+                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
                     from [TestSchema].[Invoice] main
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 ) ,
                 [Aggregation1] as (
-                    select join0.[VendorName] Select0, Count ( main.[Id] ) [Value]
+                    select join0.[VendorName] Select0, Count ( main.[Id] ) Value0
                     from [TestSchema].[Invoice] main
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     where main.[Paid] = @filter0
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.[Value] Value0 , a1.[Value] Value1
+                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
-                order by a0.[Value] desc
+                order by a0.Value0 desc
             ");
 
             filterParams.Names.Should().HaveCount(1);
@@ -279,16 +267,12 @@ namespace TinyBI.Engine.Tests
 
             var filterParams = new FilterParameters();
             AssertSameSql(query.ToSql(filterParams, new[] { extra }, 10), @"
-                with [Aggregation0] as (
-                    select join0.[VendorName] Select0, Sum ( main.[Amount] ) [Value]
-                    from [TestSchema].[Invoice] main
-                    join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
-                    where main.[Paid] = @filter0
-                    group by join0.[VendorName]
-                )
-                select top 10 a0.Select0, a0.[Value] Value0
-                from Aggregation0 a0
-                order by a0.[Value] desc
+                select top 10 join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
+                from [TestSchema].[Invoice] main
+                join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
+                where main.[Paid] = @filter0
+                group by join0.[VendorName]
+                order by main.Value0 desc
             ");
             filterParams.Names.Should().HaveCount(1);
         }
