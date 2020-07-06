@@ -12,7 +12,7 @@ function readPackage(name) {
 }
 
 function writePackage(name, json) {
-    fs.writeFileSync(getPackagePath(package), JSON.stringify(json, null, 4));
+    fs.writeFileSync(getPackagePath(name), JSON.stringify(json, null, 4));
 }
 
 function splitVersion(ver) {
