@@ -3,3 +3,4 @@ dist
 bin
 obj
 nupkg
+server/dotnet/.vs/TinyBI/xs/
