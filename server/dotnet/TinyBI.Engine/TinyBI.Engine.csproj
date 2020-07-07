@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
 
     <PackageId>TinyBI.Engine</PackageId>
-    <Description>Stuff</Description>
+    <Description>Server-side query generation engine for TinyBI</Description>
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>

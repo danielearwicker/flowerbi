@@ -20,7 +20,7 @@ export function jsonifyQuery(query: Query): QueryJson {
 
     return {
         ...others,
-        select: select.map((x) => x.name)
+        select: select?.map((x) => x.name)
     };
 
 }
@@ -28,7 +28,7 @@ export async function executeQuery(fetch: QueryFetch, query: QueryJson) {
     
     const result = await fetch(JSON.stringify(query));
 
-    const totalsIndex = result.findIndex(r => r.selected[0] === "_grand_total_");
+    const totalsIndex = result.findIndex(r => r.selected?.[0] === "_grand_total_");
 
     const totals = totalsIndex !== -1 ? result[totalsIndex] : undefined;
 

@@ -1,1 +1,1 @@
-export * from "./QueriedChart";
+export * from "./TinyBIChart";

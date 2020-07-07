@@ -5,7 +5,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
 
     <PackageId>TinyBI.Tools</PackageId>
-    <Description>Stuff</Description>
+    <Description>Command line tools for TinyBI</Description>
 
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>tinybi</ToolCommandName>

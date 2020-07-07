@@ -7,7 +7,7 @@ export interface AggregationJson {
 }
 
 export interface QueryJson {
-    select: string[];
+    select?: string[];
     aggregations: AggregationJson[];
     filters?: FilterJson[];
     totals?: boolean;
@@ -24,7 +24,7 @@ export interface FilterJson {
 }
 
 export interface Query extends Omit<QueryJson, "select"> {
-    select: QueryColumn<any>[];    
+    select?: QueryColumn<any>[];    
 }
 
 export class QueryColumn<T extends FilterValue> {

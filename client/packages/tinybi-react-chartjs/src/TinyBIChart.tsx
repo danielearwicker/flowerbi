@@ -24,7 +24,7 @@ function getEventData(evt?: MouseEvent, chart?: Chart) {
 
 export type ChartRefHandler = (c: ChartComponent<never> | null) => void;
 
-export interface QueriedBaseProps {
+export interface TinyBIBaseProps {
     fetch: QueryFetch;
     chartKey?: string;
     title?: string;
@@ -33,20 +33,20 @@ export interface QueriedBaseProps {
     pageFilters?: PageFilters;
 }
 
-export interface QueriedChartProps extends QueriedBaseProps {
+export interface TinyBIChartProps extends TinyBIBaseProps {
     mapData(queryResult: AnalysedRecords): ChartData;
     options?: ChartOptions;
     tooltip?(data: CategoryData): string | string[];
 }
 
-export interface QueriedChartRenderProps extends QueriedChartProps {
+export interface TinyBIChartRenderProps extends TinyBIChartProps {
     render(chartData: ChartData, options: ChartOptions, ref: ChartRefHandler, analysed: AnalysedRecords): React.ReactNode;
 }
 
-export function QueriedChart({ 
+export function TinyBIChart({ 
     fetch, chartKey, title, query, mapData, options,
     tooltip, render, clickedFilters, pageFilters
-}: QueriedChartRenderProps) {
+}: TinyBIChartRenderProps) {
 
     const { select } = query;
 
@@ -57,7 +57,7 @@ export function QueriedChart({
 
     const nonNullChartKey = chartKey;
 
-    const nonNullClickedFilters = clickedFilters ?? ((keys: unknown[]) => select.map((c, i) => c.equalTo((keys[i] as string).toString())));
+    const nonNullClickedFilters = clickedFilters ?? ((keys: unknown[]) => select?.map((c, i) => c.equalTo((keys[i] as string).toString())));
 
     if (pageFilters && pageFilters.chartKey !== nonNullChartKey) {
         query = { ...query, filters: (query.filters ?? []).concat(pageFilters.filters) };
@@ -72,8 +72,10 @@ export function QueriedChart({
             const data = getEventData(evt, chartInstance);
             if (data && pageFilters && chartInstance) {
                 const filters = nonNullClickedFilters([data.category, data.legend]);
-                pageFilters.set({ chartKey: nonNullChartKey, filters });
-                evt?.stopPropagation();
+                if (filters) {
+                    pageFilters.set({ chartKey: nonNullChartKey, filters });
+                    evt?.stopPropagation();
+                }                
             }
         },
     };
@@ -124,17 +126,17 @@ export function QueriedChart({
     );
 }
 
-export function QueriedPieChart(props: QueriedChartProps) {
-    return <QueriedChart {...props} render={(data, options, ref) => <Pie data={data} options={options} ref={ref} />} />;
+export function TinyBIPieChart(props: TinyBIChartProps) {
+    return <TinyBIChart {...props} render={(data, options, ref) => <Pie data={data} options={options} ref={ref} />} />;
 }
 
-export function QueriedBarChart(props: QueriedChartProps) {
-    return <QueriedChart {...props} render={(data, options, ref) => <Bar data={data} options={options} ref={ref} />} />;
+export function TinyBIBarChart(props: TinyBIChartProps) {
+    return <TinyBIChart {...props} render={(data, options, ref) => <Bar data={data} options={options} ref={ref} />} />;
 }
 
-export function QueriedStackedBarChart(props: QueriedChartProps) {
+export function TinyBIStackedBarChart(props: TinyBIChartProps) {
     return (
-        <QueriedBarChart
+        <TinyBIBarChart
             {...props}
             options={{
                 scales: {

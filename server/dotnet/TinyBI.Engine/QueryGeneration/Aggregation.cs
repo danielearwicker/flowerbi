@@ -62,7 +62,9 @@ where
 {{/if}}
 
 {{#if top}}
-    order by main.Value0 desc
+    order by {{#if Function}} {{Function}} ({{/if}}
+        main.[{{Column.DbName}}] 
+    {{#if Function}} ) {{/if}} desc
 {{/if}}
 ");
 
