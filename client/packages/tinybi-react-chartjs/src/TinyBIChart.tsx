@@ -59,8 +59,8 @@ export function TinyBIChart({
 
     const nonNullClickedFilters = clickedFilters ?? ((keys: unknown[]) => select?.map((c, i) => c.equalTo((keys[i] as string).toString())));
 
-    if (pageFilters && pageFilters.chartKey !== nonNullChartKey) {
-        query = { ...query, filters: (query.filters ?? []).concat(pageFilters.filters) };
+    if (pageFilters) {
+        query = { ...query, filters: (query.filters ?? []).concat(pageFilters.getFilters(nonNullChartKey)) };
     }
 
     let chartInstance: Chart | undefined = undefined;
@@ -73,7 +73,7 @@ export function TinyBIChart({
             if (data && pageFilters && chartInstance) {
                 const filters = nonNullClickedFilters([data.category, data.legend]);
                 if (filters) {
-                    pageFilters.set({ chartKey: nonNullChartKey, filters });
+                    pageFilters.setInteraction(nonNullChartKey, filters);
                     evt?.stopPropagation();
                 }                
             }

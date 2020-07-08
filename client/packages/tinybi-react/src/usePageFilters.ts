@@ -2,26 +2,48 @@ import { useState } from "react";
 import { FilterJson } from "tinybi";
 
 export interface PageFiltersState {
-    readonly filters: FilterJson[];
-    readonly chartKey: string;
+    readonly global: FilterJson[];
+    readonly interactions: FilterJson[];
+    readonly interactionKey: string;
 }
 
 export interface PageFilters extends PageFiltersState {
-    set(newState: PageFiltersState): void;
-    clear(): void;
+    setInteraction(key: string, filters: FilterJson[]): void;
+    setGlobal(filters: FilterJson[]): void;
+    clearInteraction(): void;
+    clearGlobal(): void;
+    clearAll(): void;
+    getFilters(key: string): FilterJson[];
 }
 
 const clearedState: PageFiltersState = {
-    filters: [],
-    chartKey: "",
+    global: [],
+    interactions: [],
+    interactionKey: "",
 };
 
 export function usePageFilters(): PageFilters {
     const [state, set] = useState<PageFiltersState>(clearedState);
-    function clear() {
+    function setInteraction(interactionKey: string, interactions: FilterJson[]) {
+        set({ ...state, interactionKey, interactions });
+    }
+    function setGlobal(global: FilterJson[]) {
+        set({ ...state, global });
+    }
+    function clearInteraction() {
+        set({ ...state, interactionKey: "", interactions: [] });
+    }
+    function clearGlobal() {
+        set({ ...state, global: [] });
+    }
+    function clearAll() {
         set(clearedState);
     }
-    return { ...state, set, clear };
+    function getFilters(key: string) {
+        const result = state.global;
+        return key !== state.interactionKey ? result.concat(state.interactions) : result;
+    }
+    return { ...state, setInteraction, setGlobal, clearInteraction, clearGlobal, clearAll, getFilters };
 }
 
 export interface PageFiltersProp {

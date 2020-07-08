@@ -36,8 +36,8 @@ export function TinyBITable({fetch, chartKey, title, query, columns, pageFilters
 
     const nonNullChartKey = chartKey;
 
-    if (pageFilters && pageFilters.chartKey !== nonNullChartKey) {
-        query = { ...query, filters: (query.filters ?? []).concat(pageFilters.filters) };
+    if (pageFilters) {
+        query = { ...query, filters: (query.filters ?? []).concat(pageFilters.getFilters(nonNullChartKey)) };
     }
 
     const data = analyseRecords(useQuery(fetch, query));

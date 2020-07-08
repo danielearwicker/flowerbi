@@ -33,7 +33,8 @@ namespace TinyBI
             return json.ValueKind == JsonValueKind.False ? false :
                     json.ValueKind == JsonValueKind.True ? true :
                     json.ValueKind == JsonValueKind.Number ? json.GetDouble() :
-                    json.ValueKind == JsonValueKind.String ? (object)json.GetString() :
+                    json.ValueKind == JsonValueKind.String ?
+                        (DateTime.TryParse(json.GetString(), out var dt) ? dt : (object)json.GetString()) :
                     throw new InvalidOperationException("Unsupported filter value format");
         }
 
