@@ -131,7 +131,27 @@ export function TinyBIPieChart(props: TinyBIChartProps) {
 }
 
 export function TinyBIBarChart(props: TinyBIChartProps) {
-    return <TinyBIChart {...props} render={(data, options, ref) => <Bar data={data} options={options} ref={ref} />} />;
+
+    const options = JSON.parse(JSON.stringify(props.options ?? {})) as ChartOptions;
+
+    if (!options.scales) {
+        options.scales = {};
+    }
+    if (!options.scales.yAxes) {
+        options.scales.yAxes = [];
+    }
+    if (!options.scales.yAxes[0]) {
+        options.scales.yAxes[0] = {};
+    }
+    if (!options.scales.yAxes[0].ticks) {
+        options.scales.yAxes[0].ticks = {};        
+    }    
+    options.scales.yAxes[0].ticks.beginAtZero = true;
+
+    return <TinyBIChart 
+            {...props} 
+            options={options}
+            render={(data, options, ref) => <Bar data={data} options={options} ref={ref} />} />;
 }
 
 export function TinyBIStackedBarChart(props: TinyBIChartProps) {
