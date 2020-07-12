@@ -6,16 +6,22 @@ export interface AggregationJson {
     filters?: FilterJson[];
 }
 
+export interface OrderingJson {
+    column: string;
+    descending?: boolean;
+}
+
 export interface QueryJson {
     select?: string[];
     aggregations: AggregationJson[];
     filters?: FilterJson[];
+    orderBy?: OrderingJson[];
     totals?: boolean;
 }
 
 export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=";
 
-export type FilterValue = string | number | boolean | Date;
+export type FilterValue = string | number | boolean | Date | unknown;
 
 export interface FilterJson {
     column: string;
@@ -24,7 +30,7 @@ export interface FilterJson {
 }
 
 export interface Query extends Omit<QueryJson, "select"> {
-    select?: QueryColumn<any>[];    
+    select?: QueryColumn<unknown>[];
 }
 
 export class QueryColumn<T extends FilterValue> {
@@ -52,6 +58,14 @@ export class QueryColumn<T extends FilterValue> {
             operator,
             value,
         };
+    }
+
+    ascending(): OrderingJson {
+        return { column: this.name, descending: false };
+    }
+
+    descending(): OrderingJson {
+        return { column: this.name, descending: true };
     }
 
     equalTo(value: T) {

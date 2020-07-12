@@ -1,5 +1,6 @@
 import { QueryResult } from "./executeQuery";
 import { distinct, groupBy } from "./arrayHelpers";
+import moment from "moment";
 
 export type LabelMapperFunc = (key: string) => string;
 export type LabelMappingTable = { [key: string]: string };
@@ -14,10 +15,10 @@ function makeResultKey(result: { selected: unknown[] }) {
     return result.selected.join("|");
 }
 
-export function analyseRecords({ rows, totals }: QueryResult) {
-    const distinctSelected = rows[0]?.selected.map((_, i) => distinct(rows.map((r) => `${r.selected[i]}`))) ?? [];
+export function analyseRecords({ records, totals }: QueryResult) {
+    const distinctSelected = records[0]?.selected.map((_, i) => distinct(records.map((r) => `${r.selected[i]}`))) ?? [];
 
-    const lookup = groupBy(rows, (r) => makeResultKey(r));
+    const lookup = groupBy(records, (r) => makeResultKey(r));
 
     function getTotal(value: number, percentage: boolean) {
         if (percentage) {
@@ -61,7 +62,7 @@ export function analyseRecords({ rows, totals }: QueryResult) {
     }
 
     return {
-        rows,
+        rows: records,
         totals,
         distinctSelected,
         getValue,
@@ -120,4 +121,26 @@ export function decodeBitCategory(data: AnalysedRecords, legends: DataSet[], col
             backgroundColor: colours[i] 
         })),
     };
+}
+
+export function smartDates(datesOrStrings: (Date | string)[]) {
+    if (!datesOrStrings) {
+        return datesOrStrings;
+    }
+
+    const dates = datesOrStrings.map(x => moment(x));
+
+    if (!dates.every(x => x.date() === 1)) {
+        return dates.map(x => x.format("ll"))
+    }
+
+    if (!dates.every(x => x.month() % 3 === 0)) {
+        return dates.map(x => x.format("MMM YYYY"))
+    }
+
+    if (!dates.every(x => x.month() === 0)) {
+        return dates.map(x => "Q" + x.format("Q YYYY"));
+    }
+
+    return dates.map(x => x.format("YYYY"))
 }

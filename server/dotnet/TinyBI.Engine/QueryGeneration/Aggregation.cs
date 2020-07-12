@@ -114,25 +114,13 @@ where
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             FilterParameters filterParams,
-            bool totals,
             int? top = null)
         {
             var joins = new Joins("main", Column.Table);
 
-            var selects = selectColumns.Select(c => $"{joins[c.Table]}.[{c.DbName}]").ToList();
+            var selects = selectColumns?.Select(c => $"{joins[c.Table]}.[{c.DbName}]").ToList();
 
-            var unionOf = new List<string>
-            {
-                GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, top)
-            };
-
-            if (totals)
-            {
-                joins = new Joins("main", Column.Table);
-                unionOf.Add(GenerateSelect(selectColumns.Select(_ => "'_grand_total_'"), outerFilters, filterParams, null, joins));
-            }
-
-            return string.Join(" union all ", unionOf);
+            return GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, top);
         }
     }
 }

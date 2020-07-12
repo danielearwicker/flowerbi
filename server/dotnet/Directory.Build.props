@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <PackageVersion>1.0.6</PackageVersion>
+        <PackageVersion>1.0.12</PackageVersion>
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
     </PropertyGroup>

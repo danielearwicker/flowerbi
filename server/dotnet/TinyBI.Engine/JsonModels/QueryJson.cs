@@ -10,6 +10,8 @@ namespace TinyBI.Engine.JsonModels
 
         public IList<FilterJson> Filters { get; set; }
 
+        public IList<OrderingJson> OrderBy { get; set; }
+
         public bool Totals { get; set; }
     }
 }
