@@ -417,6 +417,60 @@ namespace TinyBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
+        [Fact]
+        public void DoubleAggregationMultipleSelects()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Department.DepartmentName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    },
+
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Id",
+                        Function = AggregationType.Count
+                    }
+                }
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new FilterParameters();
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+                with [Aggregation0] as (
+                    select join0.[VendorName] Select0, 
+                           join1.[DepartmentName] Select1, 
+                           Sum ( main.[Amount] ) Value0 
+                    from [TestSchema].[Invoice] main 
+                    join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId] 
+                    join [TestSchema].[Department] join1 on join1.[Id] = main.[DepartmentId] 
+                    group by join0.[VendorName] , join1.[DepartmentName] 
+                ) ,
+                [Aggregation1] as (
+                    select join0.[VendorName] Select0, 
+                           join1.[DepartmentName] Select1, 
+                           Count ( main.[Id] ) Value0 
+                    from [TestSchema].[Invoice] main 
+                    join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId] 
+                    join [TestSchema].[Department] join1 on join1.[Id] = main.[DepartmentId] 
+                    group by join0.[VendorName] , join1.[DepartmentName] 
+                )
+                select top 10 a0.Select0, a0.Select1, a0.Value0 Value0 , a1.Value0 Value1 
+                from Aggregation0 a0 
+                left join Aggregation1 a1 on 
+                    a1.Select0 = a0.Select0 and
+                    a1.Select1 = a0.Select1 
+                order by a0.Value0 desc
+            ");
+
+            filterParams.Names.Should().HaveCount(0);
+        }
+
         private void AssertSameSql(string actual, string expected)
         {
             static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();

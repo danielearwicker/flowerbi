@@ -56,6 +56,7 @@ from Aggregation0 a0
             left join Aggregation{{@index}} a{{@index}} on
             {{#each ../Select}}
                 a{{../../@index}}.Select{{@index}} = a0.Select{{@index}}
+                {{#unless @last}}and{{/unless}}
             {{/each}}
         {{/if}}
         {{#unless ../Select}}
