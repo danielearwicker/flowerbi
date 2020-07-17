@@ -34,9 +34,7 @@ select {{#if top}}top {{top}}{{/if}}
         {{this}} Select{{@index}},
     {{/each}}
 
-    {{#if Function}} {{Function}} ({{/if}}
-        main.[{{Column.DbName}}] 
-    {{#if Function}} ) {{/if}} Value0
+    {{#if Function}} {{Function}}({{/if}}main.[{{Column.DbName}}]{{#if Function}}){{/if}} Value0
 
 from [{{Column.Table.Schema.DbName}}].[{{Column.Table.DbName}}] main
 
@@ -48,7 +46,7 @@ join [{{Table.Schema.DbName}}].[{{Table.DbName}}] {{Alias}}
 {{#if Filters}}
 where
     {{#each Filters}}
-        {{Column}} {{{Operator}}} @{{Param}}
+        {{Column}} {{{Operator}}} {{Param}}
         {{#unless @last}} and {{/unless}}
     {{/each}}
 {{/if}}
@@ -62,16 +60,14 @@ where
 {{/if}}
 
 {{#if top}}
-    order by {{#if Function}} {{Function}} ({{/if}}
-        main.[{{Column.DbName}}] 
-    {{#if Function}} ) {{/if}} desc
+    order by {{#if Function}} {{Function}}({{/if}}main.[{{Column.DbName}}]{{#if Function}}){{/if}} desc
 {{/if}}
 ");
 
         private string GenerateSelect(
             IEnumerable<string> selectColumns,
             IEnumerable<Filter> outerFilters,
-            FilterParameters filterParams,
+            IFilterParameters filterParams,
             IEnumerable<IColumn> groupByColumns,
             Joins joins,
             int? top = null)
@@ -113,7 +109,7 @@ where
         public string ToSql(
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
-            FilterParameters filterParams,
+            IFilterParameters filterParams,
             int? top = null)
         {
             var joins = new Joins("main", Column.Table);

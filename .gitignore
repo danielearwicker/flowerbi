@@ -7,3 +7,5 @@ nupkg
 server/dotnet/.vs/TinyBI/xs/
 server/dotnet/.vs/TinyBI/v16/
 server/dotnet/.vs/TinyBI/DesignTimeBuild/
+client/packages/demo-site/public/_framework/
+client/packages/demo-site/build/

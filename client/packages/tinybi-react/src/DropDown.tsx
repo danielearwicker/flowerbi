@@ -31,7 +31,7 @@ export function DropDown({options, value, onChange}: DropDownProps) {
     return (
         <select value={value} onChange={onChange}> 
         { 
-            options.map(x => <option>{x}</option>)
+            options.map(x => <option key={x}>{x}</option>)
         }
         </select>
     );

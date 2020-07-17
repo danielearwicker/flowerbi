@@ -19,7 +19,7 @@ namespace TinyBI
 
         public Query(QueryJson json, Schema schema)
         {
-            Select = schema.Load(json.Select);            
+            Select = schema.Load(json.Select);
             Aggregations = json.Aggregations.Select(x => new Aggregation(x, schema)).ToList();
             Filters = Filter.Load(json.Filters, schema);
             OrderBy = Ordering.Load(json.OrderBy, schema);
@@ -68,7 +68,7 @@ from Aggregation0 a0
 order by {{ordering}}
 ");
 
-        private string ToSql(IList<IColumn> select, FilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
+        private string ToSql(IList<IColumn> select, IFilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
         {
             if (Aggregations.Count == 1 && OrderBy.Count == 0)
             {
@@ -106,7 +106,7 @@ order by {{ordering}}
             return $"a0.Select{i} {direction}";
         }
 
-        public string ToSql(FilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
+        public string ToSql(IFilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
         {
             var sql = ToSql(Select, filterParams, outerFilters, top);
 
@@ -120,7 +120,7 @@ order by {{ordering}}
         
         public QueryResult Run(IDbConnection db, int top, params Filter[] outerFilters)
         {
-            var filterParams = new FilterParameters();
+            var filterParams = new DapperFilterParameters();
 
             var sql = ToSql(filterParams, outerFilters, top);
 

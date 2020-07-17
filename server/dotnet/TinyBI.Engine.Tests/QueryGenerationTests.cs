@@ -64,7 +64,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 select top 10 main.[VendorName] Value0
                 from [TestSchema].[Vendor] main
@@ -97,7 +97,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
 
             // As filter is on PK of Vendor, can just use FK of Invoice, avoid join
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
@@ -126,7 +126,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 select top 10 join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
                 from [TestSchema].[Invoice] main
@@ -155,7 +155,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 select top 10 join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
                 from [TestSchema].[Invoice] main
@@ -192,7 +192,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
@@ -239,7 +239,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
@@ -308,7 +308,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
@@ -358,7 +358,7 @@ namespace TinyBI.Engine.Tests
                 },
                 Schema);
 
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, new[] { extra }, 10), @"
                 select top 10 join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
                 from [TestSchema].[Invoice] main
@@ -394,7 +394,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum ( main.[Amount] ) Value0
@@ -440,7 +440,7 @@ namespace TinyBI.Engine.Tests
             };
 
             var query = new Query(queryJson, Schema);
-            var filterParams = new FilterParameters();
+            var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, 

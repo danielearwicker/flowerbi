@@ -3,6 +3,6 @@
         <PackageVersion>1.0.13</PackageVersion>
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
-        <license type="expression">MIT</license>
+        <license>MIT</license>
     </PropertyGroup>
 </Project>

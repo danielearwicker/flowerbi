@@ -1,0 +1,223 @@
+html,
+body,
+#root {
+    height: 100%;
+    overflow: hidden;
+}
+
+.layout {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 1em;
+    bottom: 1em;
+}
+
+.chart-box {
+    position: absolute;
+    left: 1em;
+    top: 1em;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.layout-item {
+    position: relative;
+}
+
+.layout-padding {
+    padding: 1em 0 0 1em;
+}
+
+.chart-box > .title {
+    font-family: "Segoe UI", Helvetica, Arial, sans-serif;
+    color: #888;
+    text-align: center;
+    padding: 1em 0;
+    flex: 0 1 auto;
+}
+
+.chart-box > .chart {
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.chart-box thead,
+.chart-box tbody {
+    background: transparent;
+    color: black;
+}
+
+.chart-box th {
+    font-weight: normal;
+}
+
+.chart-box th,
+.chart-box td {
+    font-size: 0.7em;
+    text-align: left;
+    padding: 0 0.5em;
+    background: transparent;
+}
+
+.chart-box .right {
+    text-align: right;
+}
+
+.chart-box tfoot {
+    font-weight: bold;
+}
+
+.chart-box table {
+    border-collapse: collapse;
+    margin-left: auto;
+    margin-right: auto;
+    background: transparent;
+}
+
+.chart-box thead th {
+    border-bottom: 1px solid purple;
+    padding-bottom: 0.5em;
+    background: transparent;
+}
+
+.chart-box tfoot td {
+    border-top: 1px solid purple;
+    padding-top: 0.5em;
+    background: transparent;
+}
+
+.value-box {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.value-box .value {
+    font-size: 3em;
+}
+
+.value-box .title {
+    color: #666;
+}
+
+.reports-site {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.reports-site .list {
+    width: 200px;
+    background-color: #444;
+}
+
+.reports-site .list .item {
+    padding: 0.5em;
+    margin: 0.3em;
+    color: white;
+    cursor: pointer;
+}
+
+.reports-site .list .item.selected {
+    background: gray;
+}
+
+.reports-site .content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.reports-site .content .title-bar {
+    flex: 0 1 auto;
+    flex-direction: row;
+    display: flex;
+    padding: 0.3em;
+    border-bottom: 1px solid #ddd;
+}
+
+.reports-site .content .title-bar .title {
+    flex: 1 1 auto;
+}
+
+.reports-site .content .title-bar .filters-button {
+    flex: 0 1 auto;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.reports-site .content .report-with-filters {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: row;
+}
+
+.reports-site .content .report-itself {
+    flex: 1 1 auto;
+    position: relative;
+}
+
+.reports-site .content .filter-pane {
+    width: 0;
+    transition: ease-in-out 500ms;
+    transition-property: width;
+    background-color: #444;
+    color: white;
+}
+
+.reports-site .content .filter-pane * {
+    margin: 0.5em;
+    width: 174px;
+}
+
+.reports-site .content .filter-pane.visible {
+    width: 200px;
+}
+
+.button {
+    padding: 0.3em;
+    background: #5b1;
+    opacity: 0.4;
+    border-radius: 6px;
+    text-align: center;
+}
+
+.button.enabled {
+    opacity: 1;
+}
+
+.reports-site .content .filter-pane input {
+    padding: 0.3em;
+    border: none;
+    border-radius: 6px;
+    position: relative;
+    left: 2px;
+}
+
+.chart-with-dropdown {
+    display: flex;
+    flex-direction: column;
+}
+
+.chart-with-dropdown .chart-box {
+    position: relative;
+    left: 0;
+    top: 0;
+    flex: 1 0 auto;   
+}
+
+.chart-with-dropdown .dropdown {
+    text-align: right;
+    padding-top: 1em;
+}
