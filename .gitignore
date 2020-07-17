@@ -5,3 +5,5 @@ bin
 obj
 nupkg
 server/dotnet/.vs/TinyBI/xs/
+server/dotnet/.vs/TinyBI/v16/
+server/dotnet/.vs/TinyBI/DesignTimeBuild/
