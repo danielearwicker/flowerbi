@@ -10,12 +10,12 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>rm -rf ../../../../client/packages/demo-site/public/framework</command>
+          <command>rm -rf ../../../../client/packages/demo-site/public/_framework</command>
           <workingdir>${ProjectDir}</workingdir>
         </Command>
         <Command>
           <type>AfterBuild</type>
-          <command>cp -R bin/Debug/netstandard2.1/wwwroot/_framework ../../../../client/packages/demo-site/public/framework/</command>
+          <command>cp -R bin/Debug/netstandard2.1/wwwroot/_framework ../../../../client/packages/demo-site/public/_framework/</command>
           <workingdir>${ProjectDir}</workingdir>
         </Command>
       </CustomCommands>
