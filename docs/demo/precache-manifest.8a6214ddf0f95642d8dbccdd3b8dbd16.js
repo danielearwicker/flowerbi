@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "066b762bc546d7a2d1594249df2f664b",
+    "revision": "5dcf6f9fc8a1bbc06a152fad979755ec",
     "url": "/tinybi/demo/index.html"
   },
   {
