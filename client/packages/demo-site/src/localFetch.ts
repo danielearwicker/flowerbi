@@ -8,7 +8,7 @@ async function querySql(sql: string) {
 
     sql = sql.replace(/[[\]]/g, "`")
              .replace(/top\s+[\d]+/g, " ")
-             .replace(/`PowerBI`\./g, "");
+             .replace(/`BugTracking`\./g, "");
     
     const result = db.exec(sql);
     return JSON.stringify(result);

@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "5dcf6f9fc8a1bbc06a152fad979755ec",
+    "revision": "43b02f9c231cc81830fc5486bed0cee2",
     "url": "/tinybi/demo/index.html"
   },
   {
-    "revision": "198a1911a46b65348dfd",
+    "revision": "cc594896e18ee555d45f",
     "url": "/tinybi/demo/static/css/main.4b3c7b7a.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/tinybi/demo/static/js/2.f373ff14.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "198a1911a46b65348dfd",
-    "url": "/tinybi/demo/static/js/main.ccbb1996.chunk.js"
+    "revision": "cc594896e18ee555d45f",
+    "url": "/tinybi/demo/static/js/main.d383fcdd.chunk.js"
   },
   {
     "revision": "5c85ee6dbeb380e076d3",

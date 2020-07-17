@@ -37,7 +37,7 @@
       "Microsoft.AspNetCore.Components.dll": "sha256-jqp6xS5jDFDsISGorhiYZQ2if3hAiols6d4C5BNnMQ4=",
       "System.Buffers.dll": "sha256-ZxXy75PYbzJxNfAc\/SAP1nUYm4gt1jSaOpFnBb9m85M=",
       "Microsoft.Extensions.Logging.Abstractions.dll": "sha256-45ia6XmGIa5WI3cHUIE9KhVornlZleYW+B5FPpfD1wQ=",
-      "TinyBI.DemoSchema.dll": "sha256-fO62t+FTaxR017E0+NRSt8vXO6\/H+MMmDrsquJe7tqs=",
+      "TinyBI.DemoSchema.dll": "sha256-k0wjHfpwCNIj8G9jrgIIdEGZVc3N4ycfIBgAVTKp2KE=",
       "TinyBI.Engine.dll": "sha256-kF7NNgmTtXNdrM\/\/x\/3vyXrCi5EUD5keraieX3VU2\/I=",
       "Handlebars.dll": "sha256-7\/PMFnoR8RDaZS+y9ToqIjPgoFELvmVLbbHz3hYH3sI=",
       "Microsoft.CSharp.dll": "sha256-ubyINHXDmWOAugBDEb8CCz+uV68eordXiYDxpUeRBvg=",
@@ -67,7 +67,7 @@
     },
     "pdb": {
       "TinyBI.WasmHost.pdb": "sha256-HUN2nqcBcjLatzVzNKUGZq1JKkb3gAicg8Off1xv0GE=",
-      "TinyBI.DemoSchema.pdb": "sha256-B1PEY+kWNj5jiQRG6f9l4SJQdMurGmWGoxz4akrMepc=",
+      "TinyBI.DemoSchema.pdb": "sha256-p\/E126QJoUtfclJEwHWpWAmp89DSYZdaJsqL7tauiaU=",
       "TinyBI.Engine.pdb": "sha256-bGLL1pTg46y8A+0CCUCBTDAIecSWxSQZ06Xt2hEBHiA="
     },
     "runtime": {
