@@ -9,9 +9,8 @@ async function querySql(sql: string) {
     sql = sql.replace(/[[\]]/g, "`")
              .replace(/top\s+[\d]+/g, " ")
              .replace(/`BugTracking`\./g, "");
-    
-    const result = db.exec(sql);
-    return JSON.stringify(result);
+
+    return JSON.stringify(db.exec(sql));
 }
 
 (window as any).querySql = querySql;

@@ -40,8 +40,8 @@ function formatDate(d: Date) {
 }
 
 function startOfQuarter(d: Date) {
-    const m = Math.floor(d.getMonth() / 4) * 4;
-    return formatDate(new Date(d.getFullYear(), m, d.getDate()));
+    const m = Math.floor(d.getMonth() / 3) * 3;
+    return formatDate(new Date(d.getFullYear(), m, 1));
 }
 
 function startOfMonth(d: Date) {    

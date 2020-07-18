@@ -42,7 +42,6 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
             <Bar 
                 ref={chart}
                 options={{ 
-                    maintainAspectRatio: false,
                     scales: {
                         xAxes: [ { stacked: true } ],
                         yAxes: [ { stacked: true, ticks: { beginAtZero: true } } ]
