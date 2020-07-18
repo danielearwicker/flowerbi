@@ -15,7 +15,7 @@ function makeResultKey(result: { selected: unknown[] }) {
     return result.selected.join("|");
 }
 
-export function analyseRecords({ records, totals }: QueryResult) {
+function analyseRecordsImpl({ records, totals }: QueryResult) {
     const distinctSelected = records[0]?.selected.map((_, i) => distinct(records.map((r) => `${r.selected[i]}`))) ?? [];
 
     const lookup = groupBy(records, (r) => makeResultKey(r));
@@ -62,7 +62,8 @@ export function analyseRecords({ records, totals }: QueryResult) {
     }
 
     return {
-        rows: records,
+        loaded: true,
+        records,
         totals,
         distinctSelected,
         getValue,
@@ -72,14 +73,34 @@ export function analyseRecords({ records, totals }: QueryResult) {
     };
 }
 
-export type AnalysedRecords = ReturnType<typeof analyseRecords>;
+export interface AnalysedRecords extends ReturnType<typeof analyseRecordsImpl> {}
+
+export const initialAnalysedRecords: AnalysedRecords = {
+    loaded: false,
+    records: [],
+    distinctSelected: [],
+    totals: undefined,
+    getValue() { return 0; },
+    getTotal() { return 0; },
+    datasetFromValue() { 
+        return { label: "", data: [], backgroundColor: [] }
+    },
+    datasetPerLegend() { return []; }
+}
+
+export const analyseRecords: (args: QueryResult) => AnalysedRecords = analyseRecordsImpl;
 
 export interface DataSet {
     data?: unknown[];
     label?: string;
 }
 
-export function decodeBitCategory(data: AnalysedRecords, legends: DataSet[], colours: string[], bits: string[]) {
+export function decodeBitCategory(
+    data: AnalysedRecords, 
+    legends: DataSet[], 
+    colours: string[], 
+    bits: string[]
+) {
     const bitCombinations = data.distinctSelected[0]?.map((c) => parseInt(c, 10)) ?? [];
 
     const totals = bits.map((_) => 0);

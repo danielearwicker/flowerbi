@@ -208,13 +208,14 @@ body,
 .chart-with-dropdown {
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 
-.chart-with-dropdown .chart-box {
+.chart-with-dropdown .content {
     position: relative;
     left: 0;
     top: 0;
-    flex: 1 0 auto;   
+    flex: 1 0 auto;
 }
 
 .chart-with-dropdown .dropdown {

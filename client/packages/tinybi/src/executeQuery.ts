@@ -1,4 +1,5 @@
 import { QueryJson, Query } from "./queryModel";
+import { analyseRecords } from "./analyseRecords";
 
 export interface QueryRecord {
     selected: unknown[];
@@ -25,5 +26,5 @@ export function jsonifyQuery(query: Query): QueryJson {
 
 }
 export async function executeQuery(fetch: QueryFetch, query: QueryJson) {
-    return fetch(JSON.stringify(query));
+    return analyseRecords(await fetch(JSON.stringify(query)));
 }

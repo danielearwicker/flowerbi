@@ -1,1 +1,2 @@
-export * from "./TinyBIChart";
+export * from "./makeClickHandler";
+export * from "./makeToolTips";

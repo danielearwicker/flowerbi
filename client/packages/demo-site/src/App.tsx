@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
-import { Performance, VisualProps } from "./Reports/BugTracking";
+import { BugReporting } from "./Reports/BugReporting";
+import { VisualProps } from "./Reports/VisualProps";
 import { usePageFilters } from "tinybi-react";
 import { useFilterPane, FilterPane } from "./FilterPane";
 import Chart from "chart.js";
@@ -11,8 +12,10 @@ if (Chart.defaults.global.legend && Chart.defaults.global.legend.labels) {
     Chart.defaults.global.legend.labels.usePointStyle = true;
 }
 
+Chart.defaults.global.maintainAspectRatio = false;
+
 const reports = {
-    "Bug Tracking": (f: VisualProps) => <Performance {...f} />,    
+    "Bug Tracking": (f: VisualProps) => <BugReporting {...f} />,    
 }
 
 type ReportName = keyof typeof reports;
