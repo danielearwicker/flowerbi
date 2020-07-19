@@ -1,5 +1,5 @@
 import React from "react";
-import { CategoryData, CategoryDataRow, CategoryDataTotal, AnalysedRecords } from "tinybi";
+import { QueryValues, QueryValuesRow, QueryValuesTotal, ExpandedQueryResult, QuerySelect } from "tinybi";
 
 export type ColumnDefinition = string | [string, "left" | "right"];
 
@@ -14,31 +14,14 @@ function renderCell(key: string, def: ColumnDefinition) {
     );
 }
 
-/* 
-import { PageFilters, applyPageFilters } from "./usePageFilters";
-import { useQuery } from ".";
-import { RequireIdOrTitle, getIdAndTitle } from "./propsHelpers";
-
-export type TinyBITableProps = RequireIdOrTitle<{
-    fetch: QueryFetch;
-    query: Query;
+export type TinyBITableProps<S extends QuerySelect> = {
+    data: ExpandedQueryResult<S>;
     columns: {
-        [label: string]: (data: CategoryData) => ColumnDefinition;
-    },
-    pageFilters?: PageFilters;
-}>;
-
-export function TinyBITable({fetch, query, columns, pageFilters, ...rest}: TinyBITableProps) { 
-*/
-
-export type TinyBITableProps = {
-    data: AnalysedRecords;
-    columns: {
-        [label: string]: (data: CategoryData) => ColumnDefinition;
+        [label: string]: (record: QueryValues<S>) => ColumnDefinition;
     }
 };
 
-export function TinyBITable({data, columns}: TinyBITableProps) {
+export function TinyBITable<S extends QuerySelect>({data, columns}: TinyBITableProps<S>) {
     return (
         <table>
             <thead>
@@ -49,15 +32,23 @@ export function TinyBITable({data, columns}: TinyBITableProps) {
                 </tr>
             </thead>
             <tbody>
-                {data.records.map((record) => (
-                    <tr key={record.selected.join("|")}>
-                        {Object.keys(columns).map((column) => renderCell(column, columns[column](new CategoryDataRow(data, record.selected))))}
+                {data.records.map((record, i) => (
+                    <tr key={JSON.stringify(record.selected) ?? i}>
+                    { 
+                        Object.keys(columns).map((column) => renderCell(
+                            column, columns[column](new QueryValuesRow(record, data.totals)))) 
+                    }
                     </tr>
                 ))}
             </tbody>
             {data.totals && (
                 <tfoot>
-                    <tr>{Object.keys(columns).map((column) => renderCell(column, columns[column](new CategoryDataTotal(data))))}</tr>
+                    <tr>
+                    {
+                        Object.keys(columns).map((column) => renderCell(
+                            column, columns[column](new QueryValuesTotal(data.totals!))))
+                    }
+                    </tr>
                 </tfoot>
             )}
         </table>

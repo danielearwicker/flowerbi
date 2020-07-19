@@ -10,25 +10,29 @@ export interface RecoverySummaryProps extends VisualProps {
 
 export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: RecoverySummaryProps) {
 
-    const query = {
-        select: [Workflow.WorkflowState],
-        aggregations: [Bug.Id.count()],
+    const data = useQuery(fetch, {
+        select: {
+            state: Workflow.WorkflowState,
+            bugCount: Bug.Id.count(),
+            resolvedBugCount: Bug.Id.count([
+                Workflow.Resolved.equalTo(true)
+            ])
+        },
         filters: [
-            Workflow.FixedByCustomer.equalTo(fixedByCustomer),                    
+            Workflow.FixedByCustomer.equalTo(fixedByCustomer),
+            ...pageFilters.getFilters(""),
         ],
         totals: true
-    };
-
-    const data = useQuery(fetch, query, pageFilters);
+    });
 
     return (
         <TinyBIChartBox title={title}>
             <TinyBITable
                 data={data}
                 columns={{
-                    State: (d) => `${d.keys[0]}`,                
-                    Count: (d) => [`${d.value(0)}`, "right"],
-                    "% of Count": (d) => [`${d.share(0)}%`, "right"],
+                    State: (d) => d.values.state ?? "Total",
+                    Count: (d) => [`${d.values.bugCount}`, "right"],
+                    "% of Count": (d) => [`${d.percentage("resolvedBugCount")}%`, "right"],
                 }} 
             />
         </TinyBIChartBox>

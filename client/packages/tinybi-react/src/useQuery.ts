@@ -1,18 +1,12 @@
 import { useState, useEffect } from "react";
-import { Query, executeQuery, QueryFetch, jsonifyQuery, AnalysedRecords, initialAnalysedRecords } from "tinybi";
+import { Query, executeQuery, QueryFetch, jsonifyQuery, QueryResult, QuerySelect, expandQueryResult } from "tinybi";
 import stableStringify from "json-stable-stringify";
-import { PageFilters } from "./usePageFilters";
 
-export function useQuery(fetch: QueryFetch, query: Query, pageFilters?: PageFilters, interactionKey?: string) {
-
-    query = !pageFilters ? query : {
-        ...query, 
-        filters: (query.filters ?? []).concat(pageFilters.getFilters(interactionKey ?? "")) 
-    };
+export function useQuery<S extends QuerySelect>(fetch: QueryFetch, query: Query<S>) {
 
     const queryJson = jsonifyQuery(query);
 
-    const [result, setResult] = useState<AnalysedRecords>(initialAnalysedRecords);
+    const [result, setResult] = useState<QueryResult>({ records: [] });
 
     const queryJsonStr = stableStringify(queryJson);
 
@@ -20,5 +14,5 @@ export function useQuery(fetch: QueryFetch, query: Query, pageFilters?: PageFilt
         executeQuery(fetch, queryJson).then(setResult);
     }, [queryJsonStr]);
 
-    return result;
+    return expandQueryResult(query.select, result);
 }

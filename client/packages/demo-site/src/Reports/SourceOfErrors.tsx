@@ -11,13 +11,21 @@ const id = "SourceOfErrors";
 export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
 
     const query = {
-        select: [Workflow.SourceOfError],
-        aggregations: [Bug.Id.count()],
-        filters: [Workflow.Resolved.equalTo(true)],
+        select: {
+            sourceOfError: Workflow.SourceOfError,
+            bugCount: Bug.Id.count()
+        },
+        filters: [
+            Workflow.Resolved.equalTo(true),
+            ...pageFilters.getFilters(id)
+        ],
     };
 
+    console.log(pageFilters.getFilters(id));
+
+    const result = useQuery(fetch, query);
+
     const ref = useRef<Pie>(null);
-    const result = useQuery(fetch, query, pageFilters, id);
     const clickHandler = makeClickHandler(id, ref, query.select, pageFilters);
     
     return (
@@ -26,8 +34,12 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
                 ref={ref}
                 options={{ ...clickHandler }} 
                 data={{
-                    labels: result.distinctSelected[0],
-                    datasets: [result.datasetFromValue(0, "Count", false, dataColours)],
+                    labels: result.records.map(x => x.sourceOfError),
+                    datasets: [{
+                        label: "Count",
+                        backgroundColor: dataColours,
+                        data: result.records.map(x => x.bugCount)
+                    }]
                 }}
             />
         </TinyBIChartBox>

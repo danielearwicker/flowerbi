@@ -1,94 +1,80 @@
-export type AggregationType = "none" | "count" | "sum";
+import { keysOf } from "./arrayHelpers";
+import { QueryColumn } from "./QueryColumn";
+import { AggregationJson, QueryJson } from "./QueryJson";
 
-export interface AggregationJson {
-    function: AggregationType;
-    column: string;
-    filters?: FilterJson[];
+// Queries can select plain columns, or aggregation functions on columns
+export type SelectMember = QueryColumn<any> | AggregationJson;
+
+// Each such member is given a name
+export type QuerySelect = Record<string, SelectMember>;
+
+// The data type of a column can be extracted from it
+export type QueryColumnType<T> = T extends QueryColumn<infer C> ? C : never;
+
+// The same names are used in the output, with the data type of plain columns, or number for aggregations
+export type ExpandedQueryRecord<S extends QuerySelect> = { 
+    [P in keyof S]: S[P] extends QueryColumn<any> ? QueryColumnType<S[P]> : number;
+};
+
+export type ExpandedQueryRecordWithOptionalColumns<S extends QuerySelect> = { 
+    [P in keyof S]: S[P] extends QueryColumn<any> ? (QueryColumnType<S[P]> | undefined) : number;
+};
+
+export type AggregatePropsOnlyHelper<T extends QuerySelect> = {
+    [K in keyof T]: T[K] extends QueryColumn<any> ? never : K;
+};
+
+// The names of properties from T that refer to aggregate values
+export type AggregatePropsOnly<T extends QuerySelect> = AggregatePropsOnlyHelper<T>[keyof AggregatePropsOnlyHelper<T>];
+
+export function getAggregatePropsOnly<T extends QuerySelect>(select: T) {
+    const keys = keysOf(select).filter(x => !(select[x] instanceof QueryColumn))
+    return keys as AggregatePropsOnly<T>[];
 }
 
-export interface OrderingJson {
-    column: string;
-    descending?: boolean;
+// A record including only the properties from T that refer to aggregate values
+export type AggregatesOnly<T extends QuerySelect> = {
+    [K in AggregatePropsOnly<T>]: T[K]
+};
+
+// A record including only the aggregate values from T
+export type AggregateValuesOnly<T extends QuerySelect> = {
+    [K in AggregatePropsOnly<T>]: number;
+};
+
+export type ColumnPropsOnlyHelper<T extends QuerySelect> = {
+    [K in keyof T]: T[K] extends QueryColumn<any> ? K : never;
+};
+
+// The names of properties from T that refer to plain columns
+export type ColumnPropsOnly<T extends QuerySelect> = ColumnPropsOnlyHelper<T>[keyof ColumnPropsOnlyHelper<T>];
+
+export function getColumnPropsOnly<T extends QuerySelect>(select: T) {
+    const keys = keysOf(select).filter(x => select[x] instanceof QueryColumn)
+    return keys as ColumnPropsOnly<T>[];
 }
 
-export interface QueryJson {
-    select?: string[];
-    aggregations: AggregationJson[];
-    filters?: FilterJson[];
-    orderBy?: OrderingJson[];
-    totals?: boolean;
+// A record including only the properties from T that refer to plain columns
+export type ColumnsOnly<T extends QuerySelect> = {
+    [K in ColumnPropsOnly<T>]: T[K]
+};
+
+export function getColumnsOnly(select: QuerySelect) {
+    return keysOf(select)
+        .map(k => select[k])
+        .filter(x => x instanceof QueryColumn)
+        .map(x => (x as QueryColumn<any>));
 }
 
-export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=";
+// A record including only the aggregate values from T
+export type ColumnValuesOnly<T extends QuerySelect> = {
+    [K in ColumnPropsOnly<T>]: QueryColumnType<T[K]>;
+};
 
-export type FilterValue = string | number | boolean | Date | unknown;
-
-export interface FilterJson {
-    column: string;
-    operator: FilterOperator;
-    value: FilterValue;
-}
-
-export interface Query extends Omit<QueryJson, "select"> {
-    select?: QueryColumn<unknown>[];
-}
-
-export class QueryColumn<T extends FilterValue> {
-    constructor(public readonly name: string) {}
-
-    private aggregation(aggregationType: AggregationType, filters?: FilterJson[]): AggregationJson {
-        return {
-            column: this.name,
-            function: aggregationType,
-            filters,
-        };
-    }
-
-    count(filters?: FilterJson[]) {
-        return this.aggregation("count", filters);
-    }
-
-    sum(filters?: FilterJson[]) {
-        return this.aggregation("sum", filters);
-    }
-
-    private filter(operator: FilterOperator, value: T): FilterJson {
-        return {
-            column: this.name,
-            operator,
-            value,
-        };
-    }
-
-    ascending(): OrderingJson {
-        return { column: this.name, descending: false };
-    }
-
-    descending(): OrderingJson {
-        return { column: this.name, descending: true };
-    }
-
-    equalTo(value: T) {
-        return this.filter("=", value);
-    }
-
-    notEqualTo(value: T) {
-        return this.filter("<>", value);
-    }
-
-    greaterThan(value: T) {
-        return this.filter(">", value);
-    }
-
-    lessThan(value: T) {
-        return this.filter("<", value);
-    }
-
-    greaterThanOrEqualTo(value: T) {
-        return this.filter(">=", value);
-    }
-
-    lessThanOrEqualTo(value: T) {
-        return this.filter("<=", value);
-    }
+/**
+ * Strongly-typed query definition: use jsonifyQuery to convert to the JSON format 
+ * and expandQueryResult to generate corresponding output records.
+ */
+export interface Query<S extends QuerySelect> extends Omit<QueryJson, "select"|"aggregations"> {
+    select: S;
 }

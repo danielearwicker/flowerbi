@@ -8,8 +8,6 @@ export interface TinyBIValueBoxProps {
     label?: string;    
 }
 
-// result.records[0]?.aggregated?.[0]
-
 export function TinyBIValueBox({ id, value, title, label }: TinyBIValueBoxProps) {    
     return (
         <TinyBIChartBox id={id} title={title}>

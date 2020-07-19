@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { QueryColumn, smartDates, Query } from "tinybi";
+import { QueryColumn, smartDates } from "tinybi";
 import { useDropDown, DropDown, useQuery, TinyBIChartBox } from "tinybi-react";
 import { Bug, Workflow, DateReported } from "../demoSchema";
 import { dataColours } from "./dataColours";
@@ -18,42 +18,60 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
 
     const id = "BugsOverTime";
 
-    const dateGrouping = useDropDown<QueryColumn<unknown>>(dateGroupings);
+    const dateGrouping = useDropDown<QueryColumn<Date|number>>(dateGroupings);
 
-    const query: Query = {
-        select: [dateGrouping.selected],
-        aggregations: [
-            Bug.Id.count(),
-            Bug.Id.count([Workflow.SourceOfError.equalTo("Hackers")]),
+    const query = {
+        select: {
+            period: dateGrouping.selected,        
+            countAllCauses: Bug.Id.count(),
+            countHackers: Bug.Id.count([
+                Workflow.SourceOfError.equalTo("Hackers")
+            ]),
+        },
+        filters: [
+            Workflow.Resolved.equalTo(true),
+            ...pageFilters.getFilters(id)
         ],
-        orderBy: [dateGrouping.selected.ascending()],
-        filters: [Workflow.Resolved.equalTo(true)]
+        orderBy: [dateGrouping.selected.ascending()],        
     };
 
+    const result = useQuery(fetch, query);
+
+    const datedRecords = smartDates(result.records, r => r.period, (dateLabel, record) => ({
+        dateLabel,
+        countAllCauses: 0,
+        countHackers: 0,
+        ...record 
+    }));
+
     const ref = useRef<Bar>(null);
-    const result = useQuery(fetch, query, pageFilters, id);
+
     const clickHandler = makeClickHandler(id, ref, query.select!, pageFilters);
     
-    const hackers = result.datasetFromValue(1, "Hackers", false, "transparent");
-    const allCauses = result.datasetFromValue(0, "All Causes", false, dataColours[0]);
-
-    const hackersLine: ChartDataSets = {
-        ...hackers,
+    const hackers: ChartDataSets = {
         type: "line",
-        borderColor: dataColours[1],
+        data: datedRecords.map(r => r.countHackers ?? 0),
+        label: "Hackers",
+        backgroundColor: "transparent",
         lineTension: 0,
-        data: hackers.data.map(x => Math.abs(x))
+        borderColor: dataColours[1],
+    };
+    
+    const allCauses: ChartDataSets = {
+        data: datedRecords.map(r => r.countAllCauses),
+        label: "All Causes",
+        backgroundColor: dataColours[0]
     };
     
     const data: ChartData = {
-        labels: smartDates(result.distinctSelected[0]),
-        datasets: [ hackersLine, allCauses],
+        labels: datedRecords.map(x => x.dateLabel),
+        datasets: [hackers, allCauses],
     };
 
     const options: ChartOptions = {
         ...clickHandler,
         scales: {
-            yAxes: [ { ticks: { beginAtZero: true } } ]
+            yAxes: [{ ticks: { beginAtZero: true } }]
         }
     };
 

@@ -1,14 +1,14 @@
 import { jsonDateParser } from "json-date-parser";
 import { getDb } from "./database";
-import { QueryResult } from "tinybi";
+import { QueryResult, QuerySelectValue } from "tinybi";
 
 async function querySql(sql: string) {
     
     const db = await getDb();
 
-    sql = sql.replace(/[[\]]/g, "`")
+    sql = sql.replace(/[[\]]/g, "")
              .replace(/top\s+[\d]+/g, " ")
-             .replace(/`BugTracking`\./g, "");
+             .replace(/BugTracking\./g, "");
 
     return JSON.stringify(db.exec(sql));
 }
@@ -29,8 +29,13 @@ export async function localFetch(queryJson: string): Promise<QueryResult> {
         return { records: [] };
     }
 
+    if (!parsed[0]) {
+        console.error(parsed);
+        return { records: [] };
+    }
+
     const columns = parsed[0].columns;
-    const values = parsed[0].values as unknown[][];
+    const values = parsed[0].values as QuerySelectValue[][];
     const firstValueIndex = columns.indexOf("Value0");
     const endOfSelects = firstValueIndex === -1 ? columns.length : firstValueIndex;
 

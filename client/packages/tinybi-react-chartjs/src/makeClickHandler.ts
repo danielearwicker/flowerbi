@@ -1,7 +1,7 @@
 import { RefObject } from "react";
 import ChartComponent from "react-chartjs-2";
 import Chart, { ChartOptions } from "chart.js";
-import { FilterJson, QueryColumn } from "tinybi";
+import { FilterJson, QuerySelect, getColumnsOnly } from "tinybi";
 import { PageFilters } from "tinybi-react";
 
 function getEventData(evt: MouseEvent | undefined, chart: Chart | null | undefined) {
@@ -26,12 +26,12 @@ export type ClickedFilterHandler = (keys: any[]) => FilterJson[];
 export function makeClickHandler(
     id: string,
     chartRef: RefObject<ChartComponent<any>>,
-    funcOrColumns: ClickedFilterHandler | QueryColumn<any>[], 
+    funcOrColumns: ClickedFilterHandler | QuerySelect, 
     pageFilters?: PageFilters,
 ): ChartOptions {
 
     const func: ClickedFilterHandler = typeof funcOrColumns === "function" ? funcOrColumns :
-        keys => funcOrColumns.map((c, i) => c.equalTo(keys[i]));
+        keys => getColumnsOnly(funcOrColumns).map((c, i) => c.equalTo(keys[i]));
 
     return {
         onClick(evt) {

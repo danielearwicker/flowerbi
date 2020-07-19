@@ -100,7 +100,7 @@ function setupDb(db: Database) {
                     for (const e of [0, 1]) {
                         for (const f of [0, 1]) {
                             categoryCombinations.push(`
-                                (${categoryCombinations.length + 1}, ${a}, ${b}, ${c}, ${d}, ${e}, ${f})`);
+                                (${categoryCombinations.length}, ${a}, ${b}, ${c}, ${d}, ${e}, ${f})`);
                         }
                     }
                 }
@@ -189,12 +189,12 @@ function setupDb(db: Database) {
 
         create table \`CategoryCombination\` (
             Id int,
-            Crashed bit,
-            DataLoss bit,
-            SecurityBreach bit,
-            OffByOne bit,
+            StackOverflow bit,
             Slow bit,
-            StackOverflow bit
+            OffByOne bit,
+            SecurityBreach bit,
+            DataLoss bit,
+            Crashed bit
         );
 
         insert into \`CategoryCombination\` values ${categoryCombinationsRows};
