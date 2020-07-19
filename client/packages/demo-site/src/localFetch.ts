@@ -10,7 +10,11 @@ async function querySql(sql: string) {
              .replace(/top\s+[\d]+/g, " ")
              .replace(/BugTracking\./g, "");
 
-    return JSON.stringify(db.exec(sql));
+    const started = new Date();
+    const result = JSON.stringify(db.exec(sql));
+    const finished = new Date();
+    console.log(`SQL query took ${finished.getTime() - started.getTime()} ms`);
+    return result;
 }
 
 (window as any).querySql = querySql;
@@ -21,7 +25,11 @@ export async function localFetch(queryJson: string): Promise<QueryResult> {
 
     await blazorReady;
 
+    const started = new Date();    
     const json = await DotNet.invokeMethodAsync("TinyBI.WasmHost", "Query", queryJson) as string;
+    const finished = new Date();
+    console.log(`Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`);
+
     const parsed = JSON.parse(json, jsonDateParser);
 
     if (parsed.stackTrace) {

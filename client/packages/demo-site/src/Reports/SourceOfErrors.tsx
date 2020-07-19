@@ -21,8 +21,6 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
         ],
     };
 
-    console.log(pageFilters.getFilters(id));
-
     const result = useQuery(fetch, query);
 
     const ref = useRef<Pie>(null);
