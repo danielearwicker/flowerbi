@@ -11,7 +11,7 @@ namespace TinyBI
 
     public class DictionaryFilterParameters : IFilterParameters
     {
-        private readonly Dictionary<Filter, string> _names = new Dictionary<Filter, string>();
+        public Dictionary<Filter, string> Names { get; } = new Dictionary<Filter, string>();
 
         public Dictionary<string, object> Values { get; } = new Dictionary<string, object>();
 
@@ -19,9 +19,9 @@ namespace TinyBI
         {
             get
             {
-                if (!_names.TryGetValue(filter, out var name))
+                if (!Names.TryGetValue(filter, out var name))
                 {
-                    _names[filter] = name = $":filter{_names.Count}";
+                    Names[filter] = name = $"@filter{Names.Count}";
                     Values.Add(name, filter.Value);
                 }
 

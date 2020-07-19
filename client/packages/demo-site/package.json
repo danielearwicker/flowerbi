@@ -1,6 +1,6 @@
 {
     "name": "tinybi-nxg-demo",
-    "version": "0.1.0",
+    "version": "1.0.35",
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^4.2.4",
@@ -21,7 +21,7 @@
         "react-chartjs-2": "^2.9.0",
         "react-dom": "^16.13.1",
         "react-scripts": "3.4.1",
-        "tinybi-react-chartjs": "1.0.34",
+        "tinybi-react-chartjs": "1.0.35",
         "typescript": "~3.7.2"
     },
     "scripts": {
