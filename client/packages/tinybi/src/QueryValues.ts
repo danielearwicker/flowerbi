@@ -6,7 +6,16 @@ import {
     ExpandedQueryRecordWithOptionalColumns 
 } from "./queryModel";
 
+/**
+ * An abstract interface representing either a row from a dataset or
+ * the {@link ExpandedQueryResult.totals} row, so that generic code can 
+ * format either of them in a consistent way.
+ */
 export interface QueryValues<S extends QuerySelect> {
+    /**
+     * The plain values of columns, which may be `undefined` if this
+     * refers to the {@link ExpandedQueryResult.totals} record.
+     */
     values: ExpandedQueryRecordWithOptionalColumns<S>;
     percentage<K extends AggregatePropsOnly<S>>(key: K): number;
 }

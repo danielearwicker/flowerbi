@@ -22,7 +22,20 @@ export class SemVer {
         return 0;
     }
 
-    increasePatch() {
-        return new SemVer(this.parts.slice(0, 2).concat(this.parts[2] + 1));
+    increase(part) {
+        if (typeof part === "string") {
+            part = part === "major" ? 0 :
+                   part === "minor" ? 1 :
+                   part === "patch" ? 2 : part;
+        }
+
+        if (typeof part !== "number" || part > 2 || part < 0) {
+            throw new Error("SemVer.patch accepts: major | minor | patch");
+        }
+
+        return new SemVer(this.parts.map((v, p) =>
+            p < part ? v :
+            p > part ? 0 :
+            v + 1));            
     }
 }

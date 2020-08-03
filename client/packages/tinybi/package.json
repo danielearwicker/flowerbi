@@ -1,20 +1,24 @@
 {
     "name": "tinybi",
-    "version": "1.0.35",
+    "version": "1.2.0",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "TinyBI: ultra-minimal BI analytics query and UI tools",
     "main": "./dist/index.js",
     "types": "./dist/index.d.ts",
+    "devDependencies": {
+        "typedoc": "^0.17.8"
+    },
     "dependencies": {
         "@types/json-stable-stringify": "^1.0.32",
         "json-stable-stringify": "^1.0.1",
         "prettier": "^2.0.5",
-        "typescript": "~3.7.2"
+        "typescript": "~3.8.3"
     },
     "scripts": {
         "build": "tsc",
         "watch": "tsc -w",
-        "prepare": "npm run build"
+        "prepare": "npm run build",
+        "docs": "typedoc --mode file --excludePrivate --readme home.md --out ../../../docs/typedoc/tinybi src"
     }
 }

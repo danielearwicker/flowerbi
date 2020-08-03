@@ -1,6 +1,6 @@
 {
     "name": "tinybi-nxg-demo",
-    "version": "1.0.35",
+    "version": "1.2.0",
     "private": true,
     "dependencies": {
         "@testing-library/jest-dom": "^4.2.4",
@@ -21,15 +21,16 @@
         "react-chartjs-2": "^2.9.0",
         "react-dom": "^16.13.1",
         "react-scripts": "3.4.1",
-        "tinybi-react-chartjs": "1.0.35",
-        "typescript": "~3.7.2"
+        "tinybi-react-chartjs": "1.2.0",
+        "tinybi-react-utils": "1.2.0",
+        "typescript": "~3.8.3"
     },
     "scripts": {
         "start": "react-scripts start",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "build-docs": "export PUBLIC_URL=/tinybi/demo && yarn build && (rm -rf ../../../docs/demo ; cp -R build/ ../../../docs/demo/)"
+        "docs": "export PUBLIC_URL=/tinybi/demo && yarn build && (rm -rf ../../../docs/demo ; cp -R build/ ../../../docs/demo/)"
     },
     "eslintConfig": {
         "extends": "react-app"

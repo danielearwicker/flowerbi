@@ -9,7 +9,7 @@ const oldConfig = fs.readFileSync(propsPath, "utf8");
 
 const parts = oldConfig.split(pattern);
 
-const newVersion = new SemVer(parts[1]).increasePatch();
+const newVersion = new SemVer(parts[1]).increase("minor");
 
 const newConfig = [parts[0], "<PackageVersion>", newVersion, "</PackageVersion>", parts[2]].join("");
 

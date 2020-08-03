@@ -1,0 +1,27 @@
+{
+    "name": "tinybi-react-utils",
+    "version": "1.2.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "React helpers useful in TinyBI apps (but not actually dependent on it",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "@types/react": "^16.9.0"
+    },
+    "devDependencies": {
+        "prettier": "^2.0.5",
+        "react": "^16.13.1",
+        "typescript": "~3.8.3",
+        "typedoc": "^0.17.8"
+    },
+    "peerDependencies": {
+        "react": "^16.13.1"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "prepare": "npm run build",
+        "docs": "typedoc --mode file --out ../../../docs/typedoc/tinybi-react-utils src"
+    }
+}

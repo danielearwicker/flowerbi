@@ -19,7 +19,7 @@ function writePackage(name, json) {
 const versions = packages.map(readPackage).map(x => new SemVer(x.version));
 versions.sort((a, b) => a.compare(b));
 
-const newVersion = versions[versions.length - 1].increasePatch().toString();
+const newVersion = versions[versions.length - 1].increase("minor").toString();
 
 console.log(`New version is ${newVersion}`);
 

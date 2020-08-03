@@ -2,23 +2,59 @@ import { Query, QuerySelect, ExpandedQueryRecord, AggregateValuesOnly, getAggreg
 import { QueryJson, AggregationJson } from "./QueryJson";
 import { QueryColumn } from "./QueryColumn";
 
+/**
+ * The allowed data types for plain columns.
+ */
 export type QuerySelectValue = number|string|Date|boolean;
 
-export interface QueryRecord {
+/**
+ * The JSON format of a record returned from the API when executing a query.
+ */
+export interface QueryRecordJson {
+    /**
+     * The plain column values.
+     */
     selected: QuerySelectValue[];
+    /**
+     * The aggregated column values.
+     */
     aggregated: number[];
 }
 
-export interface QueryResult {
-    records: QueryRecord[];
+/**
+ * The JSON format of the whole payload returned from the API when 
+ * executing a query.
+ */
+export interface QueryResultJson {
+    /**
+     * The records of the query result.
+     */
+    records: QueryRecordJson[];
 
-    // Optional extra row with actual totals, not necessarily
-    // same as summing the returned rows (which may be truncated)
-    totals?: QueryRecord;
+    /**
+     * Optional extra record, only available if {@link QueryJson.totals}
+     * was specified as `true` in the query, containing the aggregation
+     * totals.
+     */
+    totals?: QueryRecordJson;
 }
 
-export type QueryFetch = (queryJson: string) => Promise<QueryResult>;
+/**
+ * The function you need to implement to pass {@link QueryJson} payloads to
+ * your API and get them executed. This will typically be a wrapper around
+ * the `fetch` browser API, or something more high-level, and can make use
+ * of whatever authentication method you prefer.
+ * 
+ * Note that the query will already have been converted to a JSON string,
+ * but will conform to {@link QueryJson} if parsed.
+ */
+export type QueryFetch = (queryJson: string) => Promise<QueryResultJson>;
 
+/**
+ * Converts a statically-typed {@link Query} into the {@link QueryJson}
+ * format, ready to be sent to your API.
+ * @param query 
+ */
 export function jsonifyQuery<S extends QuerySelect>(query: Query<S>): QueryJson {
     const { select, ...others } = query;
 
@@ -29,9 +65,16 @@ export function jsonifyQuery<S extends QuerySelect>(query: Query<S>): QueryJson 
     };
 }
 
+/**
+ * Converts the `QueryRecordJson` for a single record into a strongly-typed record
+ * with named properties, using the {@link Query.select} from the query to perform
+ * the necessary mapping.
+ * @param select The {@link Query.select} property from the query.
+ * @param record The record returned from your API.
+ */
 export function expandQueryRecord<S extends QuerySelect>(
     select: S,
-    record: QueryRecord
+    record: QueryRecordJson
 ): ExpandedQueryRecord<S> {
     
     const result: any = {};
@@ -49,9 +92,17 @@ export function expandQueryRecord<S extends QuerySelect>(
     return result;
 }
 
+/**
+ * Converts the `QueryRecordJson` from the `totals` record into a strongly-typed 
+ * record named properties for the aggregated values only, using the
+ * {@link Query.select} from the query to perform the necessary mapping.
+ * 
+ * @param select The {@link Query.select} property from the query.
+ * @param record The {@link QueryResultJson.totals} record returned from your API.
+ */
 export function getAggregateValuesOnly<S extends QuerySelect>(
     select: S,
-    record: QueryRecord
+    record: QueryRecordJson
 ): AggregateValuesOnly<S> {
 
     const result: any = {};
@@ -64,14 +115,33 @@ export function getAggregateValuesOnly<S extends QuerySelect>(
     return result;
 }
 
+/**
+ * The statically-typed result of a {@link Query}.
+ */
 export interface ExpandedQueryResult<S extends QuerySelect> {
+    /**
+     * The set of records returned, each having named properties
+     * corresponding to the plain and aggregated columns selected
+     * in the query.
+     */
     records: ExpandedQueryRecord<S>[];
+    /**
+     * Optional extra record, only available if {@link QueryJson.totals}
+     * was specified as `true` in the query, containing the aggregation
+     * totals.
+     */
     totals?: AggregateValuesOnly<S>;
 }
 
+/**
+ * Converts the payload returned from the API into the statically-typed
+ * form appropriate for the query.
+ * @param select The {@link Query.select} property from the query.
+ * @param result The response payload from the API call.
+ */
 export function expandQueryResult<S extends QuerySelect>(
     select: S,
-    result: QueryResult
+    result: QueryResultJson
 ): ExpandedQueryResult<S> {
 
     return {
@@ -80,6 +150,12 @@ export function expandQueryResult<S extends QuerySelect>(
     };
 }
 
+/**
+ * Trivial helper that calls your {@link QueryFetch} function and passes
+ * it the stringified form of the {@link QueryJson}.
+ * @param fetch The function to call.
+ * @param query The payload to stringify.
+ */
 export function executeQuery(fetch: QueryFetch, query: QueryJson) {
     return fetch(JSON.stringify(query));
 }

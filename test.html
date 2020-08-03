@@ -1,0 +1,115 @@
+<html>
+    <head>
+        <style>
+            .table {
+                width: 200px;
+                overflow: auto;
+                padding:0.2em;
+            }
+            .cell {
+                position: absolute;
+                padding: 0.2em;
+            }
+            .header, .body {
+                position: relative;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="table">
+            <div class="header">
+                <div class="row">
+                    <div class="cell">Tube</div>
+                    <div class="cell">Frog on Tuesday</div>
+                    <div class="cell">Randall</div>
+                    <div class="cell">Strawberry</div>
+                </div>                
+            </div>
+            <div class="body">
+                <div class="row">
+                    <div class="cell">Mice</div>
+                    <div class="cell">Shatter</div>
+                    <div class="cell">Key on a boat</div>
+                    <div class="cell">Beast</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Letters</div>
+                    <div class="cell">Proud</div>
+                    <div class="cell">Reticule</div>
+                    <div class="cell">Fotheringay</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Buttered Rain</div>
+                    <div class="cell">Positive</div>
+                    <div class="cell">Worst</div>
+                    <div class="cell">Nightburst</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Forty pence</div>
+                    <div class="cell">Naked</div>
+                    <div class="cell">Hurting</div>
+                    <div class="cell">Surprise</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Neck</div>
+                    <div class="cell">Ranter</div>
+                    <div class="cell">Extrapolate</div>
+                    <div class="cell">Shoe</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Think</div>
+                    <div class="cell">Red</div>
+                    <div class="cell">Furtive</div>
+                    <div class="cell">Force</div>
+                </div>
+                <div class="row">
+                    <div class="cell">Jigsaw</div>
+                    <div class="cell">Terror</div>
+                    <div class="cell">Laughing</div>
+                    <div class="cell">Bee</div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function layout() {
+                const columns = [];
+                let y = 0, r = 0;
+
+                for (const row of document.querySelectorAll(".row")) {
+
+                    const cells = Array.from(row.querySelectorAll(".cell"));
+
+                    const maxHeight = cells.map(c => c.clientHeight)
+                                           .reduce((l, r) => Math.max(l, r));
+
+                    let c = 0;
+                    for (const cell of cells) {
+                        cell.style.top = y;
+
+                        const column = columns[c] ?? (columns[c] = []);
+                        column[r] = cell;
+                        c++;
+                    }
+
+                    y += maxHeight;
+                    r++;
+                }
+                
+                let x = 0;
+                for (const column of columns) {
+                    const maxWidth = column.map(c => c.clientWidth)
+                                           .reduce((l, r) => Math.max(l, r));
+
+                    for (const cell of column) {
+                        if (cell) {
+                            cell.style.left = x;
+                        }
+                    }
+
+                    x += maxWidth;
+                }
+            }
+            layout();
+        </script>
+    </body>
+</html>

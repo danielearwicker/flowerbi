@@ -1,64 +1,117 @@
 import { keysOf } from "./arrayHelpers";
 import { QueryColumn } from "./QueryColumn";
-import { AggregationJson, QueryJson } from "./QueryJson";
+import { AggregationJson, QueryJson, FilterJson, OrderingJson } from "./QueryJson";
 
-// Queries can select plain columns, or aggregation functions on columns
+/**
+ * Defines the kinds of member that can appear in the `select` object of a query. 
+ * Queries can select plain columns, or aggregation functions on columns.
+ */
 export type SelectMember = QueryColumn<any> | AggregationJson;
 
-// Each such member is given a name
+/**
+ * The `select` object of a query has named properties of type {@link SelectMember}.
+ */
 export type QuerySelect = Record<string, SelectMember>;
 
-// The data type of a column can be extracted from it
+/**
+ * Extracts the data type from a column. So `QueryColumnType<QueryColumn<boolean>>` is `boolean`.
+ */
 export type QueryColumnType<T> = T extends QueryColumn<infer C> ? C : never;
 
-// The same names are used in the output, with the data type of plain columns, or number for aggregations
+/**
+ * Defines the shape of a record returned from a query, based on its `select` object.
+ * Each selected property appears as a property in the record with the same name. For
+ * plain columns the data type depends on the column definition, but for aggregates
+ * the data type is always `number`.
+ */
 export type ExpandedQueryRecord<S extends QuerySelect> = { 
     [P in keyof S]: S[P] extends QueryColumn<any> ? QueryColumnType<S[P]> : number;
 };
 
+/**
+ * Similar to {@link ExpandedQueryRecord} but the plain columns are optional, so they
+ * may be `undefined`. Aggregations are not optional.
+ */
 export type ExpandedQueryRecordWithOptionalColumns<S extends QuerySelect> = { 
     [P in keyof S]: S[P] extends QueryColumn<any> ? (QueryColumnType<S[P]> | undefined) : number;
 };
 
+/**
+ * A helper type used in the definition of {@link AggregatePropsOnly}.
+ */
 export type AggregatePropsOnlyHelper<T extends QuerySelect> = {
     [K in keyof T]: T[K] extends QueryColumn<any> ? never : K;
 };
 
-// The names of properties from T that refer to aggregate values
+/**
+ * The names of properties from a `select` object that refer to aggregated values.
+ * Compare with {@link ColumnPropsOnly}.
+ */
 export type AggregatePropsOnly<T extends QuerySelect> = AggregatePropsOnlyHelper<T>[keyof AggregatePropsOnlyHelper<T>];
 
+/**
+ * Returns the names of properties in a query that refer to aggregated columns. 
+ * The result is an array of strings, but type-constrained to string literal types:
+ * 
+ * ```ts
+ * getAggregatePropsOnly({ 
+ *    customer: Customer.Name,
+ *    spend: Invoice.Amount.sum()
+ * }) // ["spend"]
+ * ```
+ * 
+ * @param select the `select` object from a query
+ */
 export function getAggregatePropsOnly<T extends QuerySelect>(select: T) {
     const keys = keysOf(select).filter(x => !(select[x] instanceof QueryColumn))
     return keys as AggregatePropsOnly<T>[];
 }
 
-// A record including only the properties from T that refer to aggregate values
-export type AggregatesOnly<T extends QuerySelect> = {
-    [K in AggregatePropsOnly<T>]: T[K]
-};
-
-// A record including only the aggregate values from T
+/**
+ * An object that contains a subset of the the named properties from a query's 
+ * `select` object, those that refer to aggregated values (hence all are of
+ * type `number`.)
+ */
 export type AggregateValuesOnly<T extends QuerySelect> = {
     [K in AggregatePropsOnly<T>]: number;
 };
 
+/**
+ * A helper type used in the definition of {@link ColumnPropsOnly}.
+ */
 export type ColumnPropsOnlyHelper<T extends QuerySelect> = {
     [K in keyof T]: T[K] extends QueryColumn<any> ? K : never;
 };
 
-// The names of properties from T that refer to plain columns
+/**
+ * The names of properties from a `select` object that refer to plain columns.
+ * Compare with {@link AggregatePropsOnly}.
+ */
 export type ColumnPropsOnly<T extends QuerySelect> = ColumnPropsOnlyHelper<T>[keyof ColumnPropsOnlyHelper<T>];
 
+/**
+ * Returns the names of properties in a query that refer to plain columns. The
+ * result is an array of strings, but type-constrained to string literal types:
+ * 
+ * ```ts
+ * getColumnPropsOnly({ 
+ *    customer: Customer.Name,
+ *    spend: Invoice.Amount.sum() 
+ * }) // ["customer"]
+ * ```
+ * 
+ * @param select the `select` object from a query
+ */
 export function getColumnPropsOnly<T extends QuerySelect>(select: T) {
     const keys = keysOf(select).filter(x => select[x] instanceof QueryColumn)
     return keys as ColumnPropsOnly<T>[];
 }
 
-// A record including only the properties from T that refer to plain columns
-export type ColumnsOnly<T extends QuerySelect> = {
-    [K in ColumnPropsOnly<T>]: T[K]
-};
-
+/**
+ * Returns the plain column objects referred to in a query, ignoring
+ * aggregated columns.
+ * @param select the `select` object from a query
+ */
 export function getColumnsOnly(select: QuerySelect) {
     return keysOf(select)
         .map(k => select[k])
@@ -66,15 +119,33 @@ export function getColumnsOnly(select: QuerySelect) {
         .map(x => (x as QueryColumn<any>));
 }
 
-// A record including only the aggregate values from T
-export type ColumnValuesOnly<T extends QuerySelect> = {
-    [K in ColumnPropsOnly<T>]: QueryColumnType<T[K]>;
-};
-
 /**
- * Strongly-typed query definition: use jsonifyQuery to convert to the JSON format 
- * and expandQueryResult to generate corresponding output records.
+ * Strongly-typed query definition: use {@link jsonifyQuery} to convert to the JSON format 
+ * and {@link expandQueryResult} to generate corresponding output records.
  */
-export interface Query<S extends QuerySelect> extends Omit<QueryJson, "select"|"aggregations"> {
+export interface Query<S extends QuerySelect> {
     select: S;
+    filters?: FilterJson[];
+    /**
+     * Ordering criteria to apply.
+     */
+    orderBy?: OrderingJson[];
+    /**
+     * Specifies whether to return a `totals` property containing the 
+     * aggregation values across the whole dataset, e.g. if the `select`
+     * object is:
+     * 
+     * ```ts
+     * { 
+     *    customer: Customer.Name,
+     *    spend: Invoice.Amount.sum()
+     * }
+     * ```
+     * 
+     * the returned `records` will have properties `customer` and `spend`,
+     * one per customer. Specify `totals: true` to also get a `totals` object 
+     * with only a `spend` property, containing the total spend across all 
+     * customers.
+     */
+    totals?: boolean;
 }
