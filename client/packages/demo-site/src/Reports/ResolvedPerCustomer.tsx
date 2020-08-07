@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
-import { useQuery, TinyBIChartBox } from "tinybi-react";
+import { useQuery } from "tinybi-react";
+import { TinyBIChartBox } from "tinybi-react-utils";
 import { Customer, Bug, Workflow } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { Pie } from "react-chartjs-2";

@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { QueryColumn, smartDates } from "tinybi";
-import { useDropDown, DropDown, useQuery, TinyBIChartBox } from "tinybi-react";
+import { useQuery } from "tinybi-react";
+import { useDropDown, DropDown, TinyBIChartBox } from "tinybi-react-utils";
 import { Bug, Workflow, DateReported } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { ChartDataSets, ChartOptions, ChartData } from "chart.js";

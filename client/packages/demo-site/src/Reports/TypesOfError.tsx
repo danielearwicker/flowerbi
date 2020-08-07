@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { QueryColumn, distinct, keysOf } from "tinybi";
-import { useQuery, TinyBIChartBox } from "tinybi-react";
+import { useQuery } from "tinybi-react";
+import { TinyBIChartBox } from "tinybi-react-utils";
 import { makeClickHandler } from "tinybi-react-chartjs";
 import { Bug, Workflow, CategoryCombination } from "../demoSchema";
 import { dataColours } from "./dataColours";

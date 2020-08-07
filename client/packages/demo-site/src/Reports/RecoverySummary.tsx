@@ -1,5 +1,6 @@
 import React from "react";
-import { TinyBITable, useQuery, TinyBIChartBox } from "tinybi-react";
+import { TinyBITable, useQuery } from "tinybi-react";
+import { TinyBIChartBox } from "tinybi-react-utils";
 import { Bug, Workflow } from "../demoSchema";
 import { VisualProps } from "./VisualProps";
 
