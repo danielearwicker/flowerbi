@@ -69,13 +69,13 @@
 				</a>
 				<p>To use this library you need to write a function that conforms to the <a href="globals.html#queryfetch">QueryFetch</a> type, so it accepts a string of JSON and returns a <code>Promise</code> to a <a href="interfaces/queryresultjson.html">QueryResultJson</a>. The <code>TinyBI.Engine</code> library that runs inside your server/API takes care of executing the query. Your client-side function just needs to POST the JSON to your API route, along with whatever authentication details you need.</p>
 				<p>Minimal example, using normal <code>fetch</code>, and with no auth headers:</p>
-				<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">localFetch</span>(<span class="hljs-params">queryJson: <span class="hljs-built_in">string</span></span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">QueryResult</span>&gt; </span>{
+				<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">localFetch</span>(<span class="hljs-params">queryJson: QueryJson</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">QueryResultJson</span>&gt; </span>{
 
     <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">&quot;http://localhost:5000/query&quot;</span>, {
         method: <span class="hljs-string">&quot;POST&quot;</span>,
         cache: <span class="hljs-string">&quot;no-cache&quot;</span>,
         headers: { <span class="hljs-string">&quot;Content-Type&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span> },
-        body: queryJson,
+        body: <span class="hljs-built_in">JSON</span>.stringify(queryJson),
     });
 
     <span class="hljs-keyword">return</span> !response.ok ? [] : <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-keyword">await</span> response.text(), jsonDateParser);

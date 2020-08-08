@@ -5,13 +5,13 @@ To use this library you need to write a function that conforms to the [QueryFetc
 Minimal example, using normal `fetch`, and with no auth headers:
 
 ```ts
-export async function localFetch(queryJson: string): Promise<QueryResult> {
+export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson> {
 
     const response = await fetch("http://localhost:5000/query", {
         method: "POST",
         cache: "no-cache",
         headers: { "Content-Type": "application/json" },
-        body: queryJson,
+        body: JSON.stringify(queryJson),
     });
 
     return !response.ok ? [] : JSON.parse(await response.text(), jsonDateParser);
