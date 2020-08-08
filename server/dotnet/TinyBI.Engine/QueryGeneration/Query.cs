@@ -118,7 +118,7 @@ order by {{ordering}}
             return sql;
         }
         
-        public QueryResult Run(IDbConnection db, int top, params Filter[] outerFilters)
+        public QueryResultJson Run(IDbConnection db, int top, params Filter[] outerFilters)
         {
             var filterParams = new DapperFilterParameters();
 
@@ -132,7 +132,7 @@ order by {{ordering}}
 
             var reader = db.QueryMultiple(sql, filterParams.DapperParams);
 
-            var result = new QueryResult();
+            var result = new QueryResultJson();
 
             result.Records = ConvertRecords(reader.Read<dynamic>()
                                 .Cast<IDictionary<string, object>>());                     
@@ -146,8 +146,8 @@ order by {{ordering}}
             return result;
         }
 
-        private static IList<QueryRecord> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
-            => list.Select(x => new QueryRecord
+        private static IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
+            => list.Select(x => new QueryRecordJson
                 {
                      Selected = GetList(x, "Select"),
                      Aggregated = GetList(x, "Value"),
@@ -168,17 +168,5 @@ order by {{ordering}}
 
             return result;
         }
-    }
-
-    public class QueryRecord
-    {
-        public IList<object> Selected { get; set; }
-        public IList<object> Aggregated { get; set; }
-    }
-
-    public class QueryResult
-    {
-        public IList<QueryRecord> Records { get;set; }
-        public QueryRecord Totals { get; set; }
     }
 }

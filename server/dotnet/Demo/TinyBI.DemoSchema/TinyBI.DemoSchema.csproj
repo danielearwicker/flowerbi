@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet run -p ..\..\TinyBI.Tools -- ts bin\Debug\netstandard2.1\TinyBI.DemoSchema.dll TinyBI.DemoSchema.NxgSchema ..\..\..\..\client\packages\demo-site\src\demoSchema.ts" />
+    <Exec Command="dotnet run -p ../../TinyBI.Tools -- ts bin/Debug/netstandard2.1/TinyBI.DemoSchema.dll TinyBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts" />
   </Target>
 
 </Project>
