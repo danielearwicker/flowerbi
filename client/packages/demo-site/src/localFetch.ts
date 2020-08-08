@@ -1,6 +1,6 @@
 import { jsonDateParser } from "json-date-parser";
 import { getDb } from "./database";
-import { QueryResult, QuerySelectValue } from "tinybi";
+import { QueryResultJson, QuerySelectValue, QueryJson } from "tinybi";
 
 async function querySql(sql: string) {
     
@@ -21,12 +21,14 @@ async function querySql(sql: string) {
 
 const blazorReady = new Promise(done => (window as any).notifyBlazorReady = done);
 
-export async function localFetch(queryJson: string): Promise<QueryResult> {
+export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson> {
 
     await blazorReady;
 
     const started = new Date();    
-    const json = await DotNet.invokeMethodAsync("TinyBI.WasmHost", "Query", queryJson) as string;
+    const json = await DotNet.invokeMethodAsync(
+        "TinyBI.WasmHost", "Query", JSON.stringify(queryJson)
+    ) as string;    
     const finished = new Date();
     console.log(`Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`);
 
@@ -47,7 +49,7 @@ export async function localFetch(queryJson: string): Promise<QueryResult> {
     const firstValueIndex = columns.indexOf("Value0");
     const endOfSelects = firstValueIndex === -1 ? columns.length : firstValueIndex;
 
-    const result: QueryResult = {
+    const result: QueryResultJson = {
         records: values.map(x => ({
             selected: x.slice(0, endOfSelects),
             aggregated: x.slice(endOfSelects) as number[]

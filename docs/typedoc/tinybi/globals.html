@@ -114,7 +114,6 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function"><a href="globals.html#detectdatetype" class="tsd-kind-icon">detect<wbr>Date<wbr>Type</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#distinct" class="tsd-kind-icon">distinct</a></li>
-								<li class="tsd-kind-function"><a href="globals.html#executequery" class="tsd-kind-icon">execute<wbr>Query</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#expandqueryrecord" class="tsd-kind-icon">expand<wbr>Query<wbr>Record</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#expandqueryresult" class="tsd-kind-icon">expand<wbr>Query<wbr>Result</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#getaggregatepropsonly" class="tsd-kind-icon">get<wbr>Aggregate<wbr>Props<wbr>Only</a></li>
@@ -380,10 +379,10 @@
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="queryfetch" class="tsd-anchor"></a>
 					<h3>Query<wbr>Fetch</h3>
-					<div class="tsd-signature tsd-kind-icon">Query<wbr>Fetch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>queryJson<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></div>
+					<div class="tsd-signature tsd-kind-icon">Query<wbr>Fetch<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span>queryJson<span class="tsd-signature-symbol">: </span><a href="interfaces/queryjson.html" class="tsd-signature-type">QueryJson</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in executeQuery.ts:51</li>
+							<li>Defined in executeQuery.ts:48</li>
 						</ul>
 					</aside>
 					<div class="tsd-comment tsd-typography">
@@ -393,22 +392,20 @@
 								the <code>fetch</code> browser API, or something more high-level, and can make use
 							of whatever authentication method you prefer.</p>
 						</div>
-						<p>Note that the query will already have been converted to a JSON string,
-						but will conform to <a href="interfaces/queryjson.html">QueryJson</a> if parsed.</p>
 					</div>
 					<div class="tsd-type-declaration">
 						<h4>Type declaration</h4>
 						<ul class="tsd-parameters">
 							<li class="tsd-parameter-signature">
 								<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-type-alias">
-									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>queryJson<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></li>
+									<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>queryJson<span class="tsd-signature-symbol">: </span><a href="interfaces/queryjson.html" class="tsd-signature-type">QueryJson</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></li>
 								</ul>
 								<ul class="tsd-descriptions">
 									<li class="tsd-description">
 										<h4 class="tsd-parameters-title">Parameters</h4>
 										<ul class="tsd-parameters">
 											<li>
-												<h5>queryJson: <span class="tsd-signature-type">string</span></h5>
+												<h5>queryJson: <a href="interfaces/queryjson.html" class="tsd-signature-type">QueryJson</a></h5>
 											</li>
 										</ul>
 										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></h4>
@@ -539,44 +536,6 @@
 						</li>
 					</ul>
 				</section>
-				<section class="tsd-panel tsd-member tsd-kind-function">
-					<a name="executequery" class="tsd-anchor"></a>
-					<h3>execute<wbr>Query</h3>
-					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">execute<wbr>Query<span class="tsd-signature-symbol">(</span>fetch<span class="tsd-signature-symbol">: </span><a href="globals.html#queryfetch" class="tsd-signature-type">QueryFetch</a>, query<span class="tsd-signature-symbol">: </span><a href="interfaces/queryjson.html" class="tsd-signature-type">QueryJson</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></li>
-					</ul>
-					<ul class="tsd-descriptions">
-						<li class="tsd-description">
-							<aside class="tsd-sources">
-								<ul>
-									<li>Defined in executeQuery.ts:159</li>
-								</ul>
-							</aside>
-							<div class="tsd-comment tsd-typography">
-								<div class="lead">
-									<p>Trivial helper that calls your <a href="globals.html#queryfetch">QueryFetch</a> function and passes
-									it the stringified form of the <a href="interfaces/queryjson.html">QueryJson</a>.</p>
-								</div>
-							</div>
-							<h4 class="tsd-parameters-title">Parameters</h4>
-							<ul class="tsd-parameters">
-								<li>
-									<h5>fetch: <a href="globals.html#queryfetch" class="tsd-signature-type">QueryFetch</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The function to call.</p>
-									</div>
-								</li>
-								<li>
-									<h5>query: <a href="interfaces/queryjson.html" class="tsd-signature-type">QueryJson</a></h5>
-									<div class="tsd-comment tsd-typography">
-										<p>The payload to stringify.</p>
-									</div>
-								</li>
-							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><a href="interfaces/queryresultjson.html" class="tsd-signature-type">QueryResultJson</a><span class="tsd-signature-symbol">&gt;</span></h4>
-						</li>
-					</ul>
-				</section>
 				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
 					<a name="expandqueryrecord" class="tsd-anchor"></a>
 					<h3>expand<wbr>Query<wbr>Record</h3>
@@ -587,7 +546,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in executeQuery.ts:75</li>
+									<li>Defined in executeQuery.ts:72</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -632,7 +591,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in executeQuery.ts:142</li>
+									<li>Defined in executeQuery.ts:139</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -718,7 +677,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in executeQuery.ts:103</li>
+									<li>Defined in executeQuery.ts:100</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -837,7 +796,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in executeQuery.ts:58</li>
+									<li>Defined in executeQuery.ts:55</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -1081,9 +1040,6 @@
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#distinct" class="tsd-kind-icon">distinct</a>
-					</li>
-					<li class=" tsd-kind-function">
-						<a href="globals.html#executequery" class="tsd-kind-icon">execute<wbr>Query</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#expandqueryrecord" class="tsd-kind-icon">expand<wbr>Query<wbr>Record</a>

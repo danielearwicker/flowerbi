@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Query, executeQuery, QueryFetch, jsonifyQuery, QueryResultJson, QuerySelect, expandQueryResult } from "tinybi";
+import { Query, QueryFetch, jsonifyQuery, QueryResultJson, QuerySelect, expandQueryResult } from "tinybi";
 import stableStringify from "json-stable-stringify";
 
 /**
@@ -19,11 +19,9 @@ export function useQuery<S extends QuerySelect>(fetch: QueryFetch, query: Query<
 
     const [result, setResult] = useState<QueryResultJson>({ records: [] });
 
-    const queryJsonStr = stableStringify(queryJson);
-
     useEffect(() => {
-        executeQuery(fetch, queryJson).then(setResult);
-    }, [queryJsonStr]);
+        fetch(queryJson).then(setResult);
+    }, [stableStringify(queryJson)]);
 
     return expandQueryResult(query.select, result);
 }

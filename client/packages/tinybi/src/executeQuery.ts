@@ -44,11 +44,8 @@ export interface QueryResultJson {
  * your API and get them executed. This will typically be a wrapper around
  * the `fetch` browser API, or something more high-level, and can make use
  * of whatever authentication method you prefer.
- * 
- * Note that the query will already have been converted to a JSON string,
- * but will conform to {@link QueryJson} if parsed.
  */
-export type QueryFetch = (queryJson: string) => Promise<QueryResultJson>;
+export type QueryFetch = (queryJson: QueryJson) => Promise<QueryResultJson>;
 
 /**
  * Converts a statically-typed {@link Query} into the {@link QueryJson}
@@ -148,14 +145,4 @@ export function expandQueryResult<S extends QuerySelect>(
         records: result.records.map(r => expandQueryRecord(select, r)),
         totals: result.totals && getAggregateValuesOnly(select, result.totals)
     };
-}
-
-/**
- * Trivial helper that calls your {@link QueryFetch} function and passes
- * it the stringified form of the {@link QueryJson}.
- * @param fetch The function to call.
- * @param query The payload to stringify.
- */
-export function executeQuery(fetch: QueryFetch, query: QueryJson) {
-    return fetch(JSON.stringify(query));
 }

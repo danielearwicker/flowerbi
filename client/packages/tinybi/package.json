@@ -1,6 +1,6 @@
 {
     "name": "tinybi",
-    "version": "1.3.0",
+    "version": "1.4.0",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "TinyBI: ultra-minimal BI analytics query and UI tools",
