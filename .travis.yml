@@ -4,13 +4,12 @@ mono: none
 dotnet: 3.1
 script:
     - pushd server/dotnet
-    - node version-up.js $TRAVIS_TAG
+    - node apply-version.js
     - dotnet build
     - dotnet test TinyBI.Engine.Tests/TinyBI.Engine.Tests.csproj
     - popd
 deploy:
   - provider: script
-    script: bash release.sh $TRAVIS_TAG
+    script: bash release.sh
     on:
       branch: master
-      tags: true

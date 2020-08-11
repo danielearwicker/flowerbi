@@ -1,4 +1,4 @@
-node version-up.js $1
+node apply-version.js $1
 
 pushd packages/tinybi
 npm publish

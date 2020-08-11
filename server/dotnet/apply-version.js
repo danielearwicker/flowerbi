@@ -1,10 +1,6 @@
 const fs = require("fs");
 
-const newVersion = process.argv[2];
-if (!newVersion) {
-    console.error("Specify a new version tag", process.argv);
-    process.exit(-1);
-}
+const newVersion = fs.readFileSync("../../.version", "utf8").trim();
 
 const pattern = /\<PackageVersion\>([\d\.]+)<\/PackageVersion\>/;
 

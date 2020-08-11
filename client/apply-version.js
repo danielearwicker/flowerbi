@@ -1,11 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const newVersion = process.argv[2];
-if (!newVersion) {
-    console.error("Specify a new version tag", process.argv);
-    process.exit(-1);
-}
+const newVersion = fs.readFileSync("../.version", "utf8").trim();
 
 const packages = fs.readdirSync("packages").filter(x => x[0] !== '.');
 
@@ -20,8 +16,6 @@ function readPackage(name) {
 function writePackage(name, json) {
     fs.writeFileSync(getPackagePath(name), JSON.stringify(json, null, 4));
 }
-
-console.log(`New version is ${newVersion}`);
 
 for (const p of packages) {
     
