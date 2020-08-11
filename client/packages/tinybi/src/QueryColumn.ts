@@ -31,7 +31,7 @@ export class QueryColumn<T extends FilterValue> {
      * @param filters Optional filters to apply.
      */
     count(filters?: FilterJson[]) {
-        return this.aggregation("count", filters);
+        return this.aggregation("Count", filters);
     }
 
     /**
@@ -39,7 +39,7 @@ export class QueryColumn<T extends FilterValue> {
      * @param filters Optional filters to apply.
      */
     sum(filters?: FilterJson[]) {
-        return this.aggregation("sum", filters);
+        return this.aggregation("Sum", filters);
     }
 
     private filter(operator: FilterOperator, value: T): FilterJson {

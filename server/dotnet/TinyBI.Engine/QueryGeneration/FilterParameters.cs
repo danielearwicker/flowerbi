@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 
 namespace TinyBI
@@ -45,6 +46,9 @@ namespace TinyBI
         public DynamicParameters DapperParams { get; } = new DynamicParameters();
 
         private readonly Dictionary<Filter, string> _names = new Dictionary<Filter, string>();
+
+        override public string ToString() =>
+            string.Join(", ", _names.Select(x => $"{x.Value} = {x.Key.Value}"));
 
         public string this[Filter filter]
         {

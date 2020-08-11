@@ -28,7 +28,7 @@ namespace TinyBI
         }
 
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
-select {{#if top}}top {{top}}{{/if}}
+select
     
     {{#each selectColumns}}
         {{this}} Select{{@index}},
@@ -59,8 +59,10 @@ where
     {{/each}}
 {{/if}}
 
-{{#if top}}
+{{#if take}}
     order by {{#if Function}} {{Function}}({{/if}}main.[{{Column.DbName}}]{{#if Function}}){{/if}} desc
+    offset {{skip}} rows
+    fetch next {{take}} rows only
 {{/if}}
 ");
 
@@ -70,7 +72,8 @@ where
             IFilterParameters filterParams,
             IEnumerable<IColumn> groupByColumns,
             Joins joins,
-            int? top = null)
+            long? skip = null,
+            int? take = null)
         {
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
@@ -102,7 +105,8 @@ where
                     ForeignKey = Column.Table.GetForeignKeyTo(x.Key)                    
                 }),
                 groupBy,
-                top
+                skip,
+                take
             });
         }
 
@@ -110,13 +114,14 @@ where
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             IFilterParameters filterParams,
-            int? top = null)
+            long? skip = null,
+            int? take = null)
         {
             var joins = new Joins("main", Column.Table);
 
             var selects = selectColumns?.Select(c => $"{joins[c.Table]}.[{c.DbName}]").ToList();
 
-            return GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, top);
+            return GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, skip, take);
         }
     }
 }

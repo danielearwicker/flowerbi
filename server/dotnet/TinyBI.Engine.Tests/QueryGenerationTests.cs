@@ -11,7 +11,7 @@ namespace TinyBI.Engine.Tests
 {
     public class QueryGenerationTests
     {
-        private static readonly Schema Schema = new Schema(typeof(TestSchema));
+        public static readonly Schema Schema = new Schema(typeof(TestSchema));
 
         [Fact]
         public void RejectsBadColumnName()
@@ -28,7 +28,7 @@ namespace TinyBI.Engine.Tests
             };
 
             Action a = () => new Query(queryJson, Schema);
-            a.Should().Throw<InvalidOperationException>();            
+            a.Should().Throw<InvalidOperationException>();
         }
 
         [Fact]
@@ -53,22 +53,26 @@ namespace TinyBI.Engine.Tests
         public void MinimalSelectOneColumn()
         {
             var queryJson = new QueryJson
-            {                
+            {
                 Aggregations = new List<AggregationJson>
                 {
                     new AggregationJson
                     {
                         Column = "Vendor.VendorName",
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                select top 10 main.[VendorName] Value0
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
+                select main.[VendorName] Value0
                 from [TestSchema].[Vendor] main
                 order by main.[VendorName] desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -93,18 +97,22 @@ namespace TinyBI.Engine.Tests
                         Operator = "=",
                         Value = JsonDocument.Parse("42").RootElement
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
 
             // As filter is on PK of Vendor, can just use FK of Invoice, avoid join
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                select top 10 main.[Amount] Value0
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
+                select main.[Amount] Value0
                 from [TestSchema].[Invoice] main
                 where main.[VendorId] = @filter0
                 order by main.[Amount] desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
             filterParams.Names.Should().HaveCount(1);
         }
@@ -122,17 +130,21 @@ namespace TinyBI.Engine.Tests
                         Column = "Invoice.Amount",
                         Function = AggregationType.Sum
                     }
-                }                
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                select top 10 join0.[VendorName] Select0, Sum(main.[Amount]) Value0
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
+                select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                 from [TestSchema].[Invoice] main
                 join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                 group by join0.[VendorName]
                 order by Sum(main.[Amount]) desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -151,20 +163,26 @@ namespace TinyBI.Engine.Tests
                         Function = AggregationType.Sum
                     }
                 },
-                Totals = true
+                Totals = true,
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
-                select top 10 join0.[VendorName] Select0, Sum(main.[Amount]) Value0
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
+                select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                 from [TestSchema].[Invoice] main
                 join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                 group by join0.[VendorName]
-                order by Sum(main.[Amount]) desc ;
-                select top 1 Sum(main.[Amount]) Value0
+                order by Sum(main.[Amount]) desc
+                offset 5 rows
+                fetch next 10 rows only ;
+                select Sum(main.[Amount]) Value0
                 from [TestSchema].[Invoice] main
                 order by Sum(main.[Amount]) desc
+                offset 0 rows
+                fetch next 1 rows only
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -188,12 +206,14 @@ namespace TinyBI.Engine.Tests
                         Column = "Invoice.Id",
                         Function = AggregationType.Count
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                     from [TestSchema].[Invoice] main
@@ -206,10 +226,12 @@ namespace TinyBI.Engine.Tests
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
                 order by a0.Value0 desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
 
             filterParams.Names.Should().HaveCount(0);
@@ -235,12 +257,14 @@ namespace TinyBI.Engine.Tests
                         Function = AggregationType.Count
                     }
                 },
-                Totals = true
+                Totals = true,
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                     from [TestSchema].[Invoice] main
@@ -253,10 +277,12 @@ namespace TinyBI.Engine.Tests
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
-                order by a0.Value0 desc ;
+                order by a0.Value0 desc
+                offset 5 rows
+                fetch next 10 rows only ;
 
                 with [Aggregation0] as (        
                     select Sum(main.[Amount]) Value0
@@ -266,11 +292,13 @@ namespace TinyBI.Engine.Tests
                     select Count(main.[Id]) Value0
                     from [TestSchema].[Invoice] main
                 )
-                select top 1
+                select
                     a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 cross join Aggregation1 a1
                 order by a0.Value0 desc
+                offset 0 rows
+                fetch next 1 rows only
             ");
 
             filterParams.Names.Should().HaveCount(0);
@@ -304,12 +332,14 @@ namespace TinyBI.Engine.Tests
                             }
                         }
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                     from [TestSchema].[Invoice] main
@@ -323,10 +353,12 @@ namespace TinyBI.Engine.Tests
                     where main.[Paid] = @filter0
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
                 order by a0.Value0 desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
 
             filterParams.Names.Should().HaveCount(1);
@@ -345,27 +377,31 @@ namespace TinyBI.Engine.Tests
                         Column = "Invoice.Amount",
                         Function = AggregationType.Sum
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
 
             var extra = new Filter(new FilterJson
-                {
-                    Column = "Invoice.Paid",
-                    Operator = "=",
-                    Value = JsonDocument.Parse("true").RootElement
-                },
+            {
+                Column = "Invoice.Paid",
+                Operator = "=",
+                Value = JsonDocument.Parse("true").RootElement
+            },
                 Schema);
 
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, new[] { extra }, 10), @"
-                select top 10 join0.[VendorName] Select0, Sum(main.[Amount]) Value0
+            AssertSameSql(query.ToSql(filterParams, new[] { extra }), @"
+                select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                 from [TestSchema].[Invoice] main
                 join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                 where main.[Paid] = @filter0
                 group by join0.[VendorName]
                 order by Sum(main.[Amount]) desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
             filterParams.Names.Should().HaveCount(1);
         }
@@ -390,12 +426,14 @@ namespace TinyBI.Engine.Tests
                         Function = AggregationType.Count
                     }
                 },
-                OrderBy = new List<OrderingJson> { new OrderingJson { Column = "Vendor.VendorName" } }
+                OrderBy = new List<OrderingJson> { new OrderingJson { Column = "Vendor.VendorName" } },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, Sum(main.[Amount]) Value0
                     from [TestSchema].[Invoice] main
@@ -408,10 +446,12 @@ namespace TinyBI.Engine.Tests
                     join [TestSchema].[Vendor] join0 on join0.[Id] = main.[VendorId]
                     group by join0.[VendorName]
                 )
-                select top 10 a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 left join Aggregation1 a1 on a1.Select0 = a0.Select0
                 order by a0.Select0 asc
+                offset 5 rows
+                fetch next 10 rows only
             ");
 
             filterParams.Names.Should().HaveCount(0);
@@ -436,12 +476,14 @@ namespace TinyBI.Engine.Tests
                         Column = "Invoice.Id",
                         Function = AggregationType.Count
                     }
-                }
+                },
+                Skip = 5,
+                Take = 10
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>(), 10), @"
+            AssertSameSql(query.ToSql(filterParams, Enumerable.Empty<Filter>()), @"
                 with [Aggregation0] as (
                     select join0.[VendorName] Select0, 
                            join1.[DepartmentName] Select1, 
@@ -460,12 +502,14 @@ namespace TinyBI.Engine.Tests
                     join [TestSchema].[Department] join1 on join1.[Id] = main.[DepartmentId] 
                     group by join0.[VendorName] , join1.[DepartmentName] 
                 )
-                select top 10 a0.Select0, a0.Select1, a0.Value0 Value0 , a1.Value0 Value1 
+                select a0.Select0, a0.Select1, a0.Value0 Value0 , a1.Value0 Value1 
                 from Aggregation0 a0 
                 left join Aggregation1 a1 on 
                     a1.Select0 = a0.Select0 and
                     a1.Select1 = a0.Select1 
                 order by a0.Value0 desc
+                offset 5 rows
+                fetch next 10 rows only
             ");
 
             filterParams.Names.Should().HaveCount(0);

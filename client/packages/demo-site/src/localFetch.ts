@@ -7,7 +7,8 @@ async function querySql(sql: string) {
     const db = await getDb();
 
     sql = sql.replace(/[[\]]/g, "")
-             .replace(/top\s+[\d]+/g, " ")
+             .replace(/offset\s+([\d]+)\s+rows\s+fetch\s+next\s+([\d]+)\s+rows\s+only/g, 
+                      "limit $2 offset $1")
              .replace(/BugTracking\./g, "");
 
     const started = new Date();

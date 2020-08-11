@@ -49,7 +49,7 @@ namespace TinyBI.WasmHost
                 var query = new Query(parsed, Demo);
 
                 var filterParams = new EmbeddedFilterParameters();
-                sql = query.ToSql(filterParams, new Filter[0], 10);
+                sql = query.ToSql(filterParams, new Filter[0]);
 
                 return await JsRuntime.InvokeAsync<string>("querySql", sql);
             }

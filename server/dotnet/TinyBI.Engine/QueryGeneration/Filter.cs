@@ -28,14 +28,20 @@ namespace TinyBI
         public Filter(FilterJson json, Schema schema)
             : this(schema.GetColumn(json.Column), json.Operator, UnpackValue(json.Value)) { }
 
-        private static object UnpackValue(JsonElement json)
+        private static object UnpackValue(object json)
         {
-            return json.ValueKind == JsonValueKind.False ? false :
-                    json.ValueKind == JsonValueKind.True ? true :
-                    json.ValueKind == JsonValueKind.Number ? json.GetDouble() :
-                    json.ValueKind == JsonValueKind.String ?
-                        (DateTime.TryParse(json.GetString(), out var dt) ? dt : (object)json.GetString()) :
+            if (json is JsonElement e)
+            {
+                return e.ValueKind == JsonValueKind.False ? false :
+                    e.ValueKind == JsonValueKind.True ? true :
+                    e.ValueKind == JsonValueKind.Number ? e.GetDouble() :
+                    e.ValueKind == JsonValueKind.String ?
+                        (DateTime.TryParse(e.GetString(), out var dt) ? dt : (object)e.GetString()) :
                     throw new InvalidOperationException("Unsupported filter value format");
+            }
+
+            return json;
+            
         }
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>

@@ -8,6 +8,6 @@ namespace TinyBI.Engine.JsonModels
 
         public string Operator { get; set; }
 
-        public JsonElement Value { get; set; }
+        public object Value { get; set; }
     }
 }

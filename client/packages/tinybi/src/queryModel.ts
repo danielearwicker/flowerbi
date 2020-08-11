@@ -148,4 +148,12 @@ export interface Query<S extends QuerySelect> {
      * customers.
      */
     totals?: boolean;
+    /**
+     * Number of result records to skip before the first record returned.
+     */
+    skip?: number;
+    /**
+     * Number of result records to return.
+     */
+    take?: number;
 }

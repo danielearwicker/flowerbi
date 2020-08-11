@@ -1,22 +1,22 @@
 {
   "files": {
     "main.css": "/tinybi/demo/static/css/main.cbd12720.chunk.css",
-    "main.js": "/tinybi/demo/static/js/main.5e752838.chunk.js",
-    "main.js.map": "/tinybi/demo/static/js/main.5e752838.chunk.js.map",
+    "main.js": "/tinybi/demo/static/js/main.99b616af.chunk.js",
+    "main.js.map": "/tinybi/demo/static/js/main.99b616af.chunk.js.map",
     "runtime-main.js": "/tinybi/demo/static/js/runtime-main.7192a165.js",
     "runtime-main.js.map": "/tinybi/demo/static/js/runtime-main.7192a165.js.map",
-    "static/js/2.372b6dd9.chunk.js": "/tinybi/demo/static/js/2.372b6dd9.chunk.js",
-    "static/js/2.372b6dd9.chunk.js.map": "/tinybi/demo/static/js/2.372b6dd9.chunk.js.map",
+    "static/js/2.2f50cab5.chunk.js": "/tinybi/demo/static/js/2.2f50cab5.chunk.js",
+    "static/js/2.2f50cab5.chunk.js.map": "/tinybi/demo/static/js/2.2f50cab5.chunk.js.map",
     "index.html": "/tinybi/demo/index.html",
-    "precache-manifest.2ce28eb5a9624edab930e8531a6256e1.js": "/tinybi/demo/precache-manifest.2ce28eb5a9624edab930e8531a6256e1.js",
+    "precache-manifest.c56db7c083da757add51590839c09e53.js": "/tinybi/demo/precache-manifest.c56db7c083da757add51590839c09e53.js",
     "service-worker.js": "/tinybi/demo/service-worker.js",
     "static/css/main.cbd12720.chunk.css.map": "/tinybi/demo/static/css/main.cbd12720.chunk.css.map",
-    "static/js/2.372b6dd9.chunk.js.LICENSE.txt": "/tinybi/demo/static/js/2.372b6dd9.chunk.js.LICENSE.txt"
+    "static/js/2.2f50cab5.chunk.js.LICENSE.txt": "/tinybi/demo/static/js/2.2f50cab5.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.7192a165.js",
-    "static/js/2.372b6dd9.chunk.js",
+    "static/js/2.2f50cab5.chunk.js",
     "static/css/main.cbd12720.chunk.css",
-    "static/js/main.5e752838.chunk.js"
+    "static/js/main.99b616af.chunk.js"
   ]
 }

@@ -17,6 +17,10 @@ namespace TinyBI
 
         public bool Totals { get; }
 
+        public long Skip { get; set; }
+
+        public int Take { get; set; }
+
         public Query(QueryJson json, Schema schema)
         {
             Select = schema.Load(json.Select);
@@ -24,6 +28,8 @@ namespace TinyBI
             Filters = Filter.Load(json.Filters, schema);
             OrderBy = Ordering.Load(json.OrderBy, schema);
             Totals = json.Totals;
+            Skip = json.Skip;
+            Take = json.Take;
         }
 
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
@@ -37,7 +43,7 @@ with {{#each Aggregations}}
 
 {{/each}}
 
-select top {{Top}}
+select
 
 {{#each Select}}
     a0.Select{{@index}},
@@ -66,25 +72,30 @@ from Aggregation0 a0
 {{/each}}
 
 order by {{ordering}}
+
+offset {{skip}} rows
+fetch next {{take}} rows only
 ");
 
-        private string ToSql(IList<IColumn> select, IFilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
+        private string ToSql(IList<IColumn> select, IFilterParameters filterParams,
+                             IEnumerable<Filter> outerFilters, long skip, int take)
         {
             if (Aggregations.Count == 1 && OrderBy.Count == 0)
             {
-                return Aggregations[0].ToSql(select, outerFilters.Concat(Filters), filterParams, top);
+                return Aggregations[0].ToSql(select, outerFilters.Concat(Filters), filterParams, skip, take);
             }
 
             var ordering = "a0.Value0 desc";
 
-            if (top > 1 && OrderBy.Count != 0)
+            if (select != null && OrderBy.Count != 0)
             {
                 ordering = string.Join(", ", OrderBy.Select(FindOrderingColumn));
             }
 
             return _template(new
             {
-                Top = top,
+                Skip = skip,
+                Take = take,
                 Aggregations = Aggregations.Select(x =>
                     x.ToSql(select, outerFilters.Concat(Filters), filterParams)),
                 Select = select,
@@ -106,29 +117,26 @@ order by {{ordering}}
             return $"a0.Select{i} {direction}";
         }
 
-        public string ToSql(IFilterParameters filterParams, IEnumerable<Filter> outerFilters, int top)
+        public string ToSql(IFilterParameters filterParams,
+                            IEnumerable<Filter> outerFilters)
         {
-            var sql = ToSql(Select, filterParams, outerFilters, top);
+            var sql = ToSql(Select, filterParams, outerFilters, Skip, Take);
 
             if (Totals)
             {
-                sql += ";" + ToSql(null, filterParams, outerFilters, 1);
+                sql += ";" + ToSql(null, filterParams, outerFilters, 0, 1);
             }
 
             return sql;
         }
         
-        public QueryResultJson Run(IDbConnection db, int top, params Filter[] outerFilters)
+        public QueryResultJson Run(IDbConnection db, Action<string> log, params Filter[] outerFilters)
         {
             var filterParams = new DapperFilterParameters();
 
-            var sql = ToSql(filterParams, outerFilters, top);
+            var sql = ToSql(filterParams, outerFilters);
 
-            Console.WriteLine(@$"
-----------------------------------------------------------------------------
-{sql}
-----------------------------------------------------------------------------
-");
+            log?.Invoke($"{sql} with parameters: {filterParams}");
 
             var reader = db.QueryMultiple(sql, filterParams.DapperParams);
 

@@ -21,7 +21,7 @@ export interface FilterJson {
 /**
  * The allowed aggregation function names.
  */
-export type AggregationType = "none" | "count" | "sum";
+export type AggregationType = "Count" | "Sum";
 
 /**
  * Describes an aggregated values. It is always taken from one column, with 
@@ -66,7 +66,15 @@ export interface QueryJson {
      */
     orderBy?: OrderingJson[];
     /**
-     * See {@link Query.totals}.     
+     * See {@link Query.totals}.
      */
     totals?: boolean;
+    /**
+     * See {@link Query.skip}.
+     */
+    skip?: number;
+    /**
+     * See {@link Query.take}.
+     */
+    take?: number;
 }
