@@ -6,7 +6,7 @@ script:
     - pushd server/dotnet
     - dotnet build
     - dotnet test TinyBI.Engine.Tests/TinyBI.Engine.Tests.csproj
-    - popd server/dotnet
+    - popd
 deploy:
   - provider: script
     script: bash release.sh $TRAVIS_TAG
