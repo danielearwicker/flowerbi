@@ -4,7 +4,7 @@ mono: none
 dotnet: 3.1
 script:
     - pushd server/dotnet
-    - node version-up.mjs $TRAVIS_TAG
+    - node version-up.js $TRAVIS_TAG
     - dotnet build
     - dotnet test TinyBI.Engine.Tests/TinyBI.Engine.Tests.csproj
     - popd

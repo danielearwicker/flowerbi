@@ -1,4 +1,4 @@
-import * as fs from "fs";
+const fs = require("fs");
 
 const newVersion = process.argv[2];
 if (!newVersion) {
