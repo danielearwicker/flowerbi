@@ -3,8 +3,8 @@ solution: server/dotnet/TinyBI.sln
 mono: none
 dotnet: 3.1
 deploy:
-    provider: script
+  - provider: script
     script: bash release.sh $TRAVIS_TAG
     on:
-        branch: master
-        tags: true
+      branch: master
+      tags: true
