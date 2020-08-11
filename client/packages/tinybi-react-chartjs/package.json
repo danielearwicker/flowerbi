@@ -1,6 +1,6 @@
 {
     "name": "tinybi-react-chartjs",
-    "version": "1.9.0",
+    "version": "0.3.1",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "Chart components for React and TinyBI",
@@ -10,8 +10,8 @@
         "@types/chart.js": "^2.9.22",
         "@types/json-stable-stringify": "^1.0.32",
         "@types/react": "^16.9.0",
-        "tinybi": "1.9.0",
-        "tinybi-react": "1.9.0"
+        "tinybi": "0.3.1",
+        "tinybi-react": "0.3.1"
     },
     "devDependencies": {
         "prettier": "^2.0.5",

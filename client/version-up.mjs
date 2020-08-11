@@ -1,6 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
-import { SemVer } from "../SemVer.mjs";
+
+const newVersion = process.argv[2];
+if (!newVersion) {
+    console.error("Specify a new version tag", process.argv);
+    process.exit(-1);
+}
 
 const packages = fs.readdirSync("packages").filter(x => x[0] !== '.');
 
@@ -15,11 +20,6 @@ function readPackage(name) {
 function writePackage(name, json) {
     fs.writeFileSync(getPackagePath(name), JSON.stringify(json, null, 4));
 }
-
-const versions = packages.map(readPackage).map(x => new SemVer(x.version));
-versions.sort((a, b) => a.compare(b));
-
-const newVersion = versions[versions.length - 1].increase("minor").toString();
 
 console.log(`New version is ${newVersion}`);
 

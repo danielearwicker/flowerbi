@@ -1,5 +1,10 @@
 import * as fs from "fs";
-import { SemVer } from "../../SemVer.mjs";
+
+const newVersion = process.argv[2];
+if (!newVersion) {
+    console.error("Specify a new version tag", process.argv);
+    process.exit(-1);
+}
 
 const pattern = /\<PackageVersion\>([\d\.]+)<\/PackageVersion\>/;
 
@@ -8,8 +13,6 @@ const propsPath = "Directory.Build.props";
 const oldConfig = fs.readFileSync(propsPath, "utf8");
 
 const parts = oldConfig.split(pattern);
-
-const newVersion = new SemVer(parts[1]).increase("minor");
 
 const newConfig = [parts[0], "<PackageVersion>", newVersion, "</PackageVersion>", parts[2]].join("");
 
