@@ -1,7 +1,7 @@
 pushd server/dotnet
-. ./push.sh $1
+. ./push.sh
 popd
 
 pushd client
-. ./publish.sh $1
+. ./publish.sh
 popd
