@@ -8,7 +8,11 @@ script:
     - dotnet build
     - dotnet test TinyBI.Engine.Tests/TinyBI.Engine.Tests.csproj
     - popd
+    - pushd client
+    - yarn
+    - popd
 deploy:
+    skip_cleanup: true
   - provider: script
     script: bash release.sh
     on:
