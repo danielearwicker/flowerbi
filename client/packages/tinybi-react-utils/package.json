@@ -1,6 +1,6 @@
 {
     "name": "tinybi-react-utils",
-    "version": "0.4.1",
+    "version": "1.11.0",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "React helpers useful in TinyBI apps (but not actually dependent on it",

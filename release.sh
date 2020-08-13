@@ -9,7 +9,8 @@ popd
 
 pushd client
 yarn
-yarn run build
+yarn workspaces run build
+yarn workspaces run docs
 popd
 
 pushd server/dotnet
