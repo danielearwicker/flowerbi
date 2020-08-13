@@ -21,21 +21,29 @@ function detectDateType(dates: Moment[]): {
     return { format: "YYYY", unit: "years", incr: 1 };
 }
 
+function parseDate(val: Date | string | number) {
+    // Ensure a numeric year is not interpreted as offset from 1970!
+    if (typeof val === "number") {
+        val = "" + val;
+    }
+    return moment(val);
+}
+
 export function smartDates<T, R>(
     records: T[],
     getDate: (record: T) => Date | string | number,
     mapTo: (dateText: string, record: T | undefined) => R
 ) {
     records = [...records];
-    records.sort((x, y) => moment(getDate(x)).diff(moment(getDate(y))));
+    records.sort((x, y) => parseDate(getDate(x)).diff(parseDate(getDate(y))));
 
-    const { format, unit, incr } = detectDateType(records.map(d => moment(getDate(d))));
+    const { format, unit, incr } = detectDateType(records.map(d => parseDate(getDate(d))));
 
     const results: R[] = [];
     let latest: Moment | undefined = undefined;
 
     for (const record of records) {
-        const current = moment(getDate(record));
+        const current = parseDate(getDate(record));
 
         if (latest) {
             for (;;) {
