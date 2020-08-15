@@ -29,7 +29,9 @@ namespace TinyBI.WasmHost
 
         private static IJSRuntime JsRuntime;
 
-        private static Schema Demo = new Schema(typeof(DemoSchema.NxgSchema));
+        private static readonly Schema Demo = new Schema(typeof(DemoSchema.NxgSchema));
+
+        private static readonly ISqlFormatter Formatter = new SqlLiteFormatter();
 
         [JSInvokable]
         public async static Task<string> Query(string queryJson)
@@ -49,7 +51,7 @@ namespace TinyBI.WasmHost
                 var query = new Query(parsed, Demo);
 
                 var filterParams = new EmbeddedFilterParameters();
-                sql = query.ToSql(filterParams, new Filter[0]);
+                sql = query.ToSql(Formatter, filterParams, new Filter[0]);
 
                 return await JsRuntime.InvokeAsync<string>("querySql", sql);
             }

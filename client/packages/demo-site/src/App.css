@@ -222,3 +222,16 @@ body,
     text-align: right;
     padding-top: 1em;
 }
+
+@keyframes fadeIn { 
+    from { opacity: 0; } 
+}
+
+.loading {
+    color: silver;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    animation: fadeIn 0.5s infinite alternate;
+}

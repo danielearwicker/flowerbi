@@ -36,7 +36,7 @@ namespace TinyBI
 
 with {{#each Aggregations}}
 
-    [Aggregation{{@index}}] as (
+    Aggregation{{@index}} as (
         {{{this}}}
     )
     {{#unless @last}},{{/unless}}
@@ -72,17 +72,16 @@ from Aggregation0 a0
 {{/each}}
 
 order by {{ordering}}
-
-offset {{skip}} rows
-fetch next {{take}} rows only
+{{skipAndTake}}
 ");
 
-        private string ToSql(IList<IColumn> select, IFilterParameters filterParams,
-                             IEnumerable<Filter> outerFilters, long skip, int take)
+        private string ToSql(ISqlFormatter sql, IList<IColumn> select,
+                             IFilterParameters filterParams, IEnumerable<Filter> outerFilters,
+                             long skip, int take)
         {
             if (Aggregations.Count == 1 && OrderBy.Count == 0)
             {
-                return Aggregations[0].ToSql(select, outerFilters.Concat(Filters), filterParams, skip, take);
+                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, skip, take);
             }
 
             var ordering = "a0.Value0 desc";
@@ -94,10 +93,9 @@ fetch next {{take}} rows only
 
             return _template(new
             {
-                Skip = skip,
-                Take = take,
+                skipAndTake = sql.SkipAndTake(skip, take),
                 Aggregations = Aggregations.Select(x =>
-                    x.ToSql(select, outerFilters.Concat(Filters), filterParams)),
+                    x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)),
                 Select = select,
                 ordering
             });
@@ -117,28 +115,29 @@ fetch next {{take}} rows only
             return $"a0.Select{i} {direction}";
         }
 
-        public string ToSql(IFilterParameters filterParams,
+        public string ToSql(ISqlFormatter sql,
+                            IFilterParameters filterParams,
                             IEnumerable<Filter> outerFilters)
         {
-            var sql = ToSql(Select, filterParams, outerFilters, Skip, Take);
+            var result = ToSql(sql, Select, filterParams, outerFilters, Skip, Take);
 
             if (Totals)
             {
-                sql += ";" + ToSql(null, filterParams, outerFilters, 0, 1);
+                result += ";" + ToSql(sql, null, filterParams, outerFilters, 0, 1);
             }
 
-            return sql;
+            return result;
         }
         
-        public QueryResultJson Run(IDbConnection db, Action<string> log, params Filter[] outerFilters)
+        public QueryResultJson Run(ISqlFormatter sql, IDbConnection db, Action<string> log, params Filter[] outerFilters)
         {
             var filterParams = new DapperFilterParameters();
 
-            var sql = ToSql(filterParams, outerFilters);
+            var querySql = ToSql(sql, filterParams, outerFilters);
 
-            log?.Invoke($"{sql} with parameters: {filterParams}");
+            log?.Invoke($"{querySql} with parameters: {filterParams}");
 
-            var reader = db.QueryMultiple(sql, filterParams.DapperParams);
+            var reader = db.QueryMultiple(querySql, filterParams.DapperParams);
 
             var result = new QueryResultJson();
 

@@ -2,7 +2,7 @@
 
 namespace TinyBI.DemoSchema
 {    
-    [DbSchema("BugTracking")]
+    [DbSchema("main")]
     public static class NxgSchema
     {       
         [DbTable("Date")]

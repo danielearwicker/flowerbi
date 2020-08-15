@@ -38,7 +38,7 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
 
     const result = useQuery(fetch, query);
 
-    const datedRecords = smartDates(result.records, r => r.period, (dateLabel, record) => ({
+    const datedRecords = smartDates(result.records, 2017, "2021-12-31", r => r.period, (dateLabel, record) => ({
         dateLabel,
         countAllCauses: 0,
         countHackers: 0,
@@ -77,7 +77,7 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
     };
 
     return (
-        <TinyBIChartBox id={id} title="Bugs Over Time">
+        <TinyBIChartBox id={id} title="Bugs Over Time" state={result.state}>
             <div className="chart-with-dropdown">
                 <div className="content">
                     <Bar ref={ref} options={options} data={data} />

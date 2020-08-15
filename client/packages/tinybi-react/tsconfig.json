@@ -14,7 +14,8 @@
         "isolatedModules": true,
         "outDir": "dist",
         "declaration": true,
-        "jsx": "react"
+        "jsx": "react",
+        "sourceMap": true
     },
     "include": ["src"]
 }

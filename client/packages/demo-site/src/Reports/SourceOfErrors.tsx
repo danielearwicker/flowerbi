@@ -28,7 +28,7 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
     const clickHandler = makeClickHandler(id, ref, query.select, pageFilters);
     
     return (
-        <TinyBIChartBox id={id} title="Source Of Errors">
+        <TinyBIChartBox id={id} title="Source Of Errors" state={result.state}>
             <Pie
                 ref={ref}
                 options={{ ...clickHandler }} 

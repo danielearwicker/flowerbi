@@ -79,7 +79,7 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
     const orderedCategories = bugCountByCategory.filter(c => c.bugCount > 0).map(c => c.category);
 
     return (
-        <TinyBIChartBox id={id} title="Types Of Error">
+        <TinyBIChartBox id={id} title="Types Of Error" state={data.state}>
             <Bar 
                 ref={chart}
                 options={{ 

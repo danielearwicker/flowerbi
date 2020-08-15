@@ -27,7 +27,7 @@ export function ResolvedPerCustomer({ pageFilters, fetch }: VisualProps) {
     const clickHandler = makeClickHandler(id, ref, query.select, pageFilters);
     
     return (
-        <TinyBIChartBox id={id} title="Resolved Per Customer">
+        <TinyBIChartBox id={id} title="Resolved Per Customer" state={result.state}>
             <Pie
                 ref={ref}
                 options={{ ...clickHandler }}

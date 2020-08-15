@@ -129,16 +129,16 @@ function setupDb(db: Database) {
     const bugRows = bugs.join(",");
 
     const initSql = `
-        create table \`Date\` (
+        create table \`main\`.\`Date\` (
             Id date,
             CalendarYearNumber smallint,
             FirstDayOfQuarter date,
             FirstDayOfMonth date
         );
 
-        insert into \`Date\` values ${dateRows};
+        insert into \`main\`.\`Date\` values ${dateRows};
 
-        create table \`Workflow\` (
+        create table \`main\`.\`Workflow\` (
             Id int,
             Resolved bit,
             WorkflowState varchar(30),
@@ -146,14 +146,14 @@ function setupDb(db: Database) {
             FixedByCustomer bit
         );
 
-        insert into \`Workflow\` values ${workflowRows};
+        insert into \`main\`.\`Workflow\` values ${workflowRows};
 
-        create table \`Category\` (
+        create table \`main\`.\`Category\` (
             Id int,
             Label varchar(30)
         );
 
-        insert into \`Category\` values
+        insert into \`main\`.\`Category\` values
             (1, 'Crashed'),
             (2, 'Data Loss'),
             (3, 'Security Breach'),
@@ -161,12 +161,12 @@ function setupDb(db: Database) {
             (5, 'Slow'),
             (6, 'StackOverflow');
 
-        create table \`Coder\` (
+        create table \`main\`.\`Coder\` (
             Id int,
             FullName varchar(30)
         );
     
-        insert into \`Coder\` values
+        insert into \`main\`.\`Coder\` values
                 (1, 'Sam'),
                 (2, 'Alex'),
                 (3, 'Drew'),
@@ -174,12 +174,12 @@ function setupDb(db: Database) {
                 (5, 'Parker'),
                 (6, 'Austin');
 
-        create table \`Customer\` (
+        create table \`main\`.\`Customer\` (
             Id int,
             CustomerName varchar(30)
         );
     
-        insert into \`Customer\` values
+        insert into \`main\`.\`Customer\` values
                 (1, 'Pies LLC'),
                 (2, 'Buns, Inc.'),
                 (3, 'Hats-R-Us'),
@@ -187,7 +187,7 @@ function setupDb(db: Database) {
                 (5, 'Egypt'),
                 (6, 'Affordability');
 
-        create table \`CategoryCombination\` (
+        create table \`main\`.\`CategoryCombination\` (
             Id int,
             StackOverflow bit,
             Slow bit,
@@ -197,9 +197,9 @@ function setupDb(db: Database) {
             Crashed bit
         );
 
-        insert into \`CategoryCombination\` values ${categoryCombinationsRows};
+        insert into \`main\`.\`CategoryCombination\` values ${categoryCombinationsRows};
 
-        create table \`Bug\` (
+        create table \`main\`.\`Bug\` (
             Id int,
             WorkflowId int,
             CustomerId int,
@@ -211,7 +211,7 @@ function setupDb(db: Database) {
             ResolvedCoderId int
         );
 
-        insert into \`Bug\` values ${bugRows};
+        insert into \`main\`.\`Bug\` values ${bugRows};
     `;
 
     db.run(initSql);

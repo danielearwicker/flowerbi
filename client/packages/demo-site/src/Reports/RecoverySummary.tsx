@@ -27,7 +27,7 @@ export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: 
     });
 
     return (
-        <TinyBIChartBox title={title}>
+        <TinyBIChartBox title={title} state={data.state}>
             <TinyBITable
                 data={data}
                 columns={{

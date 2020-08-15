@@ -73,6 +73,7 @@
 								<li class="tsd-kind-interface"><a href="interfaces/pagefilters.html" class="tsd-kind-icon">Page<wbr>Filters</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/pagefiltersprop.html" class="tsd-kind-icon">Page<wbr>Filters<wbr>Prop</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/pagefiltersstate.html" class="tsd-kind-icon">Page<wbr>Filters<wbr>State</a></li>
+								<li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/usequeryresult.html" class="tsd-kind-icon">Use<wbr>Query<wbr>Result</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -80,6 +81,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias"><a href="globals.html#columndefinition" class="tsd-kind-icon">Column<wbr>Definition</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#tinybitableprops" class="tsd-kind-icon">TinyBITable<wbr>Props</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#usequerystate" class="tsd-kind-icon">Use<wbr>Query<wbr>State</a></li>
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
@@ -108,7 +110,7 @@
 					<div class="tsd-signature tsd-kind-icon">Column<wbr>Definition<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">"left"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"right"</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in TinyBITable.tsx:4</li>
+							<li>Defined in tinybi-react/src/TinyBITable.tsx:4</li>
 						</ul>
 					</aside>
 				</section>
@@ -118,7 +120,7 @@
 					<div class="tsd-signature tsd-kind-icon">TinyBITable<wbr>Props&lt;S&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>columns<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ExpandedQueryResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in TinyBITable.tsx:17</li>
+							<li>Defined in tinybi-react/src/TinyBITable.tsx:17</li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -162,6 +164,16 @@
 						</ul>
 					</div>
 				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="usequerystate" class="tsd-anchor"></a>
+					<h3>Use<wbr>Query<wbr>State</h3>
+					<div class="tsd-signature tsd-kind-icon">Use<wbr>Query<wbr>State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"init"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"ready"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"refresh"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"error"</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in tinybi-react/src/useQuery.ts:5</li>
+						</ul>
+					</aside>
+				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
@@ -175,7 +187,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in TinyBITable.tsx:24</li>
+									<li>Defined in tinybi-react/src/TinyBITable.tsx:24</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -235,7 +247,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in TinyBITable.tsx:6</li>
+									<li>Defined in tinybi-react/src/TinyBITable.tsx:6</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -261,7 +273,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in usePageFilters.ts:25</li>
+									<li>Defined in tinybi-react/src/usePageFilters.ts:25</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/pagefilters.html" class="tsd-signature-type">PageFilters</a></h4>
@@ -272,13 +284,13 @@
 					<a name="usequery" class="tsd-anchor"></a>
 					<h3>use<wbr>Query</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">use<wbr>Query&lt;S&gt;<span class="tsd-signature-symbol">(</span>fetch<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">QueryFetch</span>, query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Query</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ExpandedQueryResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">use<wbr>Query&lt;S&gt;<span class="tsd-signature-symbol">(</span>fetch<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">QueryFetch</span>, query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Query</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in useQuery.ts:16</li>
+									<li>Defined in tinybi-react/src/useQuery.ts:31</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -288,7 +300,8 @@
 									query from within a component.</p>
 								</div>
 								<p>The returned object has a strongly-typed <code>records</code> array, and optionally
-								a <code>totals</code> object.</p>
+									a <code>totals</code> object. It has a <code>state</code> of type <a href="globals.html#usequerystate">UseQueryState</a> that
+								can be used to show a loading indicator.</p>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
@@ -311,7 +324,7 @@
 									</div>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">ExpandedQueryResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></h4>
+							<h4 class="tsd-returns-title">Returns <a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -324,7 +337,7 @@
 					<div class="tsd-signature tsd-kind-icon">cleared<wbr>State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in usePageFilters.ts:19</li>
+							<li>Defined in tinybi-react/src/usePageFilters.ts:19</li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
@@ -333,7 +346,7 @@
 						<div class="tsd-signature tsd-kind-icon">global<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in usePageFilters.ts:20</li>
+								<li>Defined in tinybi-react/src/usePageFilters.ts:20</li>
 							</ul>
 						</aside>
 					</section>
@@ -343,7 +356,7 @@
 						<div class="tsd-signature tsd-kind-icon">interaction<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in usePageFilters.ts:22</li>
+								<li>Defined in tinybi-react/src/usePageFilters.ts:22</li>
 							</ul>
 						</aside>
 					</section>
@@ -353,7 +366,7 @@
 						<div class="tsd-signature tsd-kind-icon">interactions<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in usePageFilters.ts:21</li>
+								<li>Defined in tinybi-react/src/usePageFilters.ts:21</li>
 							</ul>
 						</aside>
 					</section>
@@ -379,11 +392,17 @@
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/pagefiltersstate.html" class="tsd-kind-icon">Page<wbr>Filters<wbr>State</a>
 					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/usequeryresult.html" class="tsd-kind-icon">Use<wbr>Query<wbr>Result</a>
+					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#columndefinition" class="tsd-kind-icon">Column<wbr>Definition</a>
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
 						<a href="globals.html#tinybitableprops" class="tsd-kind-icon">TinyBITable<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#usequerystate" class="tsd-kind-icon">Use<wbr>Query<wbr>State</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#tinybitable" class="tsd-kind-icon">TinyBITable</a>

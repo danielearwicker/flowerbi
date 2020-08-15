@@ -5,9 +5,11 @@
             "packages/*"
         ],
         "nohoist": [
-            "**/webpack"
+            "**/webpack", "ts-jest"
         ]
     },
-    "scripts": {},
+    "scripts": {
+        "prepare": "yarn workspaces run prepare"
+    },
     "resolutions": {}
 }

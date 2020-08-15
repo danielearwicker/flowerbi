@@ -14,7 +14,7 @@ namespace TinyBI
 
     public class Aggregation
     {
-        public AggregationType? Function { get; }
+        public AggregationType Function { get; }
 
         public IColumn Column { get; }
 
@@ -30,17 +30,17 @@ namespace TinyBI
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
 select
     
-    {{#each selectColumns}}
+    {{#each selects}}
         {{this}} Select{{@index}},
     {{/each}}
 
-    {{#if Function}} {{Function}}({{/if}}main.[{{Column.DbName}}]{{#if Function}}){{/if}} Value0
+    {{Function}}({{mainColumn}}) Value0
 
-from [{{Column.Table.Schema.DbName}}].[{{Column.Table.DbName}}] main
+from {{mainTable}} main
 
 {{#each Joins}}
-join [{{Table.Schema.DbName}}].[{{Table.DbName}}] {{Alias}}
-  on {{Alias}}.[{{Table.Id.DbName}}] = main.[{{ForeignKey.DbName}}]
+join {{Table}} {{Alias}}
+  on {{Left}} = {{Right}}
 {{/each}}
 
 {{#if Filters}}
@@ -54,63 +54,18 @@ where
 {{#if groupBy}}
     group by
     {{#each groupBy}}
-        {{Alias}}.[{{Column}}]
+        {{Part}}
         {{#unless @last}} , {{/unless}}
     {{/each}}
 {{/if}}
 
-{{#if take}}
-    order by {{#if Function}} {{Function}}({{/if}}main.[{{Column.DbName}}]{{#if Function}}){{/if}} desc
-    offset {{skip}} rows
-    fetch next {{take}} rows only
+{{#if skipAndTake}}
+    order by {{Function}}({{mainColumn}}) desc
+    {{skipAndTake}}
 {{/if}}
 ");
-
-        private string GenerateSelect(
-            IEnumerable<string> selectColumns,
-            IEnumerable<Filter> outerFilters,
-            IFilterParameters filterParams,
-            IEnumerable<IColumn> groupByColumns,
-            Joins joins,
-            long? skip = null,
-            int? take = null)
-        {
-            var filters = outerFilters.Concat(Filters).Select(f => new
-            {
-                Column = f.Column == f.Column.Table.Id
-                    ? $"main.[{Column.Table.GetForeignKeyTo(f.Column.Table).DbName}]"
-                    : $"{joins[f.Column.Table]}.[{f.Column.DbName}]",
-                f.Operator,
-                Param = filterParams[f]
-            })
-            .ToList();
-
-            var groupBy = groupByColumns?.Select(x => new
-                {
-                    Alias = joins[x.Table],
-                    Column = x.DbName
-                })
-                .ToList();
-
-            return _template(new
-            {
-                selectColumns,
-                Column,
-                Function,
-                Filters = filters,
-                Joins = joins.Aliases.Select(x => new
-                {
-                    Table = x.Key,
-                    Alias = x.Value,
-                    ForeignKey = Column.Table.GetForeignKeyTo(x.Key)                    
-                }),
-                groupBy,
-                skip,
-                take
-            });
-        }
-
         public string ToSql(
+            ISqlFormatter sql,
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             IFilterParameters filterParams,
@@ -119,9 +74,47 @@ where
         {
             var joins = new Joins("main", Column.Table);
 
-            var selects = selectColumns?.Select(c => $"{joins[c.Table]}.[{c.DbName}]").ToList();
+            var selects = selectColumns?.Select(c =>
+                sql.IdentifierPair(joins[c.Table], c.DbName)).ToList();
 
-            return GenerateSelect(selects, outerFilters, filterParams, Function != null ? selectColumns : null, joins, skip, take);
+            var filters = outerFilters.Concat(Filters).Select(f => new
+            {
+                Column = f.Column == f.Column.Table.Id
+                    ? sql.IdentifierPair("main", Column.Table.GetForeignKeyTo(f.Column.Table).DbName)
+                    : sql.IdentifierPair(joins[f.Column.Table], f.Column.DbName),
+                f.Operator,
+                Param = filterParams[f]
+            })
+            .ToList();
+
+            var groupBy = selectColumns?.Select(x => new
+            {
+                Part = sql.IdentifierPair(joins[x.Table], x.DbName)
+            })
+            .ToList();
+
+            var joinParts = joins.Aliases.Select(x => new
+            {
+                Table = sql.IdentifierPair(x.Key.Schema.DbName, x.Key.DbName),
+                Alias = x.Value,
+                Left = sql.IdentifierPair(x.Value, x.Key.Id.DbName),
+                Right = sql.IdentifierPair("main", Column.Table.GetForeignKeyTo(x.Key).DbName)
+            })
+            .ToList();
+
+            return _template(new
+            {
+                selects,
+                mainColumn = sql.IdentifierPair("main", Column.DbName),
+                mainTable = sql.IdentifierPair(Column.Table.Schema.DbName, Column.Table.DbName),
+                Function,
+                Filters = filters,
+                Joins = joinParts,
+                groupBy,
+                skipAndTake = skip != null && take != null
+                    ? sql.SkipAndTake(skip.Value, take.Value)
+                    : null
+            });
         }
     }
 }

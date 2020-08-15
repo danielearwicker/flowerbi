@@ -80,6 +80,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-interface"><a href="interfaces/aggregationjson.html" class="tsd-kind-icon">Aggregation<wbr>Json</a></li>
 								<li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/expandedqueryresult.html" class="tsd-kind-icon">Expanded<wbr>Query<wbr>Result</a></li>
+								<li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/filldatesoptions.html" class="tsd-kind-icon">Fill<wbr>Dates<wbr>Options</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/filterjson.html" class="tsd-kind-icon">Filter<wbr>Json</a></li>
 								<li class="tsd-kind-interface"><a href="interfaces/orderingjson.html" class="tsd-kind-icon">Ordering<wbr>Json</a></li>
 								<li class="tsd-kind-interface tsd-has-type-parameter"><a href="interfaces/query.html" class="tsd-kind-icon">Query</a></li>
@@ -100,6 +101,8 @@
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#columnpropsonlyhelper" class="tsd-kind-icon">Column<wbr>Props<wbr>Only<wbr>Helper</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#expandedqueryrecord" class="tsd-kind-icon">Expanded<wbr>Query<wbr>Record</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#expandedqueryrecordwithoptionalcolumns" class="tsd-kind-icon">Expanded<wbr>Query<wbr>Record<wbr>With<wbr>Optional<wbr>Columns</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#filldate" class="tsd-kind-icon">Fill<wbr>Date</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#filldatetype" class="tsd-kind-icon">Fill<wbr>Date<wbr>Type</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#filtervalue" class="tsd-kind-icon">Filter<wbr>Value</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#querycolumntype" class="tsd-kind-icon">Query<wbr>Column<wbr>Type</a></li>
@@ -110,12 +113,19 @@
 							</ul>
 						</section>
 						<section class="tsd-index-section ">
+							<h3>Variables</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-variable"><a href="globals.html#datetypes" class="tsd-kind-icon">date<wbr>Types</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
 							<h3>Functions</h3>
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-function"><a href="globals.html#detectdatetype" class="tsd-kind-icon">detect<wbr>Date<wbr>Type</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#distinct" class="tsd-kind-icon">distinct</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#expandqueryrecord" class="tsd-kind-icon">expand<wbr>Query<wbr>Record</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#expandqueryresult" class="tsd-kind-icon">expand<wbr>Query<wbr>Result</a></li>
+								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#filldates" class="tsd-kind-icon">fill<wbr>Dates</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#getaggregatepropsonly" class="tsd-kind-icon">get<wbr>Aggregate<wbr>Props<wbr>Only</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#getaggregatevaluesonly" class="tsd-kind-icon">get<wbr>Aggregate<wbr>Values<wbr>Only</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#getcolumnpropsonly" class="tsd-kind-icon">get<wbr>Column<wbr>Props<wbr>Only</a></li>
@@ -124,6 +134,17 @@
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#keysof" class="tsd-kind-icon">keys<wbr>Of</a></li>
 								<li class="tsd-kind-function"><a href="globals.html#parsedate" class="tsd-kind-icon">parse<wbr>Date</a></li>
 								<li class="tsd-kind-function tsd-has-type-parameter"><a href="globals.html#smartdates" class="tsd-kind-icon">smart<wbr>Dates</a></li>
+							</ul>
+						</section>
+						<section class="tsd-index-section ">
+							<h3>Object literals</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-object-literal"><a href="globals.html#bug" class="tsd-kind-icon">Bug</a></li>
+								<li class="tsd-kind-object-literal"><a href="globals.html#customer" class="tsd-kind-icon">Customer</a></li>
+								<li class="tsd-kind-object-literal"><a href="globals.html#days" class="tsd-kind-icon">days</a></li>
+								<li class="tsd-kind-object-literal"><a href="globals.html#months" class="tsd-kind-icon">months</a></li>
+								<li class="tsd-kind-object-literal"><a href="globals.html#quarters" class="tsd-kind-icon">quarters</a></li>
+								<li class="tsd-kind-object-literal"><a href="globals.html#years" class="tsd-kind-icon">years</a></li>
 							</ul>
 						</section>
 					</div>
@@ -327,6 +348,117 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="filldate" class="tsd-anchor"></a>
+					<h3>Fill<wbr>Date</h3>
+					<div class="tsd-signature tsd-kind-icon">Fill<wbr>Date<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:3</li>
+						</ul>
+					</aside>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="filldatetype" class="tsd-anchor"></a>
+					<h3>Fill<wbr>Date<wbr>Type</h3>
+					<div class="tsd-signature tsd-kind-icon">Fill<wbr>Date<wbr>Type<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:17</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Three operations on dates used by <a href="globals.html#filldates">fillDates</a>.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>format<span class="tsd-signature-symbol">: </span>function</h5>
+								<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+									<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<aside class="tsd-sources">
+											<ul>
+												<li>Defined in fillDates.ts:21</li>
+											</ul>
+										</aside>
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Format the given date to a string</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>increment<span class="tsd-signature-symbol">: </span>function</h5>
+								<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+									<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<aside class="tsd-sources">
+											<ul>
+												<li>Defined in fillDates.ts:23</li>
+											</ul>
+										</aside>
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Increment the date by the unit. The given date will already be rounded down.</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>round<span class="tsd-signature-symbol">: </span>function</h5>
+								<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+									<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+								</ul>
+								<ul class="tsd-descriptions">
+									<li class="tsd-description">
+										<aside class="tsd-sources">
+											<ul>
+												<li>Defined in fillDates.ts:19</li>
+											</ul>
+										</aside>
+										<div class="tsd-comment tsd-typography">
+											<div class="lead">
+												<p>Round the given date down to the nearest whole unit (e.g. start of month, quarter, year)</p>
+											</div>
+										</div>
+										<h4 class="tsd-parameters-title">Parameters</h4>
+										<ul class="tsd-parameters">
+											<li>
+												<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+											</li>
+										</ul>
+										<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="filteroperator" class="tsd-anchor"></a>
 					<h3>Filter<wbr>Operator</h3>
 					<div class="tsd-signature tsd-kind-icon">Filter<wbr>Operator<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&lt;&gt;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&gt;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&lt;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&gt;&#x3D;"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"&lt;&#x3D;"</span></div>
@@ -464,38 +596,400 @@
 				</section>
 			</section>
 			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Variables</h2>
+				<section class="tsd-panel tsd-member tsd-kind-variable">
+					<a name="datetypes" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> date<wbr>Types</h3>
+					<div class="tsd-signature tsd-kind-icon">date<wbr>Types<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>days<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>months<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>quarters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">; </span>years<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> = {days, months, quarters, years} as const</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:80</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Standard built-in date types. To customise, implement the <a href="globals.html#filldatetype">FillDateType</a> interface.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>days<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>format<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:21</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Format the given date to a string</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>increment<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:23</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Increment the date by the unit. The given date will already be rounded down.</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>round<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:19</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Round the given date down to the nearest whole unit (e.g. start of month, quarter, year)</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>months<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>format<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:21</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Format the given date to a string</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>increment<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:23</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Increment the date by the unit. The given date will already be rounded down.</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>round<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:19</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Round the given date down to the nearest whole unit (e.g. start of month, quarter, year)</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>quarters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>format<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:21</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Format the given date to a string</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>increment<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:23</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Increment the date by the unit. The given date will already be rounded down.</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>round<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:19</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Round the given date down to the nearest whole unit (e.g. start of month, quarter, year)</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li class="tsd-parameter">
+								<h5>years<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+								<ul class="tsd-parameters">
+									<li class="tsd-parameter">
+										<h5>format<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:21</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Format the given date to a string</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>increment<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:23</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Increment the date by the unit. The given date will already be rounded down.</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+									<li class="tsd-parameter">
+										<h5>round<span class="tsd-signature-symbol">: </span>function</h5>
+										<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-type-literal">
+											<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+										</ul>
+										<ul class="tsd-descriptions">
+											<li class="tsd-description">
+												<aside class="tsd-sources">
+													<ul>
+														<li>Defined in fillDates.ts:19</li>
+													</ul>
+												</aside>
+												<div class="tsd-comment tsd-typography">
+													<div class="lead">
+														<p>Round the given date down to the nearest whole unit (e.g. start of month, quarter, year)</p>
+													</div>
+												</div>
+												<h4 class="tsd-parameters-title">Parameters</h4>
+												<ul class="tsd-parameters">
+													<li>
+														<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+													</li>
+												</ul>
+												<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
 				<h2>Functions</h2>
 				<section class="tsd-panel tsd-member tsd-kind-function">
 					<a name="detectdatetype" class="tsd-anchor"></a>
 					<h3>detect<wbr>Date<wbr>Type</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">detect<wbr>Date<wbr>Type<span class="tsd-signature-symbol">(</span>dates<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>incr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>unit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"days"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"months"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"years"</span><span class="tsd-signature-symbol"> }</span></li>
+						<li class="tsd-signature tsd-kind-icon">detect<wbr>Date<wbr>Type<span class="tsd-signature-symbol">(</span>dates<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="globals.html#filldatetype" class="tsd-signature-type">FillDateType</a></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in smartDates.ts:3</li>
+									<li>Defined in fillDates.ts:88</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Examines a set of dates and chooses the most specific type that includes them all. If
+									all fall on Jan, 1 then <code>years</code> is chosen, and so on.</p>
+								</div>
+							</div>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
 									<h5>dates: <span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 							</ul>
-							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">; </span>incr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">; </span>unit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"days"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"months"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"years"</span><span class="tsd-signature-symbol"> }</span></h4>
-							<ul class="tsd-parameters">
-								<li class="tsd-parameter">
-									<h5>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></h5>
-								</li>
-								<li class="tsd-parameter">
-									<h5>incr<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span></h5>
-								</li>
-								<li class="tsd-parameter">
-									<h5>unit<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">"days"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"months"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"years"</span></h5>
-								</li>
-							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="globals.html#filldatetype" class="tsd-signature-type">FillDateType</a></h4>
 						</li>
 					</ul>
 				</section>
@@ -623,6 +1117,97 @@
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/expandedqueryresult.html" class="tsd-signature-type">ExpandedQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-function tsd-has-type-parameter">
+					<a name="filldates" class="tsd-anchor"></a>
+					<h3>fill<wbr>Dates</h3>
+					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
+						<li class="tsd-signature tsd-kind-icon">fill<wbr>Dates&lt;T, R&gt;<span class="tsd-signature-symbol">(</span>__namedParameters<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span>fill<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#fill" class="tsd-signature-type">fill</a><span class="tsd-signature-symbol">; </span>getDate<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#getdate" class="tsd-signature-type">getDate</a><span class="tsd-signature-symbol">; </span>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">; </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">; </span>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[]</span></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in fillDates.ts:165</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>When querying for a time series chart, e.g. x-axis is <em>Month</em> and y-axis is
+										_Total Sales_, there may be months where nothing was sold so they are
+									missing from the list of records.</p>
+								</div>
+								<p>To render a proper time-series, we need these gaps to be filled in with
+								runs of fake records that give zero amounts for those months. e.g.</p>
+								<pre><code class="language-ts"><span class="hljs-keyword">const</span> filled = fillDates({
+    records: [
+        { date: <span class="hljs-string">&#x27;2020-04-01&#x27;</span>, totalSales: <span class="hljs-number">10</span> },
+        { date: <span class="hljs-string">&#x27;2020-06-01&#x27;</span>, totalSales: <span class="hljs-number">4</span> },
+        { date: <span class="hljs-string">&#x27;2020-07-01&#x27;</span>, totalSales: <span class="hljs-number">9</span> },
+    ],
+    <span class="hljs-keyword">type</span>: dateTypes.months,
+    getDate: <span class="hljs-function"><span class="hljs-params">rec</span> =&gt;</span> rec.date,
+    fill: <span class="hljs-function">(<span class="hljs-params">label, rec</span>) =&gt;</span> ({
+        label,
+        totalSales: <span class="hljs-number">0</span>,
+        ...rec
+    })
+});</code></pre>
+								<p>In the above example we add a <code>label</code> property to all the records, and
+									for the records that fill the gaps we set the <code>totalSales</code> property to 0.
+								For the real records, <code>...rec</code> will copy the real value of <code>totalSales</code>.</p>
+								<p>To do this, we need to know:</p>
+								<ul>
+									<li>how to round a date to the start of a unit (year, month, quarter),</li>
+									<li>how to increment a date by that unit,</li>
+									<li>how to format a date to a string for display.</li>
+								</ul>
+								<p>These operations are encapsulated by the <a href="globals.html#filldatetype">FillDateType</a> interface.
+									Several built-in types are provided in <a href="globals.html#datetypes">dateTypes</a>, but you can
+								implement your own.</p>
+								<p>Optionally you can also pass <code>min</code> and <code>max</code> dates, which will cause
+								extra records to be added at the start and end of the range if necessary.</p>
+								<p>If you don&#39;t pass a <code>type</code>, a suitable type will be detected based on
+								how the input record dates fall on unit boundaries.</p>
+							</div>
+							<h4 class="tsd-type-parameters-title">Type parameters</h4>
+							<ul class="tsd-type-parameters">
+								<li>
+									<h4>T</h4>
+								</li>
+								<li>
+									<h4>R</h4>
+								</li>
+							</ul>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5>__namedParameters: <span class="tsd-signature-symbol">{ </span>fill<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#fill" class="tsd-signature-type">fill</a><span class="tsd-signature-symbol">; </span>getDate<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#getdate" class="tsd-signature-type">getDate</a><span class="tsd-signature-symbol">; </span>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">; </span>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">; </span>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">; </span>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span><span class="tsd-signature-symbol"> }</span></h5>
+									<ul class="tsd-parameters">
+										<li class="tsd-parameter">
+											<h5>fill<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#fill" class="tsd-signature-type">fill</a></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>get<wbr>Date<span class="tsd-signature-symbol">: </span><a href="interfaces/filldatesoptions.html#getdate" class="tsd-signature-type">getDate</a></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>max<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>min<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">Moment</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
+										</li>
+										<li class="tsd-parameter">
+											<h5>type<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">{ </span>format<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>increment<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">; </span>round<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol"> }</span></h5>
+										</li>
+									</ul>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[]</span></h4>
 						</li>
 					</ul>
 				</section>
@@ -870,19 +1455,19 @@
 					<a name="parsedate" class="tsd-anchor"></a>
 					<h3>parse<wbr>Date</h3>
 					<ul class="tsd-signatures tsd-kind-function">
-						<li class="tsd-signature tsd-kind-icon">parse<wbr>Date<span class="tsd-signature-symbol">(</span>val<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						<li class="tsd-signature tsd-kind-icon">parse<wbr>Date<span class="tsd-signature-symbol">(</span>val<span class="tsd-signature-symbol">: </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in smartDates.ts:24</li>
+									<li>Defined in fillDates.ts:5</li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
 							<ul class="tsd-parameters">
 								<li>
-									<h5>val: <span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+									<h5>val: <a href="globals.html#filldate" class="tsd-signature-type">FillDate</a></h5>
 								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
@@ -893,15 +1478,21 @@
 					<a name="smartdates" class="tsd-anchor"></a>
 					<h3>smart<wbr>Dates</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">smart<wbr>Dates&lt;T, R&gt;<span class="tsd-signature-symbol">(</span>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, getDate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span>, mapTo<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>dateText<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[]</span></li>
+						<li class="tsd-signature tsd-kind-icon">smart<wbr>Dates&lt;T, R&gt;<span class="tsd-signature-symbol">(</span>records<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span>, min<span class="tsd-signature-symbol">: </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, max<span class="tsd-signature-symbol">: </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span>, getDate<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a>, fill<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span>dateText<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">R</span><span class="tsd-signature-symbol">[]</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in smartDates.ts:32</li>
+									<li>Defined in fillDates.ts:209</li>
 								</ul>
 							</aside>
+							<div class="tsd-comment tsd-typography">
+								<dl class="tsd-comment-tags">
+									<dt>deprecated</dt>
+									<dd></dd>
+								</dl>
+							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
 							<ul class="tsd-type-parameters">
 								<li>
@@ -917,11 +1508,17 @@
 									<h5>records: <span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">[]</span></h5>
 								</li>
 								<li>
-									<h5>getDate: <span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h5>
+									<h5>min: <a href="globals.html#filldate" class="tsd-signature-type">FillDate</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h5>
+								</li>
+								<li>
+									<h5>max: <a href="globals.html#filldate" class="tsd-signature-type">FillDate</a><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span></h5>
+								</li>
+								<li>
+									<h5>getDate: <span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
-												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></li>
+												<li class="tsd-signature tsd-kind-icon"><span class="tsd-signature-symbol">(</span>record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="globals.html#filldate" class="tsd-signature-type">FillDate</a></li>
 											</ul>
 											<ul class="tsd-descriptions">
 												<li class="tsd-description">
@@ -931,14 +1528,14 @@
 															<h5>record: <span class="tsd-signature-type">T</span></h5>
 														</li>
 													</ul>
-													<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Date</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></h4>
+													<h4 class="tsd-returns-title">Returns <a href="globals.html#filldate" class="tsd-signature-type">FillDate</a></h4>
 												</li>
 											</ul>
 										</li>
 									</ul>
 								</li>
 								<li>
-									<h5>mapTo: <span class="tsd-signature-symbol">(</span>dateText<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">R</span></h5>
+									<h5>fill: <span class="tsd-signature-symbol">(</span>dateText<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, record<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">T</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">R</span></h5>
 									<ul class="tsd-parameters">
 										<li class="tsd-parameter-signature">
 											<ul class="tsd-signatures tsd-kind-type-literal">
@@ -967,6 +1564,385 @@
 					</ul>
 				</section>
 			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Object literals</h2>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="bug" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Bug</h3>
+					<div class="tsd-signature tsd-kind-icon">Bug<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in executeQuery.test.ts:9</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="bug.customerid" class="tsd-anchor"></a>
+						<h3>Customer<wbr>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Customer<wbr>Id<span class="tsd-signature-symbol">:</span> <a href="classes/querycolumn.html" class="tsd-signature-type">QueryColumn</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new QueryColumn&lt;number&gt;(&quot;Bug.CustomerId&quot;)</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in executeQuery.test.ts:11</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="bug.id" class="tsd-anchor"></a>
+						<h3>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Id<span class="tsd-signature-symbol">:</span> <a href="classes/querycolumn.html" class="tsd-signature-type">QueryColumn</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new QueryColumn&lt;number&gt;(&quot;Bug.Id&quot;)</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in executeQuery.test.ts:10</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="customer" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> Customer</h3>
+					<div class="tsd-signature tsd-kind-icon">Customer<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in executeQuery.test.ts:4</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="customer.customername" class="tsd-anchor"></a>
+						<h3>Customer<wbr>Name</h3>
+						<div class="tsd-signature tsd-kind-icon">Customer<wbr>Name<span class="tsd-signature-symbol">:</span> <a href="classes/querycolumn.html" class="tsd-signature-type">QueryColumn</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new QueryColumn&lt;string&gt;(&quot;Customer.CustomerName&quot;)</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in executeQuery.test.ts:6</li>
+							</ul>
+						</aside>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
+						<a name="customer.id" class="tsd-anchor"></a>
+						<h3>Id</h3>
+						<div class="tsd-signature tsd-kind-icon">Id<span class="tsd-signature-symbol">:</span> <a href="classes/querycolumn.html" class="tsd-signature-type">QueryColumn</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = new QueryColumn&lt;number&gt;(&quot;Customer.Id&quot;)</span></div>
+						<aside class="tsd-sources">
+							<ul>
+								<li>Defined in executeQuery.test.ts:5</li>
+							</ul>
+						</aside>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="days" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> days</h3>
+					<div class="tsd-signature tsd-kind-icon">days<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:26</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="days.format" class="tsd-anchor"></a>
+						<h3>format</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:30</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="days.increment" class="tsd-anchor"></a>
+						<h3>increment</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:33</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="days.round" class="tsd-anchor"></a>
+						<h3>round</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:27</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="months" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> months</h3>
+					<div class="tsd-signature tsd-kind-icon">months<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:38</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="months.format" class="tsd-anchor"></a>
+						<h3>format</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:42</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="months.increment" class="tsd-anchor"></a>
+						<h3>increment</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:45</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="months.round" class="tsd-anchor"></a>
+						<h3>round</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:39</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="quarters" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> quarters</h3>
+					<div class="tsd-signature tsd-kind-icon">quarters<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:50</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="quarters.format" class="tsd-anchor"></a>
+						<h3>format</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:54</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="quarters.increment" class="tsd-anchor"></a>
+						<h3>increment</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:60</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="quarters.round" class="tsd-anchor"></a>
+						<h3>round</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:51</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-object-literal">
+					<a name="years" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagConst">Const</span> years</h3>
+					<div class="tsd-signature tsd-kind-icon">years<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in fillDates.ts:65</li>
+						</ul>
+					</aside>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="years.format" class="tsd-anchor"></a>
+						<h3>format</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">format<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:69</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="years.increment" class="tsd-anchor"></a>
+						<h3>increment</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">increment<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:72</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+					<section class="tsd-panel tsd-member tsd-kind-function tsd-parent-kind-object-literal">
+						<a name="years.round" class="tsd-anchor"></a>
+						<h3>round</h3>
+						<ul class="tsd-signatures tsd-kind-function tsd-parent-kind-object-literal">
+							<li class="tsd-signature tsd-kind-icon">round<span class="tsd-signature-symbol">(</span>d<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Moment</span></li>
+						</ul>
+						<ul class="tsd-descriptions">
+							<li class="tsd-description">
+								<aside class="tsd-sources">
+									<ul>
+										<li>Defined in fillDates.ts:66</li>
+									</ul>
+								</aside>
+								<h4 class="tsd-parameters-title">Parameters</h4>
+								<ul class="tsd-parameters">
+									<li>
+										<h5>d: <span class="tsd-signature-type">Moment</span></h5>
+									</li>
+								</ul>
+								<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Moment</span></h4>
+							</li>
+						</ul>
+					</section>
+				</section>
+			</section>
 		</div>
 		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 			<nav class="tsd-navigation primary">
@@ -992,6 +1968,9 @@
 					</li>
 					<li class=" tsd-kind-interface tsd-has-type-parameter">
 						<a href="interfaces/expandedqueryresult.html" class="tsd-kind-icon">Expanded<wbr>Query<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-interface tsd-has-type-parameter">
+						<a href="interfaces/filldatesoptions.html" class="tsd-kind-icon">Fill<wbr>Dates<wbr>Options</a>
 					</li>
 					<li class=" tsd-kind-interface">
 						<a href="interfaces/filterjson.html" class="tsd-kind-icon">Filter<wbr>Json</a>
@@ -1039,6 +2018,12 @@
 						<a href="globals.html#expandedqueryrecordwithoptionalcolumns" class="tsd-kind-icon">Expanded<wbr>Query<wbr>Record<wbr>With<wbr>Optional<wbr>Columns</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filldate" class="tsd-kind-icon">Fill<wbr>Date</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#filldatetype" class="tsd-kind-icon">Fill<wbr>Date<wbr>Type</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#filteroperator" class="tsd-kind-icon">Filter<wbr>Operator</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
@@ -1059,6 +2044,9 @@
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#selectmember" class="tsd-kind-icon">Select<wbr>Member</a>
 					</li>
+					<li class=" tsd-kind-variable">
+						<a href="globals.html#datetypes" class="tsd-kind-icon">date<wbr>Types</a>
+					</li>
 					<li class=" tsd-kind-function">
 						<a href="globals.html#detectdatetype" class="tsd-kind-icon">detect<wbr>Date<wbr>Type</a>
 					</li>
@@ -1070,6 +2058,9 @@
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#expandqueryresult" class="tsd-kind-icon">expand<wbr>Query<wbr>Result</a>
+					</li>
+					<li class=" tsd-kind-function tsd-has-type-parameter">
+						<a href="globals.html#filldates" class="tsd-kind-icon">fill<wbr>Dates</a>
 					</li>
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#getaggregatepropsonly" class="tsd-kind-icon">get<wbr>Aggregate<wbr>Props<wbr>Only</a>
@@ -1095,6 +2086,24 @@
 					<li class=" tsd-kind-function tsd-has-type-parameter">
 						<a href="globals.html#smartdates" class="tsd-kind-icon">smart<wbr>Dates</a>
 					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#bug" class="tsd-kind-icon">Bug</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#customer" class="tsd-kind-icon">Customer</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#days" class="tsd-kind-icon">days</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#months" class="tsd-kind-icon">months</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#quarters" class="tsd-kind-icon">quarters</a>
+					</li>
+					<li class=" tsd-kind-object-literal">
+						<a href="globals.html#years" class="tsd-kind-icon">years</a>
+					</li>
 				</ul>
 			</nav>
 		</div>
@@ -1111,6 +2120,7 @@
 			</ul>
 			<ul class="tsd-legend">
 				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+				<li class="tsd-kind-method tsd-parent-kind-interface"><span class="tsd-kind-icon">Method</span></li>
 			</ul>
 		</div>
 	</div>
