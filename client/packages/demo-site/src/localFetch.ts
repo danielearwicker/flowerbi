@@ -1,6 +1,6 @@
 import { jsonDateParser } from "json-date-parser";
 import { getDb } from "./database";
-import { QueryResultJson, QuerySelectValue, QueryJson } from "tinybi";
+import { QueryResultJson, QuerySelectValue, QueryJson } from "flowerbi";
 
 async function querySql(sql: string) {
     
@@ -23,7 +23,7 @@ export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson>
 
     const started = new Date();    
     const json = await DotNet.invokeMethodAsync(
-        "TinyBI.WasmHost", "Query", JSON.stringify(queryJson)
+        "FlowerBI.WasmHost", "Query", JSON.stringify(queryJson)
     ) as string;    
     const finished = new Date();
     console.log(`Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`);

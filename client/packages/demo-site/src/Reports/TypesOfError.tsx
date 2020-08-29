@@ -1,8 +1,8 @@
 import React, { useRef } from "react";
-import { QueryColumn, distinct, keysOf } from "tinybi";
-import { useQuery } from "tinybi-react";
-import { TinyBIChartBox } from "tinybi-react-utils";
-import { makeClickHandler } from "tinybi-react-chartjs";
+import { QueryColumn, distinct, keysOf } from "flowerbi";
+import { useQuery } from "flowerbi-react";
+import { FlowerBIChartBox } from "flowerbi-react-utils";
+import { makeClickHandler } from "flowerbi-react-chartjs";
 import { Bug, Workflow, CategoryCombination } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { Bar } from "react-chartjs-2";
@@ -79,7 +79,7 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
     const orderedCategories = bugCountByCategory.filter(c => c.bugCount > 0).map(c => c.category);
 
     return (
-        <TinyBIChartBox id={id} title="Types Of Error" state={data.state}>
+        <FlowerBIChartBox id={id} title="Types Of Error" state={data.state}>
             <Bar 
                 ref={chart}
                 options={{ 
@@ -100,6 +100,6 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
                     }))
                 }}
             />
-        </TinyBIChartBox>
+        </FlowerBIChartBox>
     )
 }

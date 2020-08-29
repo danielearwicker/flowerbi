@@ -1,0 +1,33 @@
+{
+    "name": "flowerbi",
+    "version": "1.14.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "FlowerBI: ultra-minimal BI analytics query and UI tools",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "devDependencies": {
+        "@types/jest": "^26.0.10",
+        "jest": "^24.9.0",
+        "ts-jest": "^26.2.0",
+        "typedoc": "^0.17.8",
+        "typescript": "^3.9.7",
+        "moment": "^2.27.0"
+    },
+    "dependencies": {
+        "@types/json-stable-stringify": "^1.0.32",
+        "json-stable-stringify": "^1.0.1",
+        "prettier": "^2.0.5",
+        "typescript": "~3.8.3"
+    },
+    "peerDependencies": {
+        "moment": "^2.27.0"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "test": "jest",
+        "docs": "typedoc --mode file --excludePrivate --readme home.md --out ../../../docs/typedoc/flowerbi src",
+        "prepare": "npm run test && npm run build && npm run docs"
+    }
+}

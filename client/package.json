@@ -8,8 +8,5 @@
             "**/webpack", "ts-jest"
         ]
     },
-    "scripts": {
-        "prepare": "yarn workspaces run prepare"
-    },
     "resolutions": {}
 }

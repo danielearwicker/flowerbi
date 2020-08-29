@@ -1,17 +1,17 @@
 node apply-version.js
 
-pushd packages/tinybi
+pushd packages/flowerbi
 npm publish
 popd
 
-pushd packages/tinybi-react
+pushd packages/flowerbi-react
 npm publish
 popd
 
-pushd packages/tinybi-react-chartjs
+pushd packages/flowerbi-react-chartjs
 npm publish
 popd
 
-pushd packages/tinybi-react-utils
+pushd packages/flowerbi-react-utils
 npm publish
 popd

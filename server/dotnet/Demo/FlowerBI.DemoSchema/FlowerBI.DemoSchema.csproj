@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
+          <workingdir></workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <CustomCommands>
+      <CustomCommands>
+        <Command>
+          <type>AfterBuild</type>
+          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Release/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
+          <workingdir></workingdir>
+        </Command>
+      </CustomCommands>
+    </CustomCommands>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\FlowerBI.Engine\FlowerBI.Engine.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts" />
+  </Target>
+
+</Project>

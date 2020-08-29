@@ -1,6 +1,6 @@
 import React from "react";
-import { TinyBITable, useQuery } from "tinybi-react";
-import { TinyBIChartBox } from "tinybi-react-utils";
+import { FlowerBITable, useQuery } from "flowerbi-react";
+import { FlowerBIChartBox } from "flowerbi-react-utils";
 import { Bug, Workflow } from "../demoSchema";
 import { VisualProps } from "./VisualProps";
 
@@ -27,8 +27,8 @@ export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: 
     });
 
     return (
-        <TinyBIChartBox title={title} state={data.state}>
-            <TinyBITable
+        <FlowerBIChartBox title={title} state={data.state}>
+            <FlowerBITable
                 data={data}
                 columns={{
                     State: (d) => d.values.state ?? "Total",
@@ -36,6 +36,6 @@ export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: 
                     "% of Count": (d) => [`${d.percentage("resolvedBugCount")}%`, "right"],
                 }} 
             />
-        </TinyBIChartBox>
+        </FlowerBIChartBox>
     );
 }

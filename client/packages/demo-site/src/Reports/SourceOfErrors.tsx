@@ -1,11 +1,11 @@
 import React, { useRef } from "react";
-import { useQuery } from "tinybi-react";
-import { TinyBIChartBox } from "tinybi-react-utils";
+import { useQuery } from "flowerbi-react";
+import { FlowerBIChartBox } from "flowerbi-react-utils";
 import { Bug, Workflow } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { Pie } from "react-chartjs-2";
 import { VisualProps } from "./VisualProps";
-import { makeClickHandler } from "tinybi-react-chartjs";
+import { makeClickHandler } from "flowerbi-react-chartjs";
 
 const id = "SourceOfErrors";
 
@@ -28,7 +28,7 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
     const clickHandler = makeClickHandler(id, ref, query.select, pageFilters);
     
     return (
-        <TinyBIChartBox id={id} title="Source Of Errors" state={result.state}>
+        <FlowerBIChartBox id={id} title="Source Of Errors" state={result.state}>
             <Pie
                 ref={ref}
                 options={{ ...clickHandler }} 
@@ -41,6 +41,6 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
                     }]
                 }}
             />
-        </TinyBIChartBox>
+        </FlowerBIChartBox>
     );
 }

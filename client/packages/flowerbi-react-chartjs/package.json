@@ -1,0 +1,35 @@
+{
+    "name": "flowerbi-react-chartjs",
+    "version": "1.14.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "Chart components for React and FlowerBI",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "@types/chart.js": "^2.9.22",
+        "@types/json-stable-stringify": "^1.0.32",
+        "@types/react": "^16.9.0",
+        "flowerbi": "1.14.0",
+        "flowerbi-react": "1.14.0"
+    },
+    "devDependencies": {
+        "prettier": "^2.0.5",
+        "typescript": "~3.8.3",
+        "react": "^16.13.1",
+        "react-chartjs-2": "^2.9.0",
+        "chart.js": "^2.9.3",
+        "typedoc": "^0.17.8"
+    },
+    "peerDependencies": {
+        "react": "^16.13.1",
+        "react-chartjs-2": "^2.9.0",
+        "chart.js": "^2.9.3"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "docs": "typedoc --mode file --out ../../../docs/typedoc/flowerbi-react-chartjs src",
+        "prepare": "npm run build && npm run docs"
+    }
+}

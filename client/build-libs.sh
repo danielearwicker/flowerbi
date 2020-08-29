@@ -1,15 +1,15 @@
-pushd packages/tinybi
+pushd packages/flowerbi
 yarn build
 popd
 
-pushd packages/tinybi-react
+pushd packages/flowerbi-react
 yarn build
 popd
 
-pushd packages/tinybi-react-chartjs
+pushd packages/flowerbi-react-chartjs
 yarn build
 popd
 
-pushd packages/tinybi-react-utils
+pushd packages/flowerbi-react-utils
 yarn build
 popd

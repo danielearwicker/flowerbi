@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DateReported } from "./demoSchema";
-import { PageFilters } from "tinybi-react";
+import { PageFilters } from "flowerbi-react";
 
 function lastYear() {
     const d = new Date();

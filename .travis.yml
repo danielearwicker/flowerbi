@@ -1,12 +1,12 @@
 language: csharp
-solution: server/dotnet/TinyBI.sln
+solution: server/dotnet/FlowerBI.sln
 mono: none
 dotnet: 3.1
 script:
     - pushd server/dotnet
     - node apply-version.js
     - dotnet build
-    - dotnet test TinyBI.Engine.Tests/TinyBI.Engine.Tests.csproj
+    - dotnet test FlowerBI.Engine.Tests/FlowerBI.Engine.Tests.csproj
     - popd
     - pushd client
     - yarn

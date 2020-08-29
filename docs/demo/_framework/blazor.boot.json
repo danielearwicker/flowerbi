@@ -2,11 +2,11 @@
   "cacheBootResources": true,
   "config": [ ],
   "debugBuild": true,
-  "entryAssembly": "TinyBI.WasmHost",
+  "entryAssembly": "FlowerBI.WasmHost",
   "linkerEnabled": false,
   "resources": {
     "assembly": {
-      "TinyBI.WasmHost.dll": "sha256-qRudSmMuVbNIIiBuZCUU4mx6GZuFsMWwylVtaRExs4A=",
+      "FlowerBI.WasmHost.dll": "sha256-2Omw1FaBS+bULUvzFVLGTFgfRp+FDzHEAn5SIU4oo60=",
       "Microsoft.Extensions.DependencyInjection.Abstractions.dll": "sha256-ycn\/UHLnjC77BNvsurP4mkuYP8oud1oVyfSSlZKMymc=",
       "netstandard.dll": "sha256-\/zcPVM75OAY+joGVM8yIC1gO1SFYWP1CFERgQ8PJkfA=",
       "System.Xml.Linq.dll": "sha256-IPbQMdJxZXdk8HTlaPyXdQ6Zb82iZLphnM74yO4EURQ=",
@@ -37,8 +37,8 @@
       "Microsoft.AspNetCore.Components.dll": "sha256-jqp6xS5jDFDsISGorhiYZQ2if3hAiols6d4C5BNnMQ4=",
       "System.Buffers.dll": "sha256-ZxXy75PYbzJxNfAc\/SAP1nUYm4gt1jSaOpFnBb9m85M=",
       "Microsoft.Extensions.Logging.Abstractions.dll": "sha256-45ia6XmGIa5WI3cHUIE9KhVornlZleYW+B5FPpfD1wQ=",
-      "TinyBI.DemoSchema.dll": "sha256-bTMwzFEeJxc6HAh+H3NLGrSz9AhHtVTd4KzNHksBngQ=",
-      "TinyBI.Engine.dll": "sha256-I94OX4C86HfiVUz6Um\/9tW07nVY9f2uQg6v8j7qyM+s=",
+      "FlowerBI.DemoSchema.dll": "sha256-Vhf2eHROzR2qEueVd6cQOKBLaCyFVkOaEmzw2mwUJKU=",
+      "FlowerBI.Engine.dll": "sha256-qw9FvuFWg\/z978sgVUmdYAVn1OmnBBngC49RCe91XsY=",
       "Handlebars.dll": "sha256-7\/PMFnoR8RDaZS+y9ToqIjPgoFELvmVLbbHz3hYH3sI=",
       "Microsoft.CSharp.dll": "sha256-ubyINHXDmWOAugBDEb8CCz+uV68eordXiYDxpUeRBvg=",
       "Dapper.dll": "sha256-2iWjW8K4pAFkja8dRHJO0wZC2w3tR1SxXdk6uBgYDNI=",
@@ -66,9 +66,9 @@
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-dwm+rKImjhxtOmHHVpSxOgl2oh2R26xOWihLaZSv7Vs="
     },
     "pdb": {
-      "TinyBI.WasmHost.pdb": "sha256-W1t2M5uR7oT1+2D+WyfdxO7kQpQQVGk3bsOp6Cyt950=",
-      "TinyBI.DemoSchema.pdb": "sha256-4\/KkRcUHeZ2N9DESalicG687Onz8TYeBTpNceyPyPAk=",
-      "TinyBI.Engine.pdb": "sha256-PCLNKQkklt3GGESlAZNE8I6L9TkWnSkkqzttRekNZug="
+      "FlowerBI.WasmHost.pdb": "sha256-DfgHptVq83TDpvknGptJXkrj8GjHgAYP9Hzhn9A1EWE=",
+      "FlowerBI.DemoSchema.pdb": "sha256-Teb7SIX66vl6FnBbxCcAJBrmORqHrMRiHVtuwPwAh\/0=",
+      "FlowerBI.Engine.pdb": "sha256-n2A0zIRmg2T8BzKlQ85YEUU2k82kGCq62LC1l5wBVBM="
     },
     "runtime": {
       "dotnet.3.2.0.js": "sha256-mPoqx7XczFHBWk3gRNn0hc9ekG1OvkKY4XiKRY5Mj5U=",

@@ -1,8 +1,8 @@
-# TinyBI
+# FlowerBI
 
 <img align="right" width="128" height="128" src="logo128.png">
 
-At its core, TinyBI is a pattern for supporting querying of star-schema (or more complex) relational databases through a single POST route, so that clients have enough power to do queries that involve aggregation and joins, but the server/API can can carefully limit what clients are able to do.
+At its core, FlowerBI is a pattern for supporting querying of star-schema (or more complex) relational databases through a single POST route, so that clients have enough power to do queries that involve aggregation and joins, but the server/API can can carefully limit what clients are able to do.
 
 It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference (helped by little bit of metaprogramming).
 
@@ -29,7 +29,7 @@ We've tried using a paid no-code BI product, and while it had some severe drawba
 
 There are a lot of free libraries for drawing charts: [chart.js](https://www.chartjs.org/) is really easy to use, and it has [a good React wrapper](https://github.com/jerairrest/react-chartjs-2).
 
-But it would be a drag to have to write a separate API route that runs a different specific SQL query to get the data for each chart. TinyBI takes away that problem, and there's honestly not a lot to it.
+But it would be a drag to have to write a separate API route that runs a different specific SQL query to get the data for each chart. FlowerBI takes away that problem, and there's honestly not a lot to it.
 
 ## Flexible and creative querying at the client
 
@@ -45,9 +45,9 @@ const { records } = useQuery(fetch, {
 });
 ```
 
-The `useQuery` function is a handy React hook, defined in the `tinybi-react` npm package, but the core client code in the `tiny-bi` package has no dependency on React, so it's not a prerequisite.
+The `useQuery` function is a handy React hook, defined in the `flowerbi-react` npm package, but the core client code in the `flower-bi` package has no dependency on React, so it's not a prerequisite.
 
-You supply the `fetch` function to call your API, with your choice of authentication. Inside your API you pass a chunk of JSON to `TinyBI.Engine` and it performs the SQL query.
+You supply the `fetch` function to call your API, with your choice of authentication. Inside your API you pass a chunk of JSON to `FlowerBI.Engine` and it performs the SQL query.
 
 ## Easy mapping to widely-used visualisation libraries
 
@@ -86,7 +86,7 @@ public static class Bug
 }
 ```
 
-`TinyBI.Tools` automatically reflects over this structure and generates a TypeScript file that the client can use to get auto-completion and type inference in its queries. So the client code can query the data in a creative and flexible way, but only within the boundaries set by your API's schema definition. Your API can also easily add extra filters to the query, to impose "row-level security" on a per-user basis.
+`FlowerBI.Tools` automatically reflects over this structure and generates a TypeScript file that the client can use to get auto-completion and type inference in its queries. So the client code can query the data in a creative and flexible way, but only within the boundaries set by your API's schema definition. Your API can also easily add extra filters to the query, to impose "row-level security" on a per-user basis.
 
 ## Automatic joins, grouping and aggregation
 
@@ -127,22 +127,22 @@ Perfect for mapping to a multi-bar chart.
 
 ## Live Demo
 
-https://earwicker.com/tinybi/demo/
+https://earwicker.com/flowerbi/demo/
 
 This runs the whole stack in-browser, using some WASM-based components. This is not part of the real solution; no WASM is needed. It's just a way to run a live demo without having to pay to run real boxes!
 
 - [sql.js](https://github.com/sql-js/sql.js) representing the RDBMS
 - The dotnet core engine built in [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor), representing an application server
-- The UI "fetches" data from the Blazor app, which uses `TinyBI.Engine` to generate SQL queries and runs them against sql.js. It does some ugly hackery to make the queries compatible, as they are currently generated to target Microsoft SQL Server which has a different syntax for many basic things.
+- The UI "fetches" data from the Blazor app, which uses `FlowerBI.Engine` to generate SQL queries and runs them against sql.js. It does some ugly hackery to make the queries compatible, as they are currently generated to target Microsoft SQL Server which has a different syntax for many basic things.
 
 ## Reference Documentation
 
 Gradually appearing:
 
-- [tinybi](https://earwicker.com/tinybi/typedoc/tinybi)
-- [tinybi-react](https://earwicker.com/tinybi/typedoc/tinybi-react)
-- [tinybi-react-chartjs](https://earwicker.com/tinybi/typedoc/tinybi-react-chartjs)
-- [tinybi-react-utils](https://earwicker.com/tinybi/typedoc/tinybi-react-utils)
+- [flowerbi](https://earwicker.com/flowerbi/typedoc/flowerbi)
+- [flowerbi-react](https://earwicker.com/flowerbi/typedoc/flowerbi-react)
+- [flowerbi-react-chartjs](https://earwicker.com/flowerbi/typedoc/flowerbi-react-chartjs)
+- [flowerbi-react-utils](https://earwicker.com/flowerbi/typedoc/flowerbi-react-utils)
 
 ## License (MIT)
 

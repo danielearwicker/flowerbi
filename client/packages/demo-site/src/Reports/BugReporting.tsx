@@ -1,5 +1,5 @@
 import React from "react";
-import { Layout, Column, Row } from "tinybi-react-utils";
+import { Layout, Column, Row } from "flowerbi-react-utils";
 import { VisualProps } from "./VisualProps";
 import { ResolvedPerCustomer } from "./ResolvedPerCustomer";
 import { SourceOfErrors } from "./SourceOfErrors";

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import "./App.css";
 import { BugReporting } from "./Reports/BugReporting";
 import { VisualProps } from "./Reports/VisualProps";
-import { usePageFilters } from "tinybi-react";
+import { usePageFilters } from "flowerbi-react";
 import { useFilterPane, FilterPane } from "./FilterPane";
 import Chart from "chart.js";
 import { localFetch } from "./localFetch";

@@ -10141,31 +10141,31 @@ timsort@^0.3.0:
   resolved "https://registry.yarnpkg.com/timsort/-/timsort-0.3.0.tgz#405411a8e7e6339fe64db9a234de11dc31e02bd4"
   integrity sha1-QFQRqOfmM5/mTbmiNN4R3DHgK9Q=
 
-tinybi-react-chartjs@1.0.34:
+flowerbi-react-chartjs@1.0.34:
   version "1.0.34"
-  resolved "https://registry.yarnpkg.com/tinybi-react-chartjs/-/tinybi-react-chartjs-1.0.34.tgz#d28561ef451473d288e1a16b59513d62358836ac"
+  resolved "https://registry.yarnpkg.com/flowerbi-react-chartjs/-/flowerbi-react-chartjs-1.0.34.tgz#d28561ef451473d288e1a16b59513d62358836ac"
   integrity sha512-bkRASyTLiHClY4tUlDvXBKV9fx3mEdOATbm8BZZmRVr1vfjW38wVNEBvPp3T086zaSCJNLtas2F8u36Vvz1/cA==
   dependencies:
     "@types/chart.js" "^2.9.22"
     "@types/json-stable-stringify" "^1.0.32"
     "@types/react" "^16.9.0"
-    tinybi "1.0.34"
-    tinybi-react "1.0.34"
+    flowerbi "1.0.34"
+    flowerbi-react "1.0.34"
 
-tinybi-react@1.0.34:
+flowerbi-react@1.0.34:
   version "1.0.34"
-  resolved "https://registry.yarnpkg.com/tinybi-react/-/tinybi-react-1.0.34.tgz#da4b7a32339d82f121319ad867fae92f27c4fab6"
+  resolved "https://registry.yarnpkg.com/flowerbi-react/-/flowerbi-react-1.0.34.tgz#da4b7a32339d82f121319ad867fae92f27c4fab6"
   integrity sha512-mht8kyIVk5PCeKKZgkOjPRJGfoZQ4S5JKMDWBRjUhAIYf3O4haArAv4RZYdPmwX9m1uqZVqFplDLmneLAG+tuw==
   dependencies:
     "@types/json-stable-stringify" "^1.0.32"
     "@types/react" "^16.9.0"
     json-stable-stringify "^1.0.1"
     moment "^2.27.0"
-    tinybi "1.0.34"
+    flowerbi "1.0.34"
 
-tinybi@1.0.34:
+flowerbi@1.0.34:
   version "1.0.34"
-  resolved "https://registry.yarnpkg.com/tinybi/-/tinybi-1.0.34.tgz#763e8abc64456448fab45559520b77951a81c10c"
+  resolved "https://registry.yarnpkg.com/flowerbi/-/flowerbi-1.0.34.tgz#763e8abc64456448fab45559520b77951a81c10c"
   integrity sha512-jbLY/02M11x07di1u/MTyvgj7sIgFxJe2D4upDCyTOJneyA+QLjfbSmJaD7yjbG2Q+KgO/EJVf8ALgv4BigT3w==
   dependencies:
     prettier "^2.0.5"
