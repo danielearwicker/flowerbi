@@ -77,9 +77,9 @@ namespace TinyBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select Count(|main|!|VendorName|) Value0
-                from |TestSchema|!|Vendor| main
-                order by Count(|main|!|VendorName|)
+                select Count(|tbl0|!|VendorName|) Value0
+                from |TestSchema|!|Vendor| tbl0
+                order by Count(|tbl0|!|VendorName|)
                 desc skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -114,13 +114,23 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
 
             // As filter is on PK of Vendor, can just use FK of Invoice, avoid join
+            /*
+                select Count(|tbl0|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl0
+                where |tbl0|!|VendorId| = @filter0
+                order by Count(|tbl0|!|Amount|) desc
+                skip:5 take:10
+             */
+
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select Count(|main|!|Amount|) Value0
-                from |TestSchema|!|Invoice| main
-                where |main|!|VendorId| = @filter0
-                order by Count(|main|!|Amount|) desc
+                select Count(|tbl0|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl0
+                join |TestSchema|!|Vendor| tbl1 on |tbl1|!|Id| = |tbl0|!|VendorId|
+                where |tbl1|!|Id| = @filter0
+                order by Count(|tbl0|!|Amount|) desc
                 skip:5 take:10
             ");
+
             filterParams.Names.Should().HaveCount(1);
         }
 
@@ -145,11 +155,11 @@ namespace TinyBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0  
-                from |TestSchema|!|Invoice| main  
-                join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                group by |join0|!|VendorName|
-                order by Sum(|main|!|Amount|) desc
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0  
+                from |TestSchema|!|Invoice| tbl1  
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                group by |tbl0|!|VendorName|
+                order by Sum(|tbl1|!|Amount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -177,15 +187,15 @@ namespace TinyBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                from |TestSchema|!|Invoice| main
-                join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                group by |join0|!|VendorName|
-                order by Sum(|main|!|Amount|) desc
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl1
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                group by |tbl0|!|VendorName|
+                order by Sum(|tbl1|!|Amount|) desc
                 skip:5 take:10 ;
-                select Sum(|main|!|Amount|) Value0
-                from |TestSchema|!|Invoice| main
-                order by Sum(|main|!|Amount|) desc
+                select Sum(|tbl0|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl0
+                order by Sum(|tbl0|!|Amount|) desc
                 skip:0 take:1
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -219,16 +229,16 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
-                    select |join0|!|VendorName| Select0, Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -269,16 +279,16 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
-                    select |join0|!|VendorName| Select0, Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -287,12 +297,12 @@ namespace TinyBI.Engine.Tests
                 skip:5 take:10 ;
 
                 with Aggregation0 as (
-                    select Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
+                    select Sum(|tbl0|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl0
                 ) ,
                 Aggregation1 as (
-                    select Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
+                    select Count(|tbl0|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl0
                 )
                 select a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -341,17 +351,17 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
-                    select |join0|!|VendorName| Select0, Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    where |main|!|Paid| = @filter0
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    where |tbl1|!|Paid| = @filter0
+                    group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -393,12 +403,12 @@ namespace TinyBI.Engine.Tests
 
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, new[] { extra }), @"
-                select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                from |TestSchema|!|Invoice| main
-                join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                where |main|!|Paid| = @filter0
-                group by |join0|!|VendorName|
-                order by Sum(|main|!|Amount|) desc
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl1
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                where |tbl1|!|Paid| = @filter0
+                group by |tbl0|!|VendorName|
+                order by Sum(|tbl1|!|Amount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(1);
@@ -433,16 +443,16 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |join0|!|VendorName| Select0, Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
-                    select |join0|!|VendorName| Select0, Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    group by |join0|!|VendorName|
+                    select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl1
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -482,22 +492,22 @@ namespace TinyBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |join0|!|VendorName| Select0,
-                           |join1|!|DepartmentName| Select1,
-                           Sum(|main|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    join |TestSchema|!|Department| join1 on |join1|!|Id| = |main|!|DepartmentId|
-                    group by |join0|!|VendorName| , |join1|!|DepartmentName|
+                    select |tbl0|!|VendorName| Select0,
+                           |tbl1|!|DepartmentName| Select1,
+                           Sum(|tbl2|!|Amount|) Value0
+                    from |TestSchema|!|Invoice| tbl2
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                    join |TestSchema|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
+                    group by |tbl0|!|VendorName| , |tbl1|!|DepartmentName|
                 ) ,
                 Aggregation1 as (
-                    select |join0|!|VendorName| Select0,
-                           |join1|!|DepartmentName| Select1,
-                           Count(|main|!|Id|) Value0
-                    from |TestSchema|!|Invoice| main
-                    join |TestSchema|!|Vendor| join0 on |join0|!|Id| = |main|!|VendorId|
-                    join |TestSchema|!|Department| join1 on |join1|!|Id| = |main|!|DepartmentId|
-                    group by |join0|!|VendorName| , |join1|!|DepartmentName|
+                    select |tbl0|!|VendorName| Select0,
+                           |tbl1|!|DepartmentName| Select1,
+                           Count(|tbl2|!|Id|) Value0
+                    from |TestSchema|!|Invoice| tbl2
+                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                    join |TestSchema|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
+                    group by |tbl0|!|VendorName| , |tbl1|!|DepartmentName|
                 )
                 select a0.Select0, a0.Select1, a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -508,6 +518,67 @@ namespace TinyBI.Engine.Tests
                 skip:5 take:10
             ");
 
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void ManyToMany()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl0|!|VendorName| Select0,
+                       |tbl1|!|TagName| Select1,
+                       Sum(|tbl2|!|Amount|) Value0
+                from |TestSchema|!|InvoiceTag| tbl3
+                join |TestSchema|!|Invoice| tbl2 on |tbl2|!|Id| = |tbl3|!|InvoiceId|
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl3|!|TagId|
+                group by |tbl0|!|VendorName| , |tbl1|!|TagName|
+                order by Sum(|tbl2|!|Amount|) desc
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void NoAggregation()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },                
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl0|!|VendorName| Select0,
+                       |tbl1|!|TagName| Select1
+                from |TestSchema|!|InvoiceTag| tbl2
+                join |TestSchema|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
+                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
+                group by |tbl0|!|VendorName| , |tbl1|!|TagName|
+                skip:5 take:10
+
+            ");
             filterParams.Names.Should().HaveCount(0);
         }
 

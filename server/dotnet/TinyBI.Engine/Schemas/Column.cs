@@ -30,8 +30,8 @@ namespace TinyBI
             if (Table != null)
             {
                 throw new InvalidOperationException(
-                    $"Field {reflectionName} ({DbName}) belongs to table {Table.RefName}, " +
-                    $"cannot also belong to table {table.RefName}");
+                    $"Field {reflectionName} belongs to table {Table}, " +
+                    $"cannot also belong to table {table}");
             }
 
             Table = table;
@@ -39,9 +39,6 @@ namespace TinyBI
         }
 
         public override string ToString()
-            => $"{Table.RefName}.{RefName}";
-
-        public static implicit operator string(Column<T> from)
-            => from.ToString();
+            => $"{Table}.{RefName}";
     }
 }

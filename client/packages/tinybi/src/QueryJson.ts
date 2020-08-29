@@ -21,7 +21,7 @@ export interface FilterJson {
 /**
  * The allowed aggregation function names.
  */
-export type AggregationType = "Count" | "Sum";
+export type AggregationType = "Count" | "Sum" | "Avg";
 
 /**
  * Describes an aggregated values. It is always taken from one column, with 

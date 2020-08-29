@@ -1,6 +1,8 @@
 # TinyBI
 
-At its core, TinyBI is a pattern for supporting querying of star-schema through a single POST route, so that clients can enough power to do queries that involve simple aggregation and joins, but the server/API can can carefully limit what clients are able to do.
+<img align="right" width="128" height="128" src="logo128.png">
+
+At its core, TinyBI is a pattern for supporting querying of star-schema (or more complex) relational databases through a single POST route, so that clients have enough power to do queries that involve aggregation and joins, but the server/API can can carefully limit what clients are able to do.
 
 It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference (helped by little bit of metaprogramming).
 

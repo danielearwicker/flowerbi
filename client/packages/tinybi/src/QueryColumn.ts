@@ -42,6 +42,14 @@ export class QueryColumn<T extends FilterValue> {
         return this.aggregation("Sum", filters);
     }
 
+    /**
+     * Aggregates the column by averaging values.
+     * @param filters Optional filters to apply.
+     */
+    avg(filters?: FilterJson[]) {
+        return this.aggregation("Avg", filters);
+    }
+
     private filter(operator: FilterOperator, value: T): FilterJson {
         return {
             column: this.name,

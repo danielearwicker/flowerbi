@@ -9,7 +9,8 @@ namespace TinyBI
     public enum AggregationType
     {
         Count,
-        Sum
+        Sum,
+        Avg
     };
 
     public class Aggregation
@@ -27,25 +28,33 @@ namespace TinyBI
             Filters = Filter.Load(json.Filters, schema);
         }
 
+        public Aggregation()
+        {
+            Filters = Enumerable.Empty<Filter>();
+        }
+
+        public static IList<Aggregation> Load(IEnumerable<AggregationJson> aggs, Schema schema)
+        {
+            var list = aggs?.Select(x => new Aggregation(x, schema)).ToList();
+            return list?.Count > 0 ? list : new List<Aggregation> { new Aggregation() };
+        }
+
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
 select
     
     {{#each selects}}
-        {{this}} Select{{@index}},
+        {{this}}{{#unless @last}}, {{/unless}}
     {{/each}}
 
-    {{Function}}({{mainColumn}}) Value0
+    {{#if aggColumn}}
+        {{aggColumn}} Value0
+    {{/if}}
 
-from {{mainTable}} main
+{{joins}}
 
-{{#each Joins}}
-join {{Table}} {{Alias}}
-  on {{Left}} = {{Right}}
-{{/each}}
-
-{{#if Filters}}
+{{#if filters}}
 where
-    {{#each Filters}}
+    {{#each filters}}
         {{Column}} {{{Operator}}} {{Param}}
         {{#unless @last}} and {{/unless}}
     {{/each}}
@@ -59,8 +68,11 @@ where
     {{/each}}
 {{/if}}
 
+{{#if orderBy}}
+    order by {{orderBy}}
+{{/if}}
+
 {{#if skipAndTake}}
-    order by {{Function}}({{mainColumn}}) desc
     {{skipAndTake}}
 {{/if}}
 ");
@@ -69,19 +81,31 @@ where
             IEnumerable<IColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             IFilterParameters filterParams,
+            IEnumerable<Ordering> orderings = null,
             long? skip = null,
             int? take = null)
         {
-            var joins = new Joins("main", Column.Table);
+            var joins = new Joins();
 
-            var selects = selectColumns?.Select(c =>
-                sql.IdentifierPair(joins[c.Table], c.DbName)).ToList();
+            var selects = selectColumns?.Select((c, i) =>
+                $"{sql.IdentifierPair(joins[c.Table], c.DbName)} Select{i}").ToList()
+                ?? new List<string>();
+
+            var aggColumn = Column != null ? $"{Function}({joins.Aliased(Column, sql)})" : null;
+
+            if (aggColumn != null)
+            {
+                selects.Add($"{aggColumn} Value0");
+            }
+
+            if (selects.Count == 0)
+            {
+                throw new InvalidOperationException("Must select something");
+            }
 
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
-                Column = f.Column == f.Column.Table.Id
-                    ? sql.IdentifierPair("main", Column.Table.GetForeignKeyTo(f.Column.Table).DbName)
-                    : sql.IdentifierPair(joins[f.Column.Table], f.Column.DbName),
+                Column = joins.Aliased(f.Column, sql),
                 f.Operator,
                 Param = filterParams[f]
             })
@@ -89,31 +113,27 @@ where
 
             var groupBy = selectColumns?.Select(x => new
             {
-                Part = sql.IdentifierPair(joins[x.Table], x.DbName)
+                Part = joins.Aliased(x, sql)
             })
             .ToList();
 
-            var joinParts = joins.Aliases.Select(x => new
-            {
-                Table = sql.IdentifierPair(x.Key.Schema.DbName, x.Key.DbName),
-                Alias = x.Value,
-                Left = sql.IdentifierPair(x.Value, x.Key.Id.DbName),
-                Right = sql.IdentifierPair("main", Column.Table.GetForeignKeyTo(x.Key).DbName)
-            })
-            .ToList();
+            var skipAndTake = skip != null && take != null
+                    ? sql.SkipAndTake(skip.Value, take.Value)
+                    : null;
+
+            var orderBy = skipAndTake == null ? null : 
+                orderings.Any() ? string.Join(", ", orderings.Select(x => $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
+                aggColumn != null ? $"{aggColumn} desc" :
+                null;
 
             return _template(new
             {
                 selects,
-                mainColumn = sql.IdentifierPair("main", Column.DbName),
-                mainTable = sql.IdentifierPair(Column.Table.Schema.DbName, Column.Table.DbName),
-                Function,
-                Filters = filters,
-                Joins = joinParts,
+                filters,
+                joins = joins.ToSql(sql),
                 groupBy,
-                skipAndTake = skip != null && take != null
-                    ? sql.SkipAndTake(skip.Value, take.Value)
-                    : null
+                orderBy,
+                skipAndTake
             });
         }
     }

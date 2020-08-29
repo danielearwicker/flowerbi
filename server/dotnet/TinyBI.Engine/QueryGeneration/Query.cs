@@ -24,7 +24,7 @@ namespace TinyBI
         public Query(QueryJson json, Schema schema)
         {
             Select = schema.Load(json.Select);
-            Aggregations = json.Aggregations.Select(x => new Aggregation(x, schema)).ToList();
+            Aggregations = Aggregation.Load(json.Aggregations, schema);
             Filters = Filter.Load(json.Filters, schema);
             OrderBy = Ordering.Load(json.OrderBy, schema);
             Totals = json.Totals;
@@ -32,7 +32,7 @@ namespace TinyBI
             Take = json.Take;
         }
 
-        private static readonly Func<object, string> _template = Handlebars.Compile(@"
+        private static readonly Func<object, string> _aggregatedTemplate = Handlebars.Compile(@"
 
 with {{#each Aggregations}}
 
@@ -79,9 +79,9 @@ order by {{ordering}}
                              IFilterParameters filterParams, IEnumerable<Filter> outerFilters,
                              long skip, int take)
         {
-            if (Aggregations.Count == 1 && OrderBy.Count == 0)
+            if (Aggregations.Count == 1)
             {
-                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, skip, take);
+                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take);
             }
 
             var ordering = "a0.Value0 desc";
@@ -91,7 +91,7 @@ order by {{ordering}}
                 ordering = string.Join(", ", OrderBy.Select(FindOrderingColumn));
             }
 
-            return _template(new
+            return _aggregatedTemplate(new
             {
                 skipAndTake = sql.SkipAndTake(skip, take),
                 Aggregations = Aggregations.Select(x =>
@@ -110,9 +110,7 @@ order by {{ordering}}
                     $"Cannot order by {ordering.Column} as it has not been selected");
             }
 
-            var direction = ordering.Descending ? "desc" : "asc";
-
-            return $"a0.Select{i} {direction}";
+            return $"a0.Select{i} {ordering.Direction}";
         }
 
         public string ToSql(ISqlFormatter sql,

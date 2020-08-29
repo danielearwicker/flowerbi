@@ -16,6 +16,8 @@ namespace TinyBI
             Descending = descending;
         }
 
+        public string Direction => Descending? "desc" : "asc";
+
         public Ordering(OrderingJson json, Schema schema)
             : this(schema.GetColumn(json.Column), json.Descending) { }
 

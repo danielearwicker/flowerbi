@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/tinybi/demo/static/css/main.432db33f.chunk.css",
-    "main.js": "/tinybi/demo/static/js/main.7bf759e1.chunk.js",
-    "main.js.map": "/tinybi/demo/static/js/main.7bf759e1.chunk.js.map",
+    "main.js": "/tinybi/demo/static/js/main.582b0e3d.chunk.js",
+    "main.js.map": "/tinybi/demo/static/js/main.582b0e3d.chunk.js.map",
     "runtime-main.js": "/tinybi/demo/static/js/runtime-main.7192a165.js",
     "runtime-main.js.map": "/tinybi/demo/static/js/runtime-main.7192a165.js.map",
     "static/js/2.2afcf39f.chunk.js": "/tinybi/demo/static/js/2.2afcf39f.chunk.js",
     "static/js/2.2afcf39f.chunk.js.map": "/tinybi/demo/static/js/2.2afcf39f.chunk.js.map",
     "index.html": "/tinybi/demo/index.html",
-    "precache-manifest.7e526b6c8791a5f643ecd599a4b576e1.js": "/tinybi/demo/precache-manifest.7e526b6c8791a5f643ecd599a4b576e1.js",
+    "precache-manifest.648f8cfdbd79506c8522252540b018ec.js": "/tinybi/demo/precache-manifest.648f8cfdbd79506c8522252540b018ec.js",
     "service-worker.js": "/tinybi/demo/service-worker.js",
     "static/css/main.432db33f.chunk.css.map": "/tinybi/demo/static/css/main.432db33f.chunk.css.map",
     "static/js/2.2afcf39f.chunk.js.LICENSE.txt": "/tinybi/demo/static/js/2.2afcf39f.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.7192a165.js",
     "static/js/2.2afcf39f.chunk.js",
     "static/css/main.432db33f.chunk.css",
-    "static/js/main.7bf759e1.chunk.js"
+    "static/js/main.582b0e3d.chunk.js"
   ]
 }

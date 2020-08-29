@@ -38,7 +38,7 @@ namespace TinyBI
                     if (Id != null)
                     {
                         throw new InvalidOperationException(
-                            $"Table {QName} has two primary keys");
+                            $"Table {this} has two primary keys");
                     }
 
                     Id = column;
@@ -48,8 +48,8 @@ namespace TinyBI
                     if (_keys.ContainsKey(key.To.Table))
                     {
                         throw new InvalidOperationException(
-                            $"Table {QName} already has foreign key to" +
-                            $" {key.To.Table.QName}, can't set [{key.DbName}]");
+                            $"Table {this} already has foreign key to" +
+                            $" {key.To.Table}, can't set {key}");
                     }
                     _keys.Add(key.To.Table, key);
                 }
@@ -58,7 +58,7 @@ namespace TinyBI
             }
         }
 
-        public string QName => $"[{Schema.DbName}].[{DbName}]";
+        public override string ToString() => $"{Schema.RefName}.{RefName}";
 
         public IEnumerable<IColumn> Columns => _columns.Values;
 
@@ -67,7 +67,7 @@ namespace TinyBI
             if (!_columns.TryGetValue(refName, out var column))
             {
                 throw new InvalidOperationException(
-                    $"No such column {refName} in table {RefName}");
+                    $"No such column {refName} in table {this}");
             }
 
             return column;
@@ -76,7 +76,9 @@ namespace TinyBI
         public IForeignKey GetForeignKeyTo(Table otherTable)
         {
             return _keys.TryGetValue(otherTable, out var foreignKey) ? foreignKey
-                : throw new InvalidOperationException($"Table {QName} has no foreign key to {otherTable.QName}");
+                : throw new InvalidOperationException($"Table {this} has no foreign key to {otherTable}");
         }
+
+        public string ToSql(ISqlFormatter sql) => sql.IdentifierPair(Schema.DbName, DbName);
     }
 }

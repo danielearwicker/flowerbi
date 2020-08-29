@@ -26,5 +26,19 @@
             public static readonly Column<decimal> Amount = new Column<decimal>("Amount");
             public static readonly Column<bool> Paid = new Column<bool>("Paid");
         }
+
+        [DbTable("Tag")]
+        public static class Tag
+        {
+            public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly Column<string> TagName = new Column<string>("TagName");
+        }
+
+        [DbTable("InvoiceTag")]
+        public static class InvoiceTag
+        {
+            public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            public static readonly ForeignKey<int> TagId = new ForeignKey<int>("TagId", Tag.Id);
+        }
     }
 }
