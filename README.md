@@ -23,7 +23,7 @@ Our UI is:
 - required to show aggregated statistics in nice-looking charts,
 - driven by rapid evolution and enhancement from user feedback.
 
-We've tried using a [paid no-code BI product](./PowerBI), and while it had some severe drawbacks, we liked the way it worked with data:
+We've tried using a [paid no-code BI product](./PowerBI.md), and while it had some severe drawbacks, we liked the way it worked with data:
 
 - In one central place, you describe the schema: a _fact_ table that has several foreign keys to _dimension_ tables, all many-to-one relationships.
 - For each chart you want to render, you just specify columns to group by (from any table) and columns to aggregate over (count, sum, etc.)
