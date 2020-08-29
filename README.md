@@ -6,6 +6,8 @@ At its core, FlowerBI is a pattern for supporting querying of star-schema (or mo
 
 It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference (helped by little bit of metaprogramming).
 
+<sub>Logo designed by @shep1987</sub>
+
 ## Use Case
 
 Our users' data is:
