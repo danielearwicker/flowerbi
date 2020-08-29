@@ -2,9 +2,9 @@
 
 <img align="left" width="128" height="128" src="logo128.png">
 
-At its core, FlowerBI is a pattern for supporting querying of star-schema (or more complex) relational databases through a single POST route, so that clients have enough power to do queries that involve aggregation and joins, but the server/API can can carefully limit what clients are able to do.
+FlowerBI supports querying relational databases through a single POST route, so that clients have enough power to do aggregation and joins, but the server/API can can carefully limit what clients are able to do.
 
-It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference (helped by little bit of metaprogramming).
+It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference.
 
 <sub>Logo designed by [@shep1987](https://github.com/shep1987)</sub>
 
