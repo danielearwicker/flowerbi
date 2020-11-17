@@ -16,7 +16,9 @@ namespace FlowerBI.Engine.Tests
         public class TestFormatter : ISqlFormatter
         {
             public string Identifier(string name) => $"|{name}|";
+
             public string EscapedIdentifierPair(string id1, string id2) => $"{id1}!{id2}";
+
             public string SkipAndTake(long skip, int take) => $"skip:{skip} take:{take}";
         }
 
@@ -155,8 +157,8 @@ namespace FlowerBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0  
-                from |TestSchema|!|Invoice| tbl1  
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl1
                 join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                 group by |tbl0|!|VendorName|
                 order by Sum(|tbl1|!|Amount|) desc
@@ -197,6 +199,39 @@ namespace FlowerBI.Engine.Tests
                 from |TestSchema|!|Invoice| tbl0
                 order by Sum(|tbl0|!|Amount|) desc
                 skip:0 take:1
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Theory]
+        [InlineData(AggregationType.Min)]
+        [InlineData(AggregationType.Max)]
+        public void AggregationFunctions(AggregationType type)
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = type
+                    }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"
+                select |tbl0|!|VendorName| Select0, {type}(|tbl1|!|Amount|) Value0
+                from |TestSchema|!|Invoice| tbl1
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                group by |tbl0|!|VendorName|
+                order by {type}(|tbl1|!|Amount|) desc
+                skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -561,7 +596,7 @@ namespace FlowerBI.Engine.Tests
         {
             var queryJson = new QueryJson
             {
-                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },                
+                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },
                 Skip = 5,
                 Take = 10
             };

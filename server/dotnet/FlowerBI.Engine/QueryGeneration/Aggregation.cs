@@ -10,7 +10,9 @@ namespace FlowerBI
     {
         Count,
         Sum,
-        Avg
+        Avg,
+        Min,
+        Max
     };
 
     public class Aggregation
@@ -21,7 +23,7 @@ namespace FlowerBI
 
         public IEnumerable<Filter> Filters { get; }
 
-        public Aggregation(AggregationJson json, Schema schema)            
+        public Aggregation(AggregationJson json, Schema schema)
         {
             Function = json.Function;
             Column = schema.GetColumn(json.Column);
@@ -41,7 +43,7 @@ namespace FlowerBI
 
         private static readonly Func<object, string> _template = Handlebars.Compile(@"
 select
-    
+
     {{#each selects}}
         {{this}}{{#unless @last}}, {{/unless}}
     {{/each}}
@@ -76,6 +78,7 @@ where
     {{skipAndTake}}
 {{/if}}
 ");
+
         public string ToSql(
             ISqlFormatter sql,
             IEnumerable<IColumn> selectColumns,
@@ -121,7 +124,7 @@ where
                     ? sql.SkipAndTake(skip.Value, take.Value)
                     : null;
 
-            var orderBy = skipAndTake == null ? null : 
+            var orderBy = skipAndTake == null ? null :
                 orderings.Any() ? string.Join(", ", orderings.Select(x => $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
                 aggColumn != null ? $"{aggColumn} desc" :
                 null;
