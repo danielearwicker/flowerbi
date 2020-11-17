@@ -146,6 +146,11 @@ Gradually appearing:
 - [flowerbi-react-chartjs](https://earwicker.com/flowerbi/typedoc/flowerbi-react-chartjs)
 - [flowerbi-react-utils](https://earwicker.com/flowerbi/typedoc/flowerbi-react-utils)
 
+## Contributors
+
+- [@TWilkin](https://github.com/TWilkin)
+- [@shep1987](https://github.com/shep1987)
+
 ## License (MIT)
 
 _Copyright © 2020 Daniel Earwicker_
