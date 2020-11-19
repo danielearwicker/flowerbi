@@ -50,6 +50,22 @@ export class QueryColumn<T extends FilterValue> {
         return this.aggregation("Avg", filters);
     }
 
+    /**
+     * Aggregates the column by selecting the minimum value.
+     * @param filters Optional filters to apply.
+     */
+    min(filters?: FilterJson[]) {
+        return this.aggregation("Min", filters);
+    }
+
+    /**
+     * Aggregates the column by selecting the maximum value.
+     * @param filters Optional filters to apply.
+     */
+    max(filters?: FilterJson[]) {
+        return this.aggregation("Max", filters);
+    }
+
     private filter(operator: FilterOperator, value: T): FilterJson {
         return {
             column: this.name,
