@@ -118,6 +118,8 @@
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#greaterthanorequalto" class="tsd-kind-icon">greater<wbr>Than<wbr>OrEqual<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#lessthan" class="tsd-kind-icon">less<wbr>Than</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#lessthanorequalto" class="tsd-kind-icon">less<wbr>Than<wbr>OrEqual<wbr>To</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#max" class="tsd-kind-icon">max</a></li>
+								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#min" class="tsd-kind-icon">min</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#notequalto" class="tsd-kind-icon">not<wbr>Equal<wbr>To</a></li>
 								<li class="tsd-kind-method tsd-parent-kind-class"><a href="querycolumn.html#sum" class="tsd-kind-icon">sum</a></li>
 							</ul>
@@ -188,7 +190,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:64</li>
+									<li>Defined in QueryColumn.ts:80</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -272,7 +274,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:71</li>
+									<li>Defined in QueryColumn.ts:87</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -294,7 +296,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:78</li>
+									<li>Defined in QueryColumn.ts:94</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -322,7 +324,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:93</li>
+									<li>Defined in QueryColumn.ts:109</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -351,7 +353,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:108</li>
+									<li>Defined in QueryColumn.ts:124</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -380,7 +382,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:100</li>
+									<li>Defined in QueryColumn.ts:116</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -408,7 +410,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:116</li>
+									<li>Defined in QueryColumn.ts:132</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -428,6 +430,68 @@
 					</ul>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="max" class="tsd-anchor"></a>
+					<h3>max</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">max<span class="tsd-signature-symbol">(</span>filters<span class="tsd-signature-symbol">?: </span><a href="../interfaces/filterjson.html" class="tsd-signature-type">FilterJson</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/aggregationjson.html" class="tsd-signature-type">AggregationJson</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in QueryColumn.ts:65</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Aggregates the column by selecting the maximum value.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> filters: <a href="../interfaces/filterjson.html" class="tsd-signature-type">FilterJson</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional filters to apply.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/aggregationjson.html" class="tsd-signature-type">AggregationJson</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
+					<a name="min" class="tsd-anchor"></a>
+					<h3>min</h3>
+					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
+						<li class="tsd-signature tsd-kind-icon">min<span class="tsd-signature-symbol">(</span>filters<span class="tsd-signature-symbol">?: </span><a href="../interfaces/filterjson.html" class="tsd-signature-type">FilterJson</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="../interfaces/aggregationjson.html" class="tsd-signature-type">AggregationJson</a></li>
+					</ul>
+					<ul class="tsd-descriptions">
+						<li class="tsd-description">
+							<aside class="tsd-sources">
+								<ul>
+									<li>Defined in QueryColumn.ts:57</li>
+								</ul>
+							</aside>
+							<div class="tsd-comment tsd-typography">
+								<div class="lead">
+									<p>Aggregates the column by selecting the minimum value.</p>
+								</div>
+							</div>
+							<h4 class="tsd-parameters-title">Parameters</h4>
+							<ul class="tsd-parameters">
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> filters: <a href="../interfaces/filterjson.html" class="tsd-signature-type">FilterJson</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optional filters to apply.</p>
+									</div>
+								</li>
+							</ul>
+							<h4 class="tsd-returns-title">Returns <a href="../interfaces/aggregationjson.html" class="tsd-signature-type">AggregationJson</a></h4>
+						</li>
+					</ul>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class">
 					<a name="notequalto" class="tsd-anchor"></a>
 					<h3>not<wbr>Equal<wbr>To</h3>
 					<ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -437,7 +501,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in QueryColumn.ts:85</li>
+									<li>Defined in QueryColumn.ts:101</li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -535,6 +599,12 @@
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="querycolumn.html#lessthanorequalto" class="tsd-kind-icon">less<wbr>Than<wbr>OrEqual<wbr>To</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="querycolumn.html#max" class="tsd-kind-icon">max</a>
+							</li>
+							<li class=" tsd-kind-method tsd-parent-kind-class">
+								<a href="querycolumn.html#min" class="tsd-kind-icon">min</a>
 							</li>
 							<li class=" tsd-kind-method tsd-parent-kind-class">
 								<a href="querycolumn.html#notequalto" class="tsd-kind-icon">not<wbr>Equal<wbr>To</a>

@@ -1142,16 +1142,16 @@
 								<p>To render a proper time-series, we need these gaps to be filled in with
 								runs of fake records that give zero amounts for those months. e.g.</p>
 								<pre><code class="language-ts"><span class="hljs-keyword">const</span> filled = fillDates({
-    records: [
-        { date: <span class="hljs-string">&#x27;2020-04-01&#x27;</span>, totalSales: <span class="hljs-number">10</span> },
-        { date: <span class="hljs-string">&#x27;2020-06-01&#x27;</span>, totalSales: <span class="hljs-number">4</span> },
-        { date: <span class="hljs-string">&#x27;2020-07-01&#x27;</span>, totalSales: <span class="hljs-number">9</span> },
+    <span class="hljs-attr">records</span>: [
+        { <span class="hljs-attr">date</span>: <span class="hljs-string">&#x27;2020-04-01&#x27;</span>, <span class="hljs-attr">totalSales</span>: <span class="hljs-number">10</span> },
+        { <span class="hljs-attr">date</span>: <span class="hljs-string">&#x27;2020-06-01&#x27;</span>, <span class="hljs-attr">totalSales</span>: <span class="hljs-number">4</span> },
+        { <span class="hljs-attr">date</span>: <span class="hljs-string">&#x27;2020-07-01&#x27;</span>, <span class="hljs-attr">totalSales</span>: <span class="hljs-number">9</span> },
     ],
-    <span class="hljs-keyword">type</span>: dateTypes.months,
-    getDate: <span class="hljs-function"><span class="hljs-params">rec</span> =&gt;</span> rec.date,
-    fill: <span class="hljs-function">(<span class="hljs-params">label, rec</span>) =&gt;</span> ({
+    <span class="hljs-attr">type</span>: dateTypes.months,
+    <span class="hljs-attr">getDate</span>: <span class="hljs-function"><span class="hljs-params">rec</span> =&gt;</span> rec.date,
+    <span class="hljs-attr">fill</span>: <span class="hljs-function">(<span class="hljs-params">label, rec</span>) =&gt;</span> ({
         label,
-        totalSales: <span class="hljs-number">0</span>,
+        <span class="hljs-attr">totalSales</span>: <span class="hljs-number">0</span>,
         ...rec
     })
 });</code></pre>
@@ -1230,8 +1230,8 @@
 									The result is an array of strings, but type-constrained to string literal types:</p>
 								</div>
 								<pre><code class="language-ts">getAggregatePropsOnly({
-   customer: Customer.Name,
-   spend: Invoice.Amount.sum()
+   <span class="hljs-attr">customer</span>: Customer.Name,
+   <span class="hljs-attr">spend</span>: Invoice.Amount.sum()
 }) <span class="hljs-comment">// [&quot;spend&quot;]</span></code></pre>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -1317,8 +1317,8 @@
 									result is an array of strings, but type-constrained to string literal types:</p>
 								</div>
 								<pre><code class="language-ts">getColumnPropsOnly({
-   customer: Customer.Name,
-   spend: Invoice.Amount.sum()
+   <span class="hljs-attr">customer</span>: Customer.Name,
+   <span class="hljs-attr">spend</span>: Invoice.Amount.sum()
 }) <span class="hljs-comment">// [&quot;customer&quot;]</span></code></pre>
 							</div>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>

@@ -72,10 +72,10 @@
 				<pre><code class="language-ts"><span class="hljs-keyword">export</span> <span class="hljs-keyword">async</span> <span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">localFetch</span>(<span class="hljs-params">queryJson: QueryJson</span>): <span class="hljs-title">Promise</span>&lt;<span class="hljs-title">QueryResultJson</span>&gt; </span>{
 
     <span class="hljs-keyword">const</span> response = <span class="hljs-keyword">await</span> fetch(<span class="hljs-string">&quot;http://localhost:5000/query&quot;</span>, {
-        method: <span class="hljs-string">&quot;POST&quot;</span>,
-        cache: <span class="hljs-string">&quot;no-cache&quot;</span>,
-        headers: { <span class="hljs-string">&quot;Content-Type&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span> },
-        body: <span class="hljs-built_in">JSON</span>.stringify(queryJson),
+        <span class="hljs-attr">method</span>: <span class="hljs-string">&quot;POST&quot;</span>,
+        <span class="hljs-attr">cache</span>: <span class="hljs-string">&quot;no-cache&quot;</span>,
+        <span class="hljs-attr">headers</span>: { <span class="hljs-string">&quot;Content-Type&quot;</span>: <span class="hljs-string">&quot;application/json&quot;</span> },
+        <span class="hljs-attr">body</span>: <span class="hljs-built_in">JSON</span>.stringify(queryJson),
     });
 
     <span class="hljs-keyword">return</span> !response.ok ? [] : <span class="hljs-built_in">JSON</span>.parse(<span class="hljs-keyword">await</span> response.text(), jsonDateParser);
