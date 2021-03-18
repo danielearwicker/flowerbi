@@ -1,6 +1,6 @@
 {
     "name": "flowerbi-react",
-    "version": "1.17.0",
+    "version": "1.18.0",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "React helpers for FlowerBI",
@@ -10,7 +10,7 @@
         "@types/json-stable-stringify": "^1.0.32",
         "@types/react": "^16.9.0",
         "json-stable-stringify": "^1.0.1",
-        "flowerbi": "1.17.0"
+        "flowerbi": "1.18.0"
     },
     "devDependencies": {
         "prettier": "^2.0.5",
