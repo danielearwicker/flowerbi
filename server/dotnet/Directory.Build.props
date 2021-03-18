@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <PackageVersion>1.17.0</PackageVersion>
+        <PackageVersion>1.18.0</PackageVersion>
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
