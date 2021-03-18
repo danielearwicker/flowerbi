@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>$(NetCoreTargetVersion)</TargetFramework>
 
     <PackageId>FlowerBI.Tools</PackageId>
     <Description>Command line tools for FlowerBI</Description>

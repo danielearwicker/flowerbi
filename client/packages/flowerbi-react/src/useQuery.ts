@@ -36,15 +36,22 @@ export function useQuery<S extends QuerySelect>(fetch: QueryFetch, query: Query<
     const [result, setResult] = useState<QueryResultJson>({ records: [] });
 
     useEffect(() => {
+        let disposed = false;
         if (state !== "init") {
             setState("refresh");
         }
         fetch(queryJson).then(x => {
-            setState("ready");
-            setResult(x);
+            if (!disposed) {
+                setState("ready");
+                setResult(x);
+            }
         }, () => {
-            setState("error");
+            if (!disposed) {
+                setState("error");
+            }
         });
+
+        return () => { disposed = true; };
     }, [stableStringify(queryJson)]);
 
     return { ...expandQueryResult(query.select, result), state };

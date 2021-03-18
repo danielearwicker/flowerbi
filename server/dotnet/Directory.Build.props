@@ -5,4 +5,9 @@
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
     </PropertyGroup>
+
+    <PropertyGroup Label="SDK Versions">
+        <NetStandardTargetVersion>netstandard2.1</NetStandardTargetVersion>
+        <NetCoreTargetVersion>netcoreapp3.1</NetCoreTargetVersion>
+    </PropertyGroup>
 </Project>
