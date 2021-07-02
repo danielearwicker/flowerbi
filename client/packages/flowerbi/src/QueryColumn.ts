@@ -132,4 +132,16 @@ export class QueryColumn<T extends FilterValue> {
     lessThanOrEqualTo(value: T) {
         return this.filter("<=", value);
     }
+
+    /**
+     * Produces a filter that requires this column's value to appear in the list.
+     * Only supported for number or string columns.
+     */
+    in(value: T extends number|string ? T[] : never): FilterJson {
+        return {
+            column: this.name,
+            operator: "IN",
+            value
+        };
+    }
 }

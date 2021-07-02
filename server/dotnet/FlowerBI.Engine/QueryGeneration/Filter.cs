@@ -35,13 +35,15 @@ namespace FlowerBI
                 return e.ValueKind == JsonValueKind.False ? false :
                     e.ValueKind == JsonValueKind.True ? true :
                     e.ValueKind == JsonValueKind.Number ? e.GetDouble() :
-                    e.ValueKind == JsonValueKind.String ?
-                        (DateTime.TryParse(e.GetString(), out var dt) ? dt : (object)e.GetString()) :
-                    throw new InvalidOperationException("Unsupported filter value format");
+                    e.ValueKind == JsonValueKind.String ? (DateTime.TryParse(e.GetString(), out var dt) ? dt : (object)e.GetString()) :
+                    e.ValueKind == JsonValueKind.Array ? e.EnumerateArray().Select(item =>
+                        item.ValueKind == JsonValueKind.Number ? (object)item.GetDouble() :
+                        item.ValueKind == JsonValueKind.String ? item.GetString()
+                        : throw new InvalidOperationException("Unsupported filter value format in list item"))
+                    : throw new InvalidOperationException("Unsupported filter value format");
             }
 
             return json;
-            
         }
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>

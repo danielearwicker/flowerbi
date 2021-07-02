@@ -1,12 +1,12 @@
 /**
  * The allowed filter comparison operators.
  */
-export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=";
+export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN";
 
 /**
  * The allowed value types for a filter.
  */
-export type FilterValue = string | number | boolean | Date | unknown;
+export type FilterValue = string | number | boolean | Date | unknown | string[] | number[];
 
 /**
  * Specifies a filter criterion. The column is specified by a string of the 

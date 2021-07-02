@@ -33,7 +33,7 @@ namespace FlowerBI.Engine.Tests
 
         private object ParseFilterNewtonsoft(string name, string value)
         {
-            var jsonOptions = new JsonSerializerSettings {};
+            var jsonOptions = new JsonSerializerSettings { };
 
             var parsed = JsonConvert.DeserializeObject<FilterJson>(MakeFilterJson(name, value), jsonOptions);
             var filter = new Filter(parsed, QueryGenerationTests.Schema);
@@ -43,7 +43,7 @@ namespace FlowerBI.Engine.Tests
         [Fact]
         public void BooleanFilterCore()
         {
-            ParseFilterCore("Invoice.Paid", "true").Should().Be(true);            
+            ParseFilterCore("Invoice.Paid", "true").Should().Be(true);
         }
 
         [Fact]
@@ -88,6 +88,13 @@ namespace FlowerBI.Engine.Tests
         {
             ParseFilterNewtonsoft("Invoice.Paid", "\"2020-11-04T10:10:00.000Z\"")
                 .Should().Be(new DateTime(2020, 11, 04, 10, 10, 0, DateTimeKind.Utc));
+        }
+
+        [Fact]
+        public void InFilterCore()
+        {
+            ParseFilterCore("Invoice.Id", "[2,4,6,8]")
+                .Should().BeEquivalentTo(new[] { 2, 4, 6, 8 });
         }
     }
 }
