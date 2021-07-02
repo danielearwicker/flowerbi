@@ -46,18 +46,12 @@ namespace FlowerBI
         public DynamicParameters DapperParams { get; } = new DynamicParameters();
 
         private readonly Dictionary<Filter, string> _names = new Dictionary<Filter, string>();
-        private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
+
+        private static string FormatValue(object val)
+            => val is IEnumerable<object> list ? string.Join(", ", list) : val?.ToString();
 
         override public string ToString() =>
-            string.Join(", ", _values.Select(x => $"{x.Key} = {x.Value}"));
-
-        private string DefinePrimitive(object value, int index)
-        {
-            var plainName = $"filter{_names.Count}_{index}";
-            DapperParams.Add(plainName, value);
-            _values[plainName] = value;
-            return $"@{plainName}";
-        }
+            string.Join(", ", _names.Select(x => $"{x.Value} = {FormatValue(x.Key.Value)}"));
 
         public string this[Filter filter]
         {
@@ -65,12 +59,12 @@ namespace FlowerBI
             {
                 if (!_names.TryGetValue(filter, out var name))
                 {
-                    _names[filter] = name = filter.Operator == "IN"
-                        ? "(" + string.Join(", ", ((IEnumerable<object>)filter.Value).Select(DefinePrimitive)) + ")"
-                        : DefinePrimitive(filter.Value, 0);
+                    var plainName = $"filter{_names.Count}";
+                    _names[filter] = name = $"@{plainName}";
+                    DapperParams.Add(plainName, filter.Value);
                 }
 
-                return name;
+                return filter.Operator == "IN" ? $"({name})" : name;
             }
         }
     }
