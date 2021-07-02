@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "d22a9dae577f7cf4f0702c100f0bd838",
+    "revision": "d66c9c2257c77541f9091d2ecb25496b",
     "url": "/flowerbi/demo/index.html"
   },
   {
-    "revision": "63f0acb1fed0f5df461f",
+    "revision": "3fdbe07b76a9a0755152",
     "url": "/flowerbi/demo/static/css/main.432db33f.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/flowerbi/demo/static/js/2.1e3cc1b2.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "63f0acb1fed0f5df461f",
-    "url": "/flowerbi/demo/static/js/main.55c5c648.chunk.js"
+    "revision": "3fdbe07b76a9a0755152",
+    "url": "/flowerbi/demo/static/js/main.6b6d5ad1.chunk.js"
   },
   {
     "revision": "957b986fcb12af045ba6",

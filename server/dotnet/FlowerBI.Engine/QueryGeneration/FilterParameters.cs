@@ -32,7 +32,7 @@ namespace FlowerBI
     }
 
     public class EmbeddedFilterParameters : IFilterParameters
-    {        
+    {
         public string this[Filter filter] =>
             filter.Value is string str ? $"'{str}'" :
             filter.Value is DateTime dt ? $"'{dt:yyyy-MM-dd}'" :
@@ -46,9 +46,18 @@ namespace FlowerBI
         public DynamicParameters DapperParams { get; } = new DynamicParameters();
 
         private readonly Dictionary<Filter, string> _names = new Dictionary<Filter, string>();
+        private readonly Dictionary<string, object> _values = new Dictionary<string, object>();
 
         override public string ToString() =>
-            string.Join(", ", _names.Select(x => $"{x.Value} = {x.Key.Value}"));
+            string.Join(", ", _values.Select(x => $"{x.Key} = {x.Value}"));
+
+        private string DefinePrimitive(object value, int index)
+        {
+            var plainName = $"filter{_names.Count}_{index}";
+            DapperParams.Add(plainName, value);
+            _values[plainName] = value;
+            return $"@{plainName}";
+        }
 
         public string this[Filter filter]
         {
@@ -56,9 +65,9 @@ namespace FlowerBI
             {
                 if (!_names.TryGetValue(filter, out var name))
                 {
-                    var plainName = $"filter{_names.Count}";
-                    _names[filter] = name = $"@{plainName}";
-                    DapperParams.Add(plainName, filter.Value);
+                    _names[filter] = name = filter.Operator == "IN"
+                        ? "(" + string.Join(", ", ((IEnumerable<object>)filter.Value).Select(DefinePrimitive)) + ")"
+                        : DefinePrimitive(filter.Value, 0);
                 }
 
                 return name;
