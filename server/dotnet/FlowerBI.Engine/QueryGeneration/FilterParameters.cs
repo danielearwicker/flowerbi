@@ -64,7 +64,7 @@ namespace FlowerBI
                     DapperParams.Add(plainName, filter.Value);
                 }
 
-                return filter.Operator == "IN" ? $"({name})" : name;
+                return name;
             }
         }
     }

@@ -43,8 +43,16 @@ namespace FlowerBI
                     : throw new InvalidOperationException("Unsupported filter value format");
             }
 
+            if (json is IEnumerable<object> l)
+            {
+                return l.Select(UnpackNewtonsoft);
+            }
+
             return json;
         }
+
+        // Don't want to depend on a specific version, so...
+        private static object UnpackNewtonsoft(dynamic val) => val.Value;
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>
         {
