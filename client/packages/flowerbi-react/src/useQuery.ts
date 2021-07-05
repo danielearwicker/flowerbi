@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Query, QueryFetch, jsonifyQuery, QueryResultJson, QuerySelect, expandQueryResult, ExpandedQueryResult } from "flowerbi";
 import stableStringify from "json-stable-stringify";
 
@@ -17,6 +17,24 @@ export interface UseQueryResult<S extends QuerySelect> extends ExpandedQueryResu
 }
 
 /**
+ * Defines another query on which our query depends - for example a
+ * first query may return the top 10 vendors, and a subsequent query
+ * may then use an `in` filter to get details about those 10 vendors.
+ */
+export type QueryDependency = {
+    /**
+     * The result of the query we depend on
+     */
+    dependency: UseQueryResult<QuerySelect>;
+    /**
+     * If true (default is false) then if the dependency query produces
+     * an empty result, our query should also produce an empty result,
+     * so there is no need to execute it.
+     */
+    nonEmpty?: boolean;
+};
+
+/**
  * A custom React hook that evaluates to the result of a 
  * [Query](../flowerbi/interfaces/query.html), making it easy to perform a 
  * query from within a component.
@@ -27,32 +45,59 @@ export interface UseQueryResult<S extends QuerySelect> extends ExpandedQueryResu
  * 
  * @param fetch The fetch function to use.
  * @param query The [Query](../flowerbi/interfaces/query.html) specification.
+ * @param dependencies Optionally, a list of one or more other queries whose
+ * results are used to build this query, so we wait for them before executing,
+ * and optionally short-circuit to an empty result if the dependency is empty.
  */
-export function useQuery<S extends QuerySelect>(fetch: QueryFetch, query: Query<S>): UseQueryResult<S> {
-
+export function useQuery<S extends QuerySelect>(fetch: QueryFetch, query: Query<S>, dependencies?: QueryDependency[]): UseQueryResult<S> {
     const queryJson = jsonifyQuery(query);
 
     const [state, setState] = useState<UseQueryState>("init");
     const [result, setResult] = useState<QueryResultJson>({ records: [] });
 
     useEffect(() => {
-        let disposed = false;
+        let disposed = false; // discard stale results
+
+        if (dependencies?.length) {
+            // if any not ready, neither are we
+            if (dependencies.some(x => x.dependency.state !== "ready")) {
+                if (state !== "init") {
+                    setState("refresh");
+                }
+                return;
+            }
+
+            // if any with option nonEmpty produced empty result, so do we
+            if (dependencies.filter(x => !!x.nonEmpty).some(x => !x.dependency.records.length)) {
+                setState("ready");
+                setResult({ records: [] });
+                return;
+            }
+        }
+
         if (state !== "init") {
             setState("refresh");
         }
-        fetch(queryJson).then(x => {
-            if (!disposed) {
-                setState("ready");
-                setResult(x);
-            }
-        }, () => {
-            if (!disposed) {
-                setState("error");
-            }
-        });
 
-        return () => { disposed = true; };
-    }, [stableStringify(queryJson)]);
+        fetch(queryJson).then(
+            x => {
+                if (!disposed) {
+                    setState("ready");
+                    setResult(x);
+                }
+            },
+            () => {
+                if (!disposed) {
+                    setState("error");
+                }
+            }
+        );
+
+        return () => {
+            disposed = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fetch, stableStringify(queryJson)]);
 
     return { ...expandQueryResult(query.select, result), state };
 }

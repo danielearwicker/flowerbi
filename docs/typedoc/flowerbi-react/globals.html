@@ -81,6 +81,7 @@
 							<ul class="tsd-index-list">
 								<li class="tsd-kind-type-alias"><a href="globals.html#columndefinition" class="tsd-kind-icon">Column<wbr>Definition</a></li>
 								<li class="tsd-kind-type-alias tsd-has-type-parameter"><a href="globals.html#flowerbitableprops" class="tsd-kind-icon">FlowerBITable<wbr>Props</a></li>
+								<li class="tsd-kind-type-alias"><a href="globals.html#querydependency" class="tsd-kind-icon">Query<wbr>Dependency</a></li>
 								<li class="tsd-kind-type-alias"><a href="globals.html#usequerystate" class="tsd-kind-icon">Use<wbr>Query<wbr>State</a></li>
 							</ul>
 						</section>
@@ -110,7 +111,7 @@
 					<div class="tsd-signature tsd-kind-icon">Column<wbr>Definition<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">[</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><span class="tsd-signature-type">"left"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"right"</span><span class="tsd-signature-symbol">]</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/FlowerBITable.tsx#L4">flowerbi-react/src/FlowerBITable.tsx:4</a></li>
+							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/FlowerBITable.tsx#L4">flowerbi-react/src/FlowerBITable.tsx:4</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -120,7 +121,7 @@
 					<div class="tsd-signature tsd-kind-icon">FlowerBITable<wbr>Props&lt;S&gt;<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>columns<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{}</span><span class="tsd-signature-symbol">; </span>data<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">ExpandedQueryResult</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> }</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/FlowerBITable.tsx#L17">flowerbi-react/src/FlowerBITable.tsx:17</a></li>
+							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/FlowerBITable.tsx#L17">flowerbi-react/src/FlowerBITable.tsx:17</a></li>
 						</ul>
 					</aside>
 					<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -165,12 +166,52 @@
 					</div>
 				</section>
 				<section class="tsd-panel tsd-member tsd-kind-type-alias">
+					<a name="querydependency" class="tsd-anchor"></a>
+					<h3>Query<wbr>Dependency</h3>
+					<div class="tsd-signature tsd-kind-icon">Query<wbr>Dependency<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span>dependency<span class="tsd-signature-symbol">: </span><a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QuerySelect</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">; </span>nonEmpty<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span><span class="tsd-signature-symbol"> }</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/useQuery.ts#L24">flowerbi-react/src/useQuery.ts:24</a></li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Defines another query on which our query depends - for example a
+								first query may return the top 10 vendors, and a subsequent query
+							may then use an <code>in</code> filter to get details about those 10 vendors.</p>
+						</div>
+					</div>
+					<div class="tsd-type-declaration">
+						<h4>Type declaration</h4>
+						<ul class="tsd-parameters">
+							<li class="tsd-parameter">
+								<h5>dependency<span class="tsd-signature-symbol">: </span><a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">QuerySelect</span><span class="tsd-signature-symbol">&gt;</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>The result of the query we depend on</p>
+									</div>
+								</div>
+							</li>
+							<li class="tsd-parameter">
+								<h5><span class="tsd-flag ts-flagOptional">Optional</span> non<wbr>Empty<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">false</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">true</span></h5>
+								<div class="tsd-comment tsd-typography">
+									<div class="lead">
+										<p>If true (default is false) then if the dependency query produces
+											an empty result, our query should also produce an empty result,
+										so there is no need to execute it.</p>
+									</div>
+								</div>
+							</li>
+						</ul>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-type-alias">
 					<a name="usequerystate" class="tsd-anchor"></a>
 					<h3>Use<wbr>Query<wbr>State</h3>
 					<div class="tsd-signature tsd-kind-icon">Use<wbr>Query<wbr>State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">"init"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"ready"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"refresh"</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">"error"</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/useQuery.ts#L5">flowerbi-react/src/useQuery.ts:5</a></li>
+							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/useQuery.ts#L5">flowerbi-react/src/useQuery.ts:5</a></li>
 						</ul>
 					</aside>
 				</section>
@@ -187,7 +228,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/FlowerBITable.tsx#L24">flowerbi-react/src/FlowerBITable.tsx:24</a></li>
+									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/FlowerBITable.tsx#L24">flowerbi-react/src/FlowerBITable.tsx:24</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-type-parameters-title">Type parameters</h4>
@@ -247,7 +288,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/FlowerBITable.tsx#L6">flowerbi-react/src/FlowerBITable.tsx:6</a></li>
+									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/FlowerBITable.tsx#L6">flowerbi-react/src/FlowerBITable.tsx:6</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-parameters-title">Parameters</h4>
@@ -273,7 +314,7 @@
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/usePageFilters.ts#L25">flowerbi-react/src/usePageFilters.ts:25</a></li>
+									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/usePageFilters.ts#L25">flowerbi-react/src/usePageFilters.ts:25</a></li>
 								</ul>
 							</aside>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/pagefilters.html" class="tsd-signature-type">PageFilters</a></h4>
@@ -284,13 +325,13 @@
 					<a name="usequery" class="tsd-anchor"></a>
 					<h3>use<wbr>Query</h3>
 					<ul class="tsd-signatures tsd-kind-function tsd-has-type-parameter">
-						<li class="tsd-signature tsd-kind-icon">use<wbr>Query&lt;S&gt;<span class="tsd-signature-symbol">(</span>fetch<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">QueryFetch</span>, query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Query</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></li>
+						<li class="tsd-signature tsd-kind-icon">use<wbr>Query&lt;S&gt;<span class="tsd-signature-symbol">(</span>fetch<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">QueryFetch</span>, query<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Query</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span>, dependencies<span class="tsd-signature-symbol">?: </span><a href="globals.html#querydependency" class="tsd-signature-type">QueryDependency</a><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></li>
 					</ul>
 					<ul class="tsd-descriptions">
 						<li class="tsd-description">
 							<aside class="tsd-sources">
 								<ul>
-									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/useQuery.ts#L31">flowerbi-react/src/useQuery.ts:31</a></li>
+									<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/useQuery.ts#L52">flowerbi-react/src/useQuery.ts:52</a></li>
 								</ul>
 							</aside>
 							<div class="tsd-comment tsd-typography">
@@ -323,6 +364,14 @@
 										<p>The <a href="../flowerbi/interfaces/query.html">Query</a> specification.</p>
 									</div>
 								</li>
+								<li>
+									<h5><span class="tsd-flag ts-flagOptional">Optional</span> dependencies: <a href="globals.html#querydependency" class="tsd-signature-type">QueryDependency</a><span class="tsd-signature-symbol">[]</span></h5>
+									<div class="tsd-comment tsd-typography">
+										<p>Optionally, a list of one or more other queries whose
+											results are used to build this query, so we wait for them before executing,
+										and optionally short-circuit to an empty result if the dependency is empty.</p>
+									</div>
+								</li>
 							</ul>
 							<h4 class="tsd-returns-title">Returns <a href="interfaces/usequeryresult.html" class="tsd-signature-type">UseQueryResult</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">S</span><span class="tsd-signature-symbol">&gt;</span></h4>
 						</li>
@@ -337,7 +386,7 @@
 					<div class="tsd-signature tsd-kind-icon">cleared<wbr>State<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">object</span></div>
 					<aside class="tsd-sources">
 						<ul>
-							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/usePageFilters.ts#L19">flowerbi-react/src/usePageFilters.ts:19</a></li>
+							<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/usePageFilters.ts#L19">flowerbi-react/src/usePageFilters.ts:19</a></li>
 						</ul>
 					</aside>
 					<section class="tsd-panel tsd-member tsd-kind-variable tsd-parent-kind-object-literal">
@@ -346,7 +395,7 @@
 						<div class="tsd-signature tsd-kind-icon">global<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/usePageFilters.ts#L20">flowerbi-react/src/usePageFilters.ts:20</a></li>
+								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/usePageFilters.ts#L20">flowerbi-react/src/usePageFilters.ts:20</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -356,7 +405,7 @@
 						<div class="tsd-signature tsd-kind-icon">interaction<wbr>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> = &quot;&quot;</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/usePageFilters.ts#L22">flowerbi-react/src/usePageFilters.ts:22</a></li>
+								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/usePageFilters.ts#L22">flowerbi-react/src/usePageFilters.ts:22</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -366,7 +415,7 @@
 						<div class="tsd-signature tsd-kind-icon">interactions<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">never</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></div>
 						<aside class="tsd-sources">
 							<ul>
-								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/d94d438/client/packages/flowerbi-react/src/usePageFilters.ts#L21">flowerbi-react/src/usePageFilters.ts:21</a></li>
+								<li>Defined in <a href="https://github.com/danielearwicker/flowerbi/blob/fb14e74/client/packages/flowerbi-react/src/usePageFilters.ts#L21">flowerbi-react/src/usePageFilters.ts:21</a></li>
 							</ul>
 						</aside>
 					</section>
@@ -400,6 +449,9 @@
 					</li>
 					<li class=" tsd-kind-type-alias tsd-has-type-parameter">
 						<a href="globals.html#flowerbitableprops" class="tsd-kind-icon">FlowerBITable<wbr>Props</a>
+					</li>
+					<li class=" tsd-kind-type-alias">
+						<a href="globals.html#querydependency" class="tsd-kind-icon">Query<wbr>Dependency</a>
 					</li>
 					<li class=" tsd-kind-type-alias">
 						<a href="globals.html#usequerystate" class="tsd-kind-icon">Use<wbr>Query<wbr>State</a>

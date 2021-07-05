@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/flowerbi/demo/static/css/main.432db33f.chunk.css",
-    "main.js": "/flowerbi/demo/static/js/main.6b6d5ad1.chunk.js",
-    "main.js.map": "/flowerbi/demo/static/js/main.6b6d5ad1.chunk.js.map",
+    "main.js": "/flowerbi/demo/static/js/main.3886f01f.chunk.js",
+    "main.js.map": "/flowerbi/demo/static/js/main.3886f01f.chunk.js.map",
     "runtime-main.js": "/flowerbi/demo/static/js/runtime-main.06645da9.js",
     "runtime-main.js.map": "/flowerbi/demo/static/js/runtime-main.06645da9.js.map",
     "static/js/2.1e3cc1b2.chunk.js": "/flowerbi/demo/static/js/2.1e3cc1b2.chunk.js",
     "static/js/2.1e3cc1b2.chunk.js.map": "/flowerbi/demo/static/js/2.1e3cc1b2.chunk.js.map",
     "index.html": "/flowerbi/demo/index.html",
-    "precache-manifest.92e42d62037dd1ed8d12823a501d4a3f.js": "/flowerbi/demo/precache-manifest.92e42d62037dd1ed8d12823a501d4a3f.js",
+    "precache-manifest.c3206e2294829df9e4982e6298738cf0.js": "/flowerbi/demo/precache-manifest.c3206e2294829df9e4982e6298738cf0.js",
     "service-worker.js": "/flowerbi/demo/service-worker.js",
     "static/css/main.432db33f.chunk.css.map": "/flowerbi/demo/static/css/main.432db33f.chunk.css.map",
     "static/js/2.1e3cc1b2.chunk.js.LICENSE.txt": "/flowerbi/demo/static/js/2.1e3cc1b2.chunk.js.LICENSE.txt"
@@ -17,6 +17,6 @@
     "static/js/runtime-main.06645da9.js",
     "static/js/2.1e3cc1b2.chunk.js",
     "static/css/main.432db33f.chunk.css",
-    "static/js/main.6b6d5ad1.chunk.js"
+    "static/js/main.3886f01f.chunk.js"
   ]
 }
