@@ -1,4 +1,4 @@
-[Power BI](https://powerbi.microsoft.com/) is a propriety app for building graphical reports from various tabular data sources. It is pretty good as a fast way to throw together something for short-term use. You tell it how tables relate to each other, and drag charts on a page, and they're pretty intuitive to set up because it uses mostly helpful defaults. This is good!
+[Power BI](https://powerbi.microsoft.com/) is a proprietary app for building graphical reports from various tabular data sources. It is pretty good as a fast way to throw together something for short-term use. You tell it how tables relate to each other, and drag charts on a page, and they're pretty intuitive to set up because it uses mostly helpful defaults. This is good!
 
 But as a development tool for embedding charting content into a maintained application, it's not so great, because:
 
