@@ -18,13 +18,13 @@
         "typescript": "~3.8.3",
         "react": "^16.13.1",
         "react-chartjs-2": "^2.9.0",
-        "chart.js": "^2.9.3",
+        "chart.js": "^2.9.4",
         "typedoc": "^0.17.8"
     },
     "peerDependencies": {
         "react": "^16.13.1",
         "react-chartjs-2": "^2.9.0",
-        "chart.js": "^2.9.3"
+        "chart.js": "^2.9.4"
     },
     "scripts": {
         "build": "tsc",
