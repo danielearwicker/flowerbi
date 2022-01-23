@@ -1,6 +1,6 @@
 import { keysOf } from "./arrayHelpers";
 import { QueryColumn } from "./QueryColumn";
-import { AggregationJson, QueryJson, FilterJson, OrderingJson } from "./QueryJson";
+import { AggregationJson, FilterJson, OrderingJson } from "./QueryJson";
 
 /**
  * Defines the kinds of member that can appear in the `select` object of a query. 

@@ -2,10 +2,10 @@ import React, { useRef } from "react";
 import { QueryColumn, distinct, keysOf } from "flowerbi";
 import { useQuery } from "flowerbi-react";
 import { FlowerBIChartBox } from "flowerbi-react-utils";
-import { makeClickHandler } from "flowerbi-react-chartjs";
 import { Bug, Workflow, CategoryCombination } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS } from "chart.js";
 import { VisualProps } from "./VisualProps";
 
 const categoriesRaw = {
@@ -40,15 +40,7 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
 
     const data = useQuery(fetch, query);
 
-    const chart = useRef<Bar>(null);
-
-    const clickHandler = makeClickHandler(id, chart, 
-        keys => [
-            Workflow.WorkflowState.equalTo(keys[1]), 
-            categories[keys[0] as CategoryLabel].equalTo(true)
-        ],
-        pageFilters
-    );
+    const chart = useRef<ChartJS<"bar">>(null);
 
     const distinctWorkflowStates = distinct(data.records.map(r => r.workflowState));
 
@@ -84,10 +76,23 @@ export function TypesOfError({ pageFilters, fetch }: VisualProps) {
                 ref={chart}
                 options={{ 
                     scales: {
-                        xAxes: [ { stacked: true } ],
-                        yAxes: [ { stacked: true, ticks: { beginAtZero: true } } ]
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true}
                     },
-                    ...clickHandler
+                    onClick(evt, elements, chart) {
+                        console.log("clicked", { evt, elements, chart });
+                        if (elements[0]) {
+
+                            const category = orderedCategories[elements[0].index];
+                            const workflowState = distinctWorkflowStates[elements[0].datasetIndex];
+
+                            console.log("Category:", category, "WorkflowState:", workflowState);
+                            pageFilters.setInteraction(id, [                                
+                                 Workflow.WorkflowState.equalTo(workflowState), 
+                                 categories[category].equalTo(true)                                
+                            ]);
+                        }
+                    }
                 }}
                 data={{
                     labels: orderedCategories,

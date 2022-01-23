@@ -3,8 +3,8 @@ import moment from "moment";
 async function allocDb() {
     const publicUrl = (window as any).sitePublicUrl;
 
-    const SQL = await initSqlJs({
-        locateFile(f) {
+    const SQL = await window.initSqlJs({
+        locateFile(f: string) {
             return `${publicUrl}/${f}`;
         }
     });

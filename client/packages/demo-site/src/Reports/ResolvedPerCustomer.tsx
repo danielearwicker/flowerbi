@@ -4,8 +4,8 @@ import { FlowerBIChartBox } from "flowerbi-react-utils";
 import { Customer, Bug, Workflow } from "../demoSchema";
 import { dataColours } from "./dataColours";
 import { Pie } from "react-chartjs-2";
+import { Chart as ChartJS } from "chart.js";
 import { VisualProps } from "./VisualProps";
-import { makeClickHandler } from "flowerbi-react-chartjs";
 
 export function ResolvedPerCustomer({ pageFilters, fetch }: VisualProps) {
 
@@ -22,15 +22,24 @@ export function ResolvedPerCustomer({ pageFilters, fetch }: VisualProps) {
         ],
     };
 
-    const ref = useRef<Pie>(null);
+    const ref = useRef<ChartJS<"pie">>(null);
     const result = useQuery(fetch, query);
-    const clickHandler = makeClickHandler(id, ref, query.select, pageFilters);
     
     return (
         <FlowerBIChartBox id={id} title="Resolved Per Customer" state={result.state}>
             <Pie
                 ref={ref}
-                options={{ ...clickHandler }}
+                options={{
+                    onClick(evt, elements, chart) {
+                        console.log("clicked", { evt, elements, chart });
+                        if (elements[0]) {
+                            const clicked = result.records[elements[0].index].customer;
+                            pageFilters.setInteraction(id, [
+                                Customer.CustomerName.equalTo(clicked)
+                            ]);
+                        }
+                    }
+                }}
                 data={{
                     labels: result.records.map(x => x.customer),
                     datasets: [{

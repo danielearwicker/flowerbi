@@ -1,3 +1,3 @@
 export * from "./FlowerBITable";
 export * from "./usePageFilters";
-export * from "./useQuery";
+export * from "./useFlowerBI";

@@ -32,7 +32,7 @@ namespace FlowerBI
             Take = json.Take;
         }
 
-        private static readonly Func<object, string> _aggregatedTemplate = Handlebars.Compile(@"
+        private static readonly HandlebarsTemplate<object, string> _aggregatedTemplate = Handlebars.Compile(@"
 
 with {{#each Aggregations}}
 
@@ -61,7 +61,7 @@ from Aggregation0 a0
         {{#if ../Select}}
             left join Aggregation{{@index}} a{{@index}} on
             {{#each ../Select}}
-                a{{../../@index}}.Select{{@index}} = a0.Select{{@index}}
+                a{{@../index}}.Select{{@index}} = a0.Select{{@index}}
                 {{#unless @last}}and{{/unless}}
             {{/each}}
         {{/if}}
@@ -151,16 +151,20 @@ order by {{ordering}}
             return result;
         }
 
-        private static IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
-            => list.Select(x => new QueryRecordJson
+        private IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
+        {
+            var aggColumns = Aggregations.Select(x => x.Column).ToList();
+            var selColumns = Select.ToList();
+
+            return list.Select(x => new QueryRecordJson
                 {
-                     Selected = GetList(x, "Select"),
-                     Aggregated = GetList(x, "Value"),
+                     Selected = GetList(x, "Select", selColumns),
+                     Aggregated = GetList(x, "Value", aggColumns),
                 })
                 .ToList();
-        
+        }
 
-        private static IList<object> GetList(IDictionary<string, object> raw, string prefix)
+        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<IColumn> columns)
         {
             IList<object> result = null;
 
@@ -168,7 +172,8 @@ order by {{ordering}}
             {
                 if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
                 if (result == null) result = new List<object>();
-                result.Add(value);
+
+                result.Add(columns[n].ConvertValue(value));
             }
 
             return result;

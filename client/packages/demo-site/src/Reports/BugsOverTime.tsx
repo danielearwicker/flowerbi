@@ -1,13 +1,13 @@
 import React, { useRef } from "react";
-import { QueryColumn, smartDates } from "flowerbi";
+import { QueryColumn } from "flowerbi";
 import { useQuery } from "flowerbi-react";
+import { fillDates } from "flowerbi-dates";
 import { useDropDown, DropDown, FlowerBIChartBox } from "flowerbi-react-utils";
 import { Bug, Workflow, DateReported } from "../demoSchema";
 import { dataColours } from "./dataColours";
-import { ChartDataSets, ChartOptions, ChartData } from "chart.js";
-import { Bar } from "react-chartjs-2";
+import { Chart as ChartJS, ChartDataset, ChartOptions, ChartData } from "chart.js";
 import { VisualProps } from "./VisualProps";
-import { makeClickHandler } from "flowerbi-react-chartjs";
+import { Chart } from "react-chartjs-2";
 
 const dateGroupings = [
     { label: "Month", value: DateReported.FirstDayOfMonth },
@@ -23,7 +23,7 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
 
     const query = {
         select: {
-            period: dateGrouping.selected,        
+            period: dateGrouping.selected,
             countAllCauses: Bug.Id.count(),
             countHackers: Bug.Id.count([
                 Workflow.SourceOfError.equalTo("Hackers")
@@ -38,27 +38,31 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
 
     const result = useQuery(fetch, query);
 
-    const datedRecords = smartDates(result.records, 2017, "2021-12-31", r => r.period, (dateLabel, record) => ({
-        dateLabel,
-        countAllCauses: 0,
-        countHackers: 0,
-        ...record 
-    }));
+    const datedRecords = fillDates({ 
+        records: result.records, 
+        min: 2017, 
+        max: "2021-12-31", 
+        getDate: r => r.period, 
+        fill: (dateLabel, record) => ({
+            dateLabel,
+            countAllCauses: 0,
+            countHackers: 0,
+            ...record 
+        })
+    });
 
-    const ref = useRef<Bar>(null);
+    const ref = useRef<ChartJS<"bar">>(null);
 
-    const clickHandler = makeClickHandler(id, ref, query.select!, pageFilters);
-    
-    const hackers: ChartDataSets = {
+    const hackers: ChartDataset = {
         type: "line",
         data: datedRecords.map(r => r.countHackers ?? 0),
         label: "Hackers",
         backgroundColor: "transparent",
-        lineTension: 0,
+        // lineTension: 0,
         borderColor: dataColours[1],
     };
     
-    const allCauses: ChartDataSets = {
+    const allCauses: ChartDataset = {
         data: datedRecords.map(r => r.countAllCauses),
         label: "All Causes",
         backgroundColor: dataColours[0]
@@ -70,9 +74,17 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
     };
 
     const options: ChartOptions = {
-        ...clickHandler,
+        onClick(evt, elements, chart) {
+            console.log("clicked", { evt, elements, chart });
+            if (elements[0]) {
+                const clicked = result.records[elements[0].index].period;
+                pageFilters.setInteraction(id, [
+                    dateGrouping.selected.equalTo(clicked)
+                ]);
+            }
+        },
         scales: {
-            yAxes: [{ ticks: { beginAtZero: true } }]
+            y: { beginAtZero: true }
         }
     };
 
@@ -80,7 +92,7 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
         <FlowerBIChartBox id={id} title="Bugs Over Time" state={result.state}>
             <div className="chart-with-dropdown">
                 <div className="content">
-                    <Bar ref={ref} options={options} data={data} />
+                    <Chart type="bar" ref={ref} options={options} data={data} />
                 </div>            
                 <div className="dropdown">
                     <span>By </span><DropDown {...dateGrouping} />

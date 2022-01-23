@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FilterJson } from "flowerbi";
+import stableStringify from "json-stable-stringify";
 
 export interface PageFiltersState {
     readonly global: FilterJson[];
@@ -25,7 +26,17 @@ const clearedState: PageFiltersState = {
 export function usePageFilters(): PageFilters {
     const [state, set] = useState<PageFiltersState>(clearedState);
     function setInteraction(interactionKey: string, interactions: FilterJson[]) {
-        set({ ...state, interactionKey, interactions });
+        console.log(interactionKey, state.interactionKey, state.interactionKey === interactionKey,
+            interactions, state.interactions,
+            stableStringify(state.interactions), stableStringify(interactions),
+            stableStringify(state.interactions) === stableStringify(interactions));
+
+        if (state.interactionKey === interactionKey &&
+            stableStringify(state.interactions) === stableStringify(interactions)) {
+            clearInteraction();
+        } else {
+            set({ ...state, interactionKey, interactions });
+        }
     }
     function setGlobal(global: FilterJson[]) {
         set({ ...state, global });

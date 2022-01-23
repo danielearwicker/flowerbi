@@ -41,7 +41,7 @@ namespace FlowerBI
             return list?.Count > 0 ? list : new List<Aggregation> { new Aggregation() };
         }
 
-        private static readonly Func<object, string> _template = Handlebars.Compile(@"
+        private static readonly HandlebarsTemplate<object, string> _template = Handlebars.Compile(@"
 select
 
     {{#each selects}}

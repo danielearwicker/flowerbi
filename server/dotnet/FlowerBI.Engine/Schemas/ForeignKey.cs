@@ -1,4 +1,6 @@
-﻿namespace FlowerBI
+﻿using System;
+
+namespace FlowerBI
 {
     public interface IForeignKey : IColumn
     {
@@ -9,8 +11,8 @@
     {
         public PrimaryKey<T> To { get; }
 
-        public ForeignKey(string name, PrimaryKey<T> to)
-            : base(name)
+        public ForeignKey(string name, PrimaryKey<T> to, Func<T, T> converter = null)
+            : base(name, converter)
         {
             To = to;
         }

@@ -8,7 +8,7 @@ pushd packages/flowerbi-react
 npm publish
 popd
 
-pushd packages/flowerbi-react-chartjs
+pushd packages/flowerbi-dates
 npm publish
 popd
 

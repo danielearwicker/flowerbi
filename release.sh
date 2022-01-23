@@ -21,7 +21,7 @@ pushd packages/flowerbi-react
 yarn prepare
 popd
 
-pushd packages/flowerbi-react-chartjs
+pushd packages/flowerbi-dates
 yarn prepare
 popd
 
