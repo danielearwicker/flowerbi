@@ -4104,10 +4104,30 @@ flowerbi-react-chartjs@1.22.0:
     flowerbi "1.22.0"
     flowerbi-react "1.22.0"
 
+flowerbi-react@1.22.0:
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/flowerbi-react/-/flowerbi-react-1.22.0.tgz#1223fb8b7d2dd5f151f990212be9bb853095eb52"
+  integrity sha512-1mX7hh+TdgcdHd/K1BeAJhLcn9Y41WdG2etTr43GwA3hU80cgdueuFM+l7aIaUeqD1qA+IgLvZc2+lK4TMh+3Q==
+  dependencies:
+    "@types/json-stable-stringify" "^1.0.32"
+    "@types/react" "^16.9.0"
+    flowerbi "1.22.0"
+    json-stable-stringify "^1.0.1"
+
+flowerbi@1.22.0:
+  version "1.22.0"
+  resolved "https://registry.yarnpkg.com/flowerbi/-/flowerbi-1.22.0.tgz#d6c356475b946daa5ffcc0fd1510262675a59f88"
+  integrity sha512-8tmVjnijj1Y6wmaSxfikQr8kkWRaxN6J1fzTiDWYraRd2lmNgnicT2E6cNWiMvUvJVOcFYGzWK5XvDLo+zJCMw==
+  dependencies:
+    "@types/json-stable-stringify" "^1.0.32"
+    json-stable-stringify "^1.0.1"
+    prettier "^2.0.5"
+    typescript "~3.8.3"
+
 follow-redirects@^1.0.0:
-  version "1.14.7"
-  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
-  integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
+  version "1.14.8"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.8.tgz#016996fb9a11a100566398b1c6839337d7bfa8fc"
+  integrity sha512-1x0S9UVJHsQprFcEC/qnNzBLcIxsjAV905f/UkQxbclCsoTWlacCNOpQa/anodLl2uaEKFhfWOvM2Qg77+15zA==
 
 fork-ts-checker-webpack-plugin@^6.5.0:
   version "6.5.0"
@@ -6745,7 +6765,7 @@ prelude-ls@~1.1.2:
   resolved "https://registry.yarnpkg.com/prelude-ls/-/prelude-ls-1.1.2.tgz#21932a549f5e52ffd9a827f570e04be62a97da54"
   integrity sha1-IZMqVJ9eUv/ZqCf1cOBL5iqX2lQ=
 
-prettier@^2.5.1:
+prettier@^2.0.5, prettier@^2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.5.1.tgz#fff75fa9d519c54cf0fce328c1017d94546bc56a"
   integrity sha512-vBZcPRUR5MZJwoyi3ZoyQlc1rXeEck8KgeC9AwwOn+exuxLxq5toTRDTSaVrXHxelDMHy9zlicw8u66yxoSUFg==
@@ -8058,6 +8078,11 @@ typescript@^4.5.5:
   version "4.5.5"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.5.5.tgz#d8c953832d28924a9e3d37c73d729c846c5896f3"
   integrity sha512-TCTIul70LyWe6IJWT8QSYeA54WQe8EjQFU4wY52Fasj5UKx88LNYKCgBEHcOMOrFF1rKGbD8v/xcNWVUq9SymA==
+
+typescript@~3.8.3:
+  version "3.8.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.8.3.tgz#409eb8544ea0335711205869ec458ab109ee1061"
+  integrity sha512-MYlEfn5VrLNsgudQTVJeNaQFUAI7DkhnOjdpAp4T+ku1TfQClewlbSuTVHiA+8skNBgaf02TL/kLOvig4y3G8w==
 
 unbox-primitive@^1.0.1:
   version "1.0.1"
