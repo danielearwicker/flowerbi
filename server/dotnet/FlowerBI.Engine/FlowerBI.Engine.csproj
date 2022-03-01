@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>    
-    <TargetFramework>$(NetStandardTargetVersion)</TargetFramework>
+  <PropertyGroup>
+    <TargetFramework>$(NetTargetVersion)</TargetFramework>
 
     <PackageId>FlowerBI.Engine</PackageId>
     <Description>Server-side query generation engine for FlowerBI</Description>

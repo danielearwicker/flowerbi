@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <PropertyGroup Label="SDK Versions">
-        <NetStandardTargetVersion>netstandard2.1</NetStandardTargetVersion>
-        <NetCoreTargetVersion>netcoreapp3.1</NetCoreTargetVersion>
+        <NetTargetVersion>net6.0</NetTargetVersion>
     </PropertyGroup>
 </Project>
