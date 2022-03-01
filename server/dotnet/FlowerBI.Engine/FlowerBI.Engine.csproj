@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <PackageReference Include="Dapper" Version="2.0.123" />
-    <PackageReference Include="System.Text.Json" Version="4.7.2" />
+    <PackageReference Include="System.Text.Json" Version="6.0.2" />
     <PackageReference Include="Handlebars.Net" Version="2.0.10" />
   </ItemGroup>
   <ItemGroup>

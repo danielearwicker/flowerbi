@@ -9,7 +9,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
+          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/$(NetTargetVersion)/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
           <workingdir></workingdir>
         </Command>
       </CustomCommands>
@@ -21,7 +21,7 @@
       <CustomCommands>
         <Command>
           <type>AfterBuild</type>
-          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Release/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
+          <command>dotnet run -p ../../FlowerBI.Tools -- ts bin/Release/$(NetTargetVersion)/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts</command>
           <workingdir></workingdir>
         </Command>
       </CustomCommands>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/netstandard2.1/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts" />
+    <Exec Command="dotnet run -p ../../FlowerBI.Tools -- ts bin/Debug/$(NetTargetVersion)/FlowerBI.DemoSchema.dll FlowerBI.DemoSchema.NxgSchema ../../../../client/packages/demo-site/src/demoSchema.ts" />
   </Target>
 
 </Project>
