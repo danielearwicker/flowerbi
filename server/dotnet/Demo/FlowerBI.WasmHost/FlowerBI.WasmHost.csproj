@@ -34,8 +34,4 @@
     </ProjectReference>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="rmdir /q /s ..\..\..\..\client\packages\demo-site\public\_framework&#xD;&#xA;xcopy bin\Debug\$(NetTargetVersion)\wwwroot\_framework ..\..\..\..\client\packages\demo-site\public\_framework\ /E/H&#xD;&#xA;" />
-  </Target>
-
 </Project>
