@@ -8,7 +8,7 @@ dotnet test FlowerBI.Engine.Tests/FlowerBI.Engine.Tests.csproj
 popd
 
 rm -rf client/packages/demo-site/public/_framework
-cp -R server/dotnet/Demo/FlowerBI.WasmHost/bin/Debug/netstandard2.1/wwwroot/_framework client/packages/demo-site/public/_framework/
+cp -R server/dotnet/Demo/FlowerBI.WasmHost/bin/Debug/net6.0/wwwroot/_framework client/packages/demo-site/public/_framework/
 
 pushd client
 yarn

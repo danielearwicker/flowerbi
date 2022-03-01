@@ -10,7 +10,7 @@
         "@types/react-dom": "^17.0.11",
         "@types/sql.js": "^1.4.3",
         "chart.js": "^3.7.0",
-        "flowerbi-react-chartjs": "1.22.0",
+        "flowerbi-react": "2.0.0",
         "flowerbi-react-utils": "2.0.0",
         "flowerbi-dates": "2.0.0",
         "json-date-parser": "^1.0.1",
