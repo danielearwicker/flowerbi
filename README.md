@@ -148,12 +148,13 @@ Gradually appearing:
 
 ## Contributors
 
+- [@jmulcahy-fiscaltec](https://github.com/jmulcahy-fiscaltec)
 - [@TWilkin](https://github.com/TWilkin)
 - [@shep1987](https://github.com/shep1987)
 
 ## License (MIT)
 
-_Copyright © 2020 Daniel Earwicker_
+_Copyright © 2020-2022 Daniel Earwicker_
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
