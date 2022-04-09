@@ -9,14 +9,14 @@
     "devDependencies": {
         "@types/jest": "^27.4.0",
         "jest": "^27.4.7",
-        "moment": "^2.29.1",
+        "moment": "^2.29.2",
         "prettier": "^2.5.1",
         "ts-jest": "^27.1.3",
         "typedoc": "^0.22.11",
         "typescript": "^4.5.5"
     },
     "peerDependencies": {
-        "moment": "^2.29.1"
+        "moment": "^2.29.2"
     },
     "scripts": {
         "build": "tsc",
