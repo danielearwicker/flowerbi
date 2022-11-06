@@ -73,3 +73,231 @@ export const Bug = {
     ResolvedCoderId: new QueryColumn<number>("Bug.ResolvedCoderId"),
 };
 
+export const NxgSchema = {
+    Tables: [
+        {
+            id: "DateReported",
+            ref: DateReported,
+            columns: [
+                {
+                    id: "DateReported.Id",
+                    ref: DateReported.Id,
+                },
+                {
+                    id: "DateReported.CalendarYearNumber",
+                    ref: DateReported.CalendarYearNumber,
+                },
+                {
+                    id: "DateReported.FirstDayOfQuarter",
+                    ref: DateReported.FirstDayOfQuarter,
+                },
+                {
+                    id: "DateReported.FirstDayOfMonth",
+                    ref: DateReported.FirstDayOfMonth,
+                },
+            ],
+        },
+        {
+            id: "DateResolved",
+            ref: DateResolved,
+            columns: [
+                {
+                    id: "DateResolved.Id",
+                    ref: DateResolved.Id,
+                },
+                {
+                    id: "DateResolved.CalendarYearNumber",
+                    ref: DateResolved.CalendarYearNumber,
+                },
+                {
+                    id: "DateResolved.FirstDayOfQuarter",
+                    ref: DateResolved.FirstDayOfQuarter,
+                },
+                {
+                    id: "DateResolved.FirstDayOfMonth",
+                    ref: DateResolved.FirstDayOfMonth,
+                },
+            ],
+        },
+        {
+            id: "DateAssigned",
+            ref: DateAssigned,
+            columns: [
+                {
+                    id: "DateAssigned.Id",
+                    ref: DateAssigned.Id,
+                },
+                {
+                    id: "DateAssigned.CalendarYearNumber",
+                    ref: DateAssigned.CalendarYearNumber,
+                },
+                {
+                    id: "DateAssigned.FirstDayOfQuarter",
+                    ref: DateAssigned.FirstDayOfQuarter,
+                },
+                {
+                    id: "DateAssigned.FirstDayOfMonth",
+                    ref: DateAssigned.FirstDayOfMonth,
+                },
+            ],
+        },
+        {
+            id: "Workflow",
+            ref: Workflow,
+            columns: [
+                {
+                    id: "Workflow.Id",
+                    ref: Workflow.Id,
+                },
+                {
+                    id: "Workflow.Resolved",
+                    ref: Workflow.Resolved,
+                },
+                {
+                    id: "Workflow.WorkflowState",
+                    ref: Workflow.WorkflowState,
+                },
+                {
+                    id: "Workflow.SourceOfError",
+                    ref: Workflow.SourceOfError,
+                },
+                {
+                    id: "Workflow.FixedByCustomer",
+                    ref: Workflow.FixedByCustomer,
+                },
+            ],
+        },
+        {
+            id: "Category",
+            ref: Category,
+            columns: [
+                {
+                    id: "Category.Id",
+                    ref: Category.Id,
+                },
+                {
+                    id: "Category.Label",
+                    ref: Category.Label,
+                },
+            ],
+        },
+        {
+            id: "Customer",
+            ref: Customer,
+            columns: [
+                {
+                    id: "Customer.Id",
+                    ref: Customer.Id,
+                },
+                {
+                    id: "Customer.CustomerName",
+                    ref: Customer.CustomerName,
+                },
+            ],
+        },
+        {
+            id: "CoderAssigned",
+            ref: CoderAssigned,
+            columns: [
+                {
+                    id: "CoderAssigned.Id",
+                    ref: CoderAssigned.Id,
+                },
+                {
+                    id: "CoderAssigned.FullName",
+                    ref: CoderAssigned.FullName,
+                },
+            ],
+        },
+        {
+            id: "CoderResolved",
+            ref: CoderResolved,
+            columns: [
+                {
+                    id: "CoderResolved.Id",
+                    ref: CoderResolved.Id,
+                },
+                {
+                    id: "CoderResolved.FullName",
+                    ref: CoderResolved.FullName,
+                },
+            ],
+        },
+        {
+            id: "CategoryCombination",
+            ref: CategoryCombination,
+            columns: [
+                {
+                    id: "CategoryCombination.Id",
+                    ref: CategoryCombination.Id,
+                },
+                {
+                    id: "CategoryCombination.Crashed",
+                    ref: CategoryCombination.Crashed,
+                },
+                {
+                    id: "CategoryCombination.DataLoss",
+                    ref: CategoryCombination.DataLoss,
+                },
+                {
+                    id: "CategoryCombination.SecurityBreach",
+                    ref: CategoryCombination.SecurityBreach,
+                },
+                {
+                    id: "CategoryCombination.OffByOne",
+                    ref: CategoryCombination.OffByOne,
+                },
+                {
+                    id: "CategoryCombination.Slow",
+                    ref: CategoryCombination.Slow,
+                },
+                {
+                    id: "CategoryCombination.StackOverflow",
+                    ref: CategoryCombination.StackOverflow,
+                },
+            ],
+        },
+        {
+            id: "Bug",
+            ref: Bug,
+            columns: [
+                {
+                    id: "Bug.Id",
+                    ref: Bug.Id,
+                },
+                {
+                    id: "Bug.WorkflowId",
+                    ref: Bug.WorkflowId,
+                },
+                {
+                    id: "Bug.CustomerId",
+                    ref: Bug.CustomerId,
+                },
+                {
+                    id: "Bug.ReportedDate",
+                    ref: Bug.ReportedDate,
+                },
+                {
+                    id: "Bug.ResolvedDate",
+                    ref: Bug.ResolvedDate,
+                },
+                {
+                    id: "Bug.AssignedDate",
+                    ref: Bug.AssignedDate,
+                },
+                {
+                    id: "Bug.CategoryCombinationId",
+                    ref: Bug.CategoryCombinationId,
+                },
+                {
+                    id: "Bug.AssignedCoderId",
+                    ref: Bug.AssignedCoderId,
+                },
+                {
+                    id: "Bug.ResolvedCoderId",
+                    ref: Bug.ResolvedCoderId,
+                },
+            ],
+        },
+    ],
+};
