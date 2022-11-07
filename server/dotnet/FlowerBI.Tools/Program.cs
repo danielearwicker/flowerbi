@@ -60,25 +60,10 @@ namespace FlowerBI.Tools
             }
             
             writer.WriteIndentedLine($"export const {schemaType.Name} = {{");
-            writer.WriteIndentedLine($"Tables: [", 1);
             foreach (var table in tables)        
             {
-                writer.WriteIndentedLine("{", 2);
-                writer.WriteIndentedLine(@$"id: ""{table.RefName}"",", 3);
-                writer.WriteIndentedLine(@$"ref: {table.RefName},", 3);
-                writer.WriteIndentedLine(@"columns: [", 3);
-                foreach (var column in table.Columns)
-                {
-                    writer.WriteIndentedLine("{", 4);
-                    writer.WriteIndentedLine(@$"id: ""{table.RefName}.{column.RefName}"",", 5);
-                    writer.WriteIndentedLine(@$"ref: {table.RefName}.{column.RefName},", 5);
-                    writer.WriteIndentedLine("},", 4);
-
-                }
-                writer.WriteIndentedLine("],",3);
-                writer.WriteIndentedLine("},", 2);
+                writer.WriteIndentedLine(@$"{table.RefName},", 1);
             }
-            writer.WriteIndentedLine("],", 1);
             writer.WriteIndentedLine("};");
 
             writer.Flush();
