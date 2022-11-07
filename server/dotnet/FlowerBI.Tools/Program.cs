@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.IO;
 using System.Runtime.Loader;
 
@@ -41,8 +42,9 @@ namespace FlowerBI.Tools
                 clrType == typeof(DateTime) ? "Date" :
                 clrType == typeof(string) ? "string" :
                 "number";
-
-            foreach (var table in new Schema(schemaType).Tables)
+            
+            var tables = new Schema(schemaType).Tables.ToImmutableArray();
+            foreach (var table in tables)
             {
                 Console.WriteLine($"Exporting table {table.RefName}");
                 writer.WriteLine($"export const {table.RefName} = {{");
@@ -56,6 +58,13 @@ namespace FlowerBI.Tools
                 writer.WriteLine("};");
                 writer.WriteLine();
             }
+            
+            writer.WriteIndentedLine($"export const {schemaType.Name} = {{");
+            foreach (var table in tables)        
+            {
+                writer.WriteIndentedLine(@$"{table.RefName},", 1);
+            }
+            writer.WriteIndentedLine("};");
 
             writer.Flush();
             Console.WriteLine("Done.");
