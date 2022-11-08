@@ -32,7 +32,7 @@ namespace FlowerBI.WasmHost
 
         private static IJSRuntime JsRuntime;
 
-        private static readonly Schema Demo = new Schema(typeof(DemoSchema.NxgSchema));
+        private static readonly Schema Demo = new Schema(typeof(DemoSchema.BugSchema));
 
         private static readonly ISqlFormatter Formatter = new SqlLiteFormatter();
 

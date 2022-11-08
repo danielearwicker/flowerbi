@@ -73,7 +73,7 @@ export const Bug = {
     ResolvedCoderId: new QueryColumn<number>("Bug.ResolvedCoderId"),
 };
 
-export const NxgSchema = {
+export const BugSchema = {
     DateReported,
     DateResolved,
     DateAssigned,

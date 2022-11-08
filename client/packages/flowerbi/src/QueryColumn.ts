@@ -1,19 +1,11 @@
-import { 
-    FilterValue, 
-    AggregationType, 
-    FilterJson, 
-    AggregationJson, 
-    FilterOperator, 
-    OrderingJson 
-} from "./QueryJson";
+import { FilterValue, AggregationType, FilterJson, AggregationJson, FilterOperator, OrderingJson } from "./QueryJson";
 
 /**
  * A column from the schema, with a name and a data type. A whole schema of
  * such declared columns can be auto-generated using the CLI.
  */
 export class QueryColumn<T extends FilterValue> {
-
-    /** 
+    /**
      * @param name The name, of the form `table.column`.
      */
     constructor(public readonly name: string) {}
@@ -103,7 +95,7 @@ export class QueryColumn<T extends FilterValue> {
     }
 
     /**
-     * Produces a filter that requires this column to be greater than to some 
+     * Produces a filter that requires this column to be greater than to some
      * value.
      */
     greaterThan(value: T) {
@@ -118,7 +110,7 @@ export class QueryColumn<T extends FilterValue> {
     }
 
     /**
-     * Produces a filter that requires this column to be greater than or equal to 
+     * Produces a filter that requires this column to be greater than or equal to
      * some value.
      */
     greaterThanOrEqualTo(value: T) {
@@ -126,7 +118,7 @@ export class QueryColumn<T extends FilterValue> {
     }
 
     /**
-     * Produces a filter that requires this column to be less than or equal to 
+     * Produces a filter that requires this column to be less than or equal to
      * some value.
      */
     lessThanOrEqualTo(value: T) {
@@ -137,11 +129,11 @@ export class QueryColumn<T extends FilterValue> {
      * Produces a filter that requires this column's value to appear in the list.
      * Only supported for number or string columns.
      */
-    in(value: T extends number|string ? T[] : never): FilterJson {
+    in(value: T extends number | string ? T[] : never): FilterJson {
         return {
             column: this.name,
             operator: "IN",
-            value
+            value,
         };
     }
 }

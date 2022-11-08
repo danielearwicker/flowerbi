@@ -11,7 +11,7 @@ namespace FlowerBI.DemoSchema
     }
 
     [DbSchema("main")]
-    public static class NxgSchema
+    public static class BugSchema
     {       
         [DbTable("Date")]
         public static class DateReported
