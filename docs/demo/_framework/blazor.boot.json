@@ -8,7 +8,7 @@
   "resources": {
     "assembly": {
       "Dapper.dll": "sha256-qDBFSdehZnR4OfG5NCzTIByt8q+8cn08tOLRNEwkYUU=",
-      "Handlebars.dll": "sha256-xnVf2G8nmqF1N1wfydVtTQw1rSFycpN\/H1HaepkaYok=",
+      "Handlebars.dll": "sha256-LfIdiIB6OKQKU5ISh0qyaAUSltnnntILOq1zIrFxmSk=",
       "Microsoft.AspNetCore.Authorization.dll": "sha256-1MwhDUDzh+JE9dgZxlgMF470nBqLsvGAAgAGfn3n8CI=",
       "Microsoft.AspNetCore.Components.dll": "sha256-R\/v7gKZiW9HyCdGNOk1GuOzLMyYC4OwMfwPH5+06KG4=",
       "Microsoft.AspNetCore.Components.Forms.dll": "sha256-Li4PRXFdOgU4EG7r\/STdKG8U2FJlMrY\/bxQhQsGwICw=",
@@ -198,17 +198,17 @@
       "mscorlib.dll": "sha256-ghlJNtzzYlKIliGPuf0A0Yu6dmLycSx3F9uyeddFb\/g=",
       "netstandard.dll": "sha256-qpOz\/RBwhlIYfaE2GDEmjiproxkvSf2b9GeqHxvH+lg=",
       "System.Private.CoreLib.dll": "sha256-sfzSZ3YKC2rpF77TVOKLuPgQag93QXr9U4AUc9d\/LKA=",
-      "FlowerBI.DemoSchema.dll": "sha256-OU63aUUm0LSEqo0ChfxVgECbeWradM3oAylMoZncNXA=",
-      "FlowerBI.Engine.dll": "sha256-c\/yy9Ki4fHIgm9zwiFnwhCNKxrM61JNMVEc2GyrKZpE=",
-      "FlowerBI.WasmHost.dll": "sha256-ftGPzxrWcG+CPZ89jPW1iN9o8EiKqZBkMb9nmVP5RUk="
+      "FlowerBI.DemoSchema.dll": "sha256-LYexuuQKjxUp+BCJmdCOCELRMRxWG8ktBfbVtgXjzP8=",
+      "FlowerBI.Engine.dll": "sha256-UaBpRGuNVgrpZio4KYf2d8s1myewZPJwYMYXsy7E75A=",
+      "FlowerBI.WasmHost.dll": "sha256-oufzrDWLxvR7CVNH93dJII8Pww6UYy5+mZx+\/yYpF7M="
     },
     "extensions": null,
     "lazyAssembly": null,
     "libraryInitializers": null,
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-ICBVZVjZroT34i+h2Dl\/65k3mKhd3775YnjqCSPIM8E=",
-      "FlowerBI.Engine.pdb": "sha256-EKwnhqFyURMo23F0qOlQWuNdmtskUqHzhXWk6rTksPw=",
-      "FlowerBI.WasmHost.pdb": "sha256-kWXXd7PWD6qIwH4ASgIf8c5GyE541D7aUXTfom6vrXo="
+      "FlowerBI.DemoSchema.pdb": "sha256-JimjHlFJfsIO8hc4mvL2KbEfDGnxU+v+Nv3nICjKRgE=",
+      "FlowerBI.Engine.pdb": "sha256-XQkdbo7CxBwcTqBtGSaaYPAZzwCGc5eL7HtWbwqXqGQ=",
+      "FlowerBI.WasmHost.pdb": "sha256-d3+UeruiYDRwJvX3oQsaWknLRhWBbpt6uW5f7ZQLen4="
     },
     "runtime": {
       "dotnet.6.0.5.v34inzy3a1.js": "sha256-783uOt0jgblQfP6Yz5TJeuW2xxtl6UHZQPngZtCz79U=",
