@@ -10,6 +10,9 @@ async function querySql(sql: string) {
     const result = JSON.stringify(db.exec(sql));
     const finished = new Date();
     console.log(`SQL query took ${finished.getTime() - started.getTime()} ms`);
+    if (sql.includes("allbugs")) {
+        console.log(sql);
+    }
     return result;
 }
 
@@ -26,7 +29,7 @@ export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson>
         "FlowerBI.WasmHost", "Query", JSON.stringify(queryJson)
     ) as string;    
     const finished = new Date();
-    console.log(`Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`);
+    console.log(queryJson.comment, `Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`, queryJson);
 
     const parsed = JSON.parse(json, jsonDateParser);
 

@@ -10,7 +10,7 @@ export class QueryColumn<T extends FilterValue> {
      */
     constructor(public readonly name: string) {}
 
-    private aggregation(aggregationType: AggregationType, filters?: FilterJson[]): AggregationJson {
+    protected aggregation(aggregationType: AggregationType, filters?: FilterJson[]): AggregationJson {
         return {
             column: this.name,
             function: aggregationType,
@@ -24,22 +24,6 @@ export class QueryColumn<T extends FilterValue> {
      */
     count(filters?: FilterJson[]) {
         return this.aggregation("Count", filters);
-    }
-
-    /**
-     * Aggregates the column by summing values.
-     * @param filters Optional filters to apply.
-     */
-    sum(filters?: FilterJson[]) {
-        return this.aggregation("Sum", filters);
-    }
-
-    /**
-     * Aggregates the column by averaging values.
-     * @param filters Optional filters to apply.
-     */
-    avg(filters?: FilterJson[]) {
-        return this.aggregation("Avg", filters);
     }
 
     /**
@@ -135,5 +119,30 @@ export class QueryColumn<T extends FilterValue> {
             operator: "IN",
             value,
         };
+    }
+}
+
+export class NumericQueryColumn extends QueryColumn<number> {
+    /**
+     * @param name The name, of the form `table.column`.
+     */
+    constructor(public readonly name: string) {
+        super(name);
+    }
+
+    /**
+     * Aggregates the column by summing values.
+     * @param filters Optional filters to apply.
+     */
+    sum(filters?: FilterJson[]) {
+        return this.aggregation("Sum", filters);
+    }
+
+    /**
+     * Aggregates the column by averaging values.
+     * @param filters Optional filters to apply.
+     */
+    avg(filters?: FilterJson[]) {
+        return this.aggregation("Avg", filters);
     }
 }
