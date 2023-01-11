@@ -5,6 +5,7 @@ using System.Linq;
 using FlowerBI.Engine.JsonModels;
 using Dapper;
 using HandlebarsDotNet;
+using System.Text.RegularExpressions;
 
 namespace FlowerBI
 {
@@ -17,9 +18,13 @@ namespace FlowerBI
 
         public bool Totals { get; }
 
-        public long Skip { get; set; }
+        public long Skip { get; }
 
-        public int Take { get; set; }
+        public int Take { get; }
+
+        public string Comment { get; }
+
+        public bool AllowDuplicates { get; }
 
         public Query(QueryJson json, Schema schema)
         {
@@ -30,6 +35,8 @@ namespace FlowerBI
             Totals = json.Totals;
             Skip = json.Skip;
             Take = json.Take;
+            Comment = json.Comment;
+            AllowDuplicates = json.AllowDuplicates;
         }
 
         private static readonly HandlebarsTemplate<object, string> _aggregatedTemplate = Handlebars.Compile(@"
@@ -81,7 +88,7 @@ order by {{ordering}}
         {
             if (Aggregations.Count == 1)
             {
-                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take);
+                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates);
             }
 
             var ordering = "a0.Value0 desc";
@@ -113,6 +120,8 @@ order by {{ordering}}
             return $"a0.Select{i} {ordering.Direction}";
         }
 
+        private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
+
         public string ToSql(ISqlFormatter sql,
                             IFilterParameters filterParams,
                             IEnumerable<Filter> outerFilters)
@@ -124,9 +133,15 @@ order by {{ordering}}
                 result += ";" + ToSql(sql, null, filterParams, outerFilters, 0, 1);
             }
 
+            if (!string.IsNullOrWhiteSpace(Comment))
+            {
+                var stripped = SanitiseCommentPattern.Replace(Comment, " ").Trim();
+                result = $"/* {stripped} */ \r\n{result}";
+            }
+
             return result;
         }
-        
+
         public QueryResultJson Run(ISqlFormatter sql, IDbConnection db, Action<string> log, params Filter[] outerFilters)
         {
             var filterParams = new DapperFilterParameters();
@@ -140,7 +155,7 @@ order by {{ordering}}
             var result = new QueryResultJson();
 
             result.Records = ConvertRecords(reader.Read<dynamic>()
-                                .Cast<IDictionary<string, object>>());                     
+                                .Cast<IDictionary<string, object>>());
             if (Totals)
             {
                 result.Totals = ConvertRecords(reader.Read<dynamic>()
@@ -157,10 +172,10 @@ order by {{ordering}}
             var selColumns = Select.ToList();
 
             return list.Select(x => new QueryRecordJson
-                {
-                     Selected = GetList(x, "Select", selColumns),
-                     Aggregated = GetList(x, "Value", aggColumns),
-                })
+            {
+                Selected = GetList(x, "Select", selColumns),
+                Aggregated = GetList(x, "Value", aggColumns),
+            })
                 .ToList();
         }
 

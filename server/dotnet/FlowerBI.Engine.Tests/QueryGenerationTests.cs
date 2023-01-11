@@ -60,8 +60,10 @@ namespace FlowerBI.Engine.Tests
             a.Should().Throw<InvalidOperationException>();
         }
 
-        [Fact]
-        public void MinimalSelectOneColumn()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void MinimalSelectOneColumn(bool allowDuplicates)
         {
             var queryJson = new QueryJson
             {
@@ -73,7 +75,8 @@ namespace FlowerBI.Engine.Tests
                     }
                 },
                 Skip = 5,
-                Take = 10
+                Take = 10,
+                AllowDuplicates = allowDuplicates
             };
 
             var query = new Query(queryJson, Schema);
@@ -136,8 +139,14 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(1);
         }
 
-        [Fact]
-        public void SingleAggregation()
+        [Theory]
+        [InlineData(false, "suspicious \r\ncomment */ drop tables;", "/* suspicious \r\ncomment drop tables */")]
+        [InlineData(false, "", "")]
+        [InlineData(false, null, "")]
+        [InlineData(true, "suspicious \r\ncomment */ drop tables;", "/* suspicious \r\ncomment drop tables */")]
+        [InlineData(true, "", "")]
+        [InlineData(true, null, "")]
+        public void SingleAggregation(bool allowDuplicates, string comment, string expectedComment)
         {
             var queryJson = new QueryJson
             {
@@ -151,12 +160,14 @@ namespace FlowerBI.Engine.Tests
                     }
                 },
                 Skip = 5,
-                Take = 10
+                Take = 10,
+                AllowDuplicates = allowDuplicates,
+                Comment = comment,
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"{expectedComment}
                 select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
                 from |TestSchema|!|Invoice| tbl1
                 join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
@@ -236,8 +247,11 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
-        [Fact]
-        public void DoubleAggregation()
+        [Theory]
+        [InlineData("suspicious \r\ncomment */ drop tables;", "/* suspicious \r\ncomment drop tables */")]
+        [InlineData("", "")]
+        [InlineData(null, "")]
+        public void DoubleAggregation(string comment, string expectedComment)
         {
             var queryJson = new QueryJson
             {
@@ -257,12 +271,13 @@ namespace FlowerBI.Engine.Tests
                     }
                 },
                 Skip = 5,
-                Take = 10
+                Take = 10,
+                Comment = comment
             };
 
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
-            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"{expectedComment}
                 with Aggregation0 as (
                     select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
                     from |TestSchema|!|Invoice| tbl1
@@ -611,6 +626,32 @@ namespace FlowerBI.Engine.Tests
                 join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
                 join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
                 group by |tbl0|!|VendorName| , |tbl1|!|TagName|
+                skip:5 take:10
+
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void NoAggregationAllowingDuplicates()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },
+                Skip = 5,
+                Take = 10,
+                AllowDuplicates = true // only has effect if no aggregations
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl0|!|VendorName| Select0,
+                       |tbl1|!|TagName| Select1
+                from |TestSchema|!|InvoiceTag| tbl2
+                join |TestSchema|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
+                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
+                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
                 skip:5 take:10
 
             ");

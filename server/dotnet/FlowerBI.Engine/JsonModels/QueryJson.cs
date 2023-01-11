@@ -17,6 +17,10 @@ namespace FlowerBI.Engine.JsonModels
         public long Skip { get; set; }
 
         public int Take { get; set; } = 100;
+
+        public string Comment { get; set; }
+
+        public bool AllowDuplicates { get; set; }
     }
 
     public class QueryRecordJson

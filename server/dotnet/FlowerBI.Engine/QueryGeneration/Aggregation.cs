@@ -86,7 +86,8 @@ where
             IFilterParameters filterParams,
             IEnumerable<Ordering> orderings = null,
             long? skip = null,
-            int? take = null)
+            int? take = null,
+            bool allowDuplicates = false)
         {
             var joins = new Joins();
 
@@ -114,7 +115,7 @@ where
             })
             .ToList();
 
-            var groupBy = selectColumns?.Select(x => new
+            var groupBy = (allowDuplicates && Column == null) ? null : selectColumns?.Select(x => new
             {
                 Part = joins.Aliased(x, sql)
             })
