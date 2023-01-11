@@ -6,6 +6,7 @@ import { usePageFilters } from "flowerbi-react";
 import { useFilterPane, FilterPane } from "./FilterPane";
 import {Chart, ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend, LineController} from "chart.js";
 import { localFetch } from "./localFetch";
+import { BugsGrid } from "./Reports/BugsGrid";
 
 Chart.registry.add(ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend, LineController);
 
@@ -18,6 +19,7 @@ Chart.defaults.maintainAspectRatio = false;
 
 const reports = {
     "Bug Tracking": (f: VisualProps) => <BugReporting {...f} />,    
+    "All Bugs": (f: VisualProps) => <BugsGrid {...f} />,    
 }
 
 type ReportName = keyof typeof reports;

@@ -156,4 +156,21 @@ export interface Query<S extends QuerySelect> {
      * Number of result records to return.
      */
     take?: number;
+    /**
+     * A string to insert in a comment at the start of the generated SQL. 
+     * 
+     * This will be aggressively processed to remove the danger of injection 
+     * attacks, so anything other than alpha, numeric, new line or CR 
+     * characters will be replaced with space.
+     */
+    comment?: string;
+    /**
+     * Only applicable if the query specifies only ordinary columns, no
+     * aggregations. If true, no GROUP BY clause is added to the SQL, so if
+     * multiple results have the same values they will appear repeatedly in
+     * the output. This can greatly reduce the work required by the SQL
+     * engine, and so should be specified if duplicate rows are tolerable or
+     * are known to be impossible.
+     */
+    allowDuplicates?: boolean;
 }

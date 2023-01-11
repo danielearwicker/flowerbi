@@ -28,7 +28,9 @@ test("jsonifies mixed columns", () => {
         orderBy: [],
         skip: 0,
         take: 100,
-        totals: false
+        totals: false,
+        allowDuplicates: undefined,
+        comment: undefined,
     });
 });
 
@@ -44,7 +46,9 @@ test("jsonifies select", () => {
         orderBy: [],
         skip: 0,
         take: 100,
-        totals: false
+        totals: false,
+        allowDuplicates: undefined,
+        comment: undefined,
     });
 });
 
@@ -53,7 +57,9 @@ test("jsonifies params", () => {
         select: {},
         skip: 3,
         take: 42,
-        totals: true   
+        totals: true,
+        allowDuplicates: true,
+        comment: "a comment",
     })).toStrictEqual({
         select: [],
         aggregations: [],
@@ -61,7 +67,9 @@ test("jsonifies params", () => {
         orderBy: [],
         skip: 3,
         take: 42,
-        totals: true
+        totals: true,
+        allowDuplicates: true,
+        comment: "a comment",
     });
 });
 
@@ -95,7 +103,9 @@ test("jsonifies filters", () => {
         orderBy: [],
         skip: 0,
         take: 100,
-        totals: false
+        totals: false,
+        allowDuplicates: undefined,
+        comment: undefined,
     });
 });
 
@@ -115,6 +125,8 @@ test("jsonifies orderBy", () => {
         }],
         skip: 0,
         take: 100,
-        totals: false
+        totals: false,
+        allowDuplicates: undefined,
+        comment: undefined,
     });
 });

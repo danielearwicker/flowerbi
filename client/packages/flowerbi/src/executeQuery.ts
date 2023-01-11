@@ -53,7 +53,7 @@ export type QueryFetch = (queryJson: QueryJson) => Promise<QueryResultJson>;
  * @param query 
  */
 export function jsonifyQuery<S extends QuerySelect>(query: Query<S>): QueryJson {
-    const { select, filters, orderBy, totals, take, skip } = query;
+    const { select, filters, orderBy, totals, take, skip, comment, allowDuplicates } = query;
 
     return {        
         select: getColumnPropsOnly(select).map(key => (select[key] as QueryColumn<never>).name),
@@ -62,7 +62,9 @@ export function jsonifyQuery<S extends QuerySelect>(query: Query<S>): QueryJson 
         orderBy: orderBy ?? [],
         totals: totals ?? false,
         skip: skip ?? 0,
-        take: take ?? 100    
+        take: take ?? 100,
+        comment,
+        allowDuplicates
     };
 }
 

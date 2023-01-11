@@ -77,4 +77,12 @@ export interface QueryJson {
      * See {@link Query.take}.
      */
     take?: number;
+    /**
+     * See {@link Query.comment}.
+     */
+    comment?: string;
+    /**
+     * See {@link Query.allowDuplicates}.
+     */
+    allowDuplicates?: boolean;
 }

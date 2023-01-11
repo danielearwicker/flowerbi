@@ -20,6 +20,7 @@ export function SourceOfErrors({ pageFilters, fetch }: VisualProps) {
             Workflow.Resolved.equalTo(true),
             ...pageFilters.getFilters(id)
         ],
+        comment: id
     };
 
     const result = useQuery(fetch, query);
