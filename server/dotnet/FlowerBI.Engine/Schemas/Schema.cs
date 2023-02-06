@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowerBI
-{
+{   
     public sealed class Schema : Named
     {
         private Dictionary<string, Table> _tables

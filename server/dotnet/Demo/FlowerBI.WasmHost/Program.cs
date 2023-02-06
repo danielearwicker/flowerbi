@@ -34,6 +34,21 @@ namespace FlowerBI.WasmHost
 
         private static readonly Schema Demo = new Schema(typeof(DemoSchema.BugSchema));
 
+        public static DateTime AsUtc(DateTime dateTime)
+            => dateTime.Kind == DateTimeKind.Unspecified
+                ? DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
+                : dateTime.ToUniversalTime();
+
+        static Program()
+        {
+            DemoSchema.BugSchema.Date.Id.SetConverter(AsUtc);
+            DemoSchema.BugSchema.Date.FirstDayOfMonth.SetConverter(AsUtc);
+            DemoSchema.BugSchema.Date.FirstDayOfQuarter.SetConverter(AsUtc);
+            DemoSchema.BugSchema.Bug.AssignedDate.SetConverter(AsUtc);
+            DemoSchema.BugSchema.Bug.ReportedDate.SetConverter(AsUtc);
+            DemoSchema.BugSchema.Bug.ResolvedDate.SetConverter(AsUtc);
+        }
+
         private static readonly ISqlFormatter Formatter = new SqlLiteFormatter();
 
         [JSInvokable]
