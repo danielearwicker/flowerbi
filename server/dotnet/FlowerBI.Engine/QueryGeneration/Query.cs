@@ -78,7 +78,10 @@ from Aggregation0 a0
     {{/unless}}
 {{/each}}
 
-order by {{ordering}}
+{{#if orderBy}}
+    order by {{orderBy}}
+{{/if}}
+
 {{skipAndTake}}
 ");
 
@@ -91,6 +94,7 @@ order by {{ordering}}
                 return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates);
             }
 
+            var orderingIsRedundant = skip == 0 && take == 1;
             var ordering = "a0.Value0 desc";
 
             if (select != null && OrderBy.Count != 0)
@@ -104,7 +108,7 @@ order by {{ordering}}
                 Aggregations = Aggregations.Select(x =>
                     x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)),
                 Select = select,
-                ordering
+                orderBy = orderingIsRedundant ? null : ordering
             });
         }
 
