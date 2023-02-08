@@ -87,7 +87,8 @@ where
             IEnumerable<Ordering> orderings = null,
             long? skip = null,
             int? take = null,
-            bool allowDuplicates = false)
+            bool allowDuplicates = false,
+            bool totals = false)
         {
             var joins = new Joins();
 
@@ -121,13 +122,11 @@ where
             })
             .ToList();
 
-            var skipAndTake = skip != null && take != null 
+            var skipAndTake = skip != null && take != null && !totals
                     ? sql.SkipAndTake(skip.Value, take.Value)
                     : null;
 
-            var orderingIsRedundant = skip == 0 && take == 1;
-
-            var orderBy = (skipAndTake == null || orderingIsRedundant) ? null :
+            var orderBy = skipAndTake == null ? null :
                 orderings.Any() ? string.Join(", ", orderings.Select(x => $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
                 aggColumn != null ? $"{aggColumn} desc" :
                 null;

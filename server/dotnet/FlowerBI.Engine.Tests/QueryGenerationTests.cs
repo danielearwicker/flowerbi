@@ -208,7 +208,6 @@ namespace FlowerBI.Engine.Tests
                 skip:5 take:10 ;
                 select Sum(|tbl0|!|Amount|) Value0
                 from |TestSchema|!|Invoice| tbl0
-                skip:0 take:1
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -356,7 +355,6 @@ namespace FlowerBI.Engine.Tests
                 select a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
                 cross join Aggregation1 a1
-                skip:0 take:1
             ");
 
             filterParams.Names.Should().HaveCount(0);
