@@ -121,11 +121,13 @@ where
             })
             .ToList();
 
-            var skipAndTake = skip != null && take != null
+            var skipAndTake = skip != null && take != null 
                     ? sql.SkipAndTake(skip.Value, take.Value)
                     : null;
 
-            var orderBy = skipAndTake == null ? null :
+            var orderingIsRedundant = skip == 0 && take == 1;
+
+            var orderBy = (skipAndTake == null || orderingIsRedundant) ? null :
                 orderings.Any() ? string.Join(", ", orderings.Select(x => $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
                 aggColumn != null ? $"{aggColumn} desc" :
                 null;
