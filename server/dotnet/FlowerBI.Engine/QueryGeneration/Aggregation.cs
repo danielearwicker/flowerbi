@@ -87,7 +87,8 @@ where
             IEnumerable<Ordering> orderings = null,
             long? skip = null,
             int? take = null,
-            bool allowDuplicates = false)
+            bool allowDuplicates = false,
+            bool totals = false)
         {
             var joins = new Joins();
 
@@ -121,7 +122,7 @@ where
             })
             .ToList();
 
-            var skipAndTake = skip != null && take != null
+            var skipAndTake = skip != null && take != null && !totals
                     ? sql.SkipAndTake(skip.Value, take.Value)
                     : null;
 

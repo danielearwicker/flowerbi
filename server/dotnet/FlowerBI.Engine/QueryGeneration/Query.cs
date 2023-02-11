@@ -78,17 +78,20 @@ from Aggregation0 a0
     {{/unless}}
 {{/each}}
 
-order by {{ordering}}
+{{#if orderBy}}
+    order by {{orderBy}}
+{{/if}}
+
 {{skipAndTake}}
 ");
 
         private string ToSql(ISqlFormatter sql, IList<IColumn> select,
                              IFilterParameters filterParams, IEnumerable<Filter> outerFilters,
-                             long skip, int take)
+                             long skip, int take, bool totals)
         {
             if (Aggregations.Count == 1)
             {
-                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates);
+                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates, totals);
             }
 
             var ordering = "a0.Value0 desc";
@@ -100,11 +103,11 @@ order by {{ordering}}
 
             return _aggregatedTemplate(new
             {
-                skipAndTake = sql.SkipAndTake(skip, take),
+                skipAndTake = totals ? null : sql.SkipAndTake(skip, take),
                 Aggregations = Aggregations.Select(x =>
                     x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)),
                 Select = select,
-                ordering
+                orderBy = totals ? null : ordering
             });
         }
 
@@ -126,11 +129,11 @@ order by {{ordering}}
                             IFilterParameters filterParams,
                             IEnumerable<Filter> outerFilters)
         {
-            var result = ToSql(sql, Select, filterParams, outerFilters, Skip, Take);
+            var result = ToSql(sql, Select, filterParams, outerFilters, Skip, Take, false);
 
             if (Totals)
             {
-                result += ";" + ToSql(sql, null, filterParams, outerFilters, 0, 1);
+                result += ";" + ToSql(sql, null, filterParams, outerFilters, 0, 1, true);
             }
 
             if (!string.IsNullOrWhiteSpace(Comment))
