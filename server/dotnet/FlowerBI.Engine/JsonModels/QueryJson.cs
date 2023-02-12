@@ -12,15 +12,15 @@ namespace FlowerBI.Engine.JsonModels
 
         public IList<OrderingJson> OrderBy { get; set; }
 
-        public bool Totals { get; set; }
+        public bool? Totals { get; set; }
 
-        public long Skip { get; set; }
+        public long? Skip { get; set; }
 
-        public int Take { get; set; } = 100;
+        public int? Take { get; set; }
 
         public string Comment { get; set; }
 
-        public bool AllowDuplicates { get; set; }
+        public bool? AllowDuplicates { get; set; }
     }
 
     public class QueryRecordJson

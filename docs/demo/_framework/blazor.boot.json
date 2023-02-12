@@ -32,6 +32,7 @@
       "Microsoft.JSInterop.dll": "sha256-tRzkW7Ekx3RsrBe894cfFYg4obJQxUjxuFkMwxh+EmA=",
       "Microsoft.JSInterop.WebAssembly.dll": "sha256-x6oiDUwhHmg2BfCJ43UGTPi2SSASRtEyFgka5LU8eRM=",
       "System.IO.Pipelines.dll": "sha256-OXr1SqT\/FRQmnxVa6n811yUyJraU4tzQs5skNCiDmiM=",
+      "YamlDotNet.dll": "sha256-gO0IYSrzt58CGlD5+X2BTnjCVCw6nzwhfiP66A4d2\/0=",
       "Microsoft.CSharp.dll": "sha256-DBX+tbEtSR3vzMA1qJk3ZDTX2ZBhOIWNVh1PtWMDIXw=",
       "Microsoft.VisualBasic.Core.dll": "sha256-6Yh0Z6NJFcqVLkbAVs2n6VSqdARNIVJludvYrOfV7Nc=",
       "Microsoft.VisualBasic.dll": "sha256-9kGD4dXyAeNYPFWXFzNODp\/8Tvbb7kIFZmTw5r05Bcs=",
@@ -198,17 +199,17 @@
       "mscorlib.dll": "sha256-wmk56X5dbt29rrFZKEFpOFjotkZA+JSxA4fqkgmBsOU=",
       "netstandard.dll": "sha256-CvlfDmNgFRYT7l\/xZKu91FlbTFyLG\/5cH7YX63k9ghE=",
       "System.Private.CoreLib.dll": "sha256-aF4imeOpA59D6F5qCLabzkeY7MvRZzNYzavhB\/bdxvM=",
-      "FlowerBI.DemoSchema.dll": "sha256-VFkPFm+GDa+xScxbuFApFyjMevzwunKs5Lx4Inv72Rs=",
-      "FlowerBI.Engine.dll": "sha256-UxxPnPGZwdo18sKzKCKqGjRh\/o8yORO4YN+BvF3t2tg=",
-      "FlowerBI.WasmHost.dll": "sha256-miif8oC\/A4tYRUOtIT2NnRNtQEAv\/baq2DatxXmIrR4="
+      "FlowerBI.DemoSchema.dll": "sha256-c1spQci\/+bm9HZGwzSLkc2LMvOOpQ62SwgRSuoCf6nE=",
+      "FlowerBI.Engine.dll": "sha256-e6pgheJP56nvf2ZTGu3UlzWu5fElL0b7+\/Ng5GpXKDI=",
+      "FlowerBI.WasmHost.dll": "sha256-\/EaKxsyeS2+M73BYTbWsmwIm8q3nJJE0UdVGL2daxGc="
     },
     "extensions": null,
     "lazyAssembly": null,
     "libraryInitializers": null,
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-gSy4C8Yq\/Apfl39gE6Zzr+NpEPtXaMANS8CtbfF5S\/U=",
-      "FlowerBI.Engine.pdb": "sha256-BWGFUIvuTSOEdKsGh2QrYSv4V9ER3DsMeQF49wQ2RUU=",
-      "FlowerBI.WasmHost.pdb": "sha256-9S803qalPPnMzTyRlTPU6+yiXiA1LzUwb3ugxvduv8k="
+      "FlowerBI.DemoSchema.pdb": "sha256-7799UwVN4vwSpPCX9780C\/7QvXl5FWwUn52qiEnSwd4=",
+      "FlowerBI.Engine.pdb": "sha256-UAHgR+35gkPAygI59wJxrOU\/1WGgJSVoWjfHvyjV2KE=",
+      "FlowerBI.WasmHost.pdb": "sha256-SLvGrd8HUgFwWZ0NAo5vKo4XwgXgbu15WwERV0tNN\/4="
     },
     "runtime": {
       "dotnet.6.0.7.ficjrpsblu.js": "sha256-pvJcJ6jtDSfxgXm03QYRTm4aAi9PSzMSJODReHtvASY=",

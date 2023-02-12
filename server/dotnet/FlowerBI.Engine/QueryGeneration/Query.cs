@@ -32,11 +32,11 @@ namespace FlowerBI
             Aggregations = Aggregation.Load(json.Aggregations, schema);
             Filters = Filter.Load(json.Filters, schema);
             OrderBy = Ordering.Load(json.OrderBy, schema);
-            Totals = json.Totals;
-            Skip = json.Skip;
-            Take = json.Take;
+            Totals = json.Totals ?? false;
+            Skip = json.Skip ?? 0;
+            Take = json.Take ?? 100;
             Comment = json.Comment;
-            AllowDuplicates = json.AllowDuplicates;
+            AllowDuplicates = json.AllowDuplicates ?? false;
         }
 
         private static readonly HandlebarsTemplate<object, string> _aggregatedTemplate = Handlebars.Compile(@"
