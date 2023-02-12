@@ -72,7 +72,7 @@ public static class CSharp
             {
                 var idType = CSColumnType(table.IdColumn.DataType, table.IdColumn.Nullable);
 
-                tableWriter.WriteLine($"public static readonly PrimaryKey<{idType}> {table.IdColumn.Name} = new PrimaryKey<{idType}>(\"{table.IdColumn.Name}\"{ExtendColumn(table.IdColumn)});");
+                tableWriter.WriteLine($"public static readonly PrimaryKey<{idType}> {table.IdColumn.Name} = new PrimaryKey<{idType}>(\"{table.IdColumn.NameInDb}\"{ExtendColumn(table.IdColumn)});");
             }
 
             foreach (var column in table.Columns)
@@ -81,11 +81,11 @@ public static class CSharp
 
                 if (column.Target != null)
                 {
-                    tableWriter.WriteLine($"public static readonly ForeignKey<{columnType}> {column.Name} = new ForeignKey<{columnType}>(\"{column.Name}\", {column.Target.Table.Name}.{column.Target.Name}{ExtendColumn(column)});");
+                    tableWriter.WriteLine($"public static readonly ForeignKey<{columnType}> {column.Name} = new ForeignKey<{columnType}>(\"{column.NameInDb}\", {column.Target.Table.Name}.{column.Target.Name}{ExtendColumn(column)});");
                 }
                 else
                 {
-                    tableWriter.WriteLine($"public static readonly Column<{columnType}> {column.Name} = new Column<{columnType}>(\"{column.Name}\"{ExtendColumn(column)});");
+                    tableWriter.WriteLine($"public static readonly Column<{columnType}> {column.Name} = new Column<{columnType}>(\"{column.NameInDb}\"{ExtendColumn(column)});");
                 }
             }    
 
