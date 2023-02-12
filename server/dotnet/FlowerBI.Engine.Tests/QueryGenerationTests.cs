@@ -12,7 +12,7 @@ namespace FlowerBI.Engine.Tests
     public class QueryGenerationTests
     {
         public static readonly Schema Schema = new Schema(typeof(TestSchema));
-
+            
         public class TestFormatter : ISqlFormatter
         {
             public string Identifier(string name) => $"|{name}|";
@@ -83,7 +83,7 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 select Count(|tbl0|!|VendorName|) Value0
-                from |TestSchema|!|Vendor| tbl0
+                from |Testing|!|Supplier| tbl0
                 order by Count(|tbl0|!|VendorName|)
                 desc skip:5 take:10
             ");
@@ -120,19 +120,19 @@ namespace FlowerBI.Engine.Tests
 
             // As filter is on PK of Vendor, can just use FK of Invoice, avoid join
             /*
-                select Count(|tbl0|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl0
+                select Count(|tbl0|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl0
                 where |tbl0|!|VendorId| = @filter0
-                order by Count(|tbl0|!|Amount|) desc
+                order by Count(|tbl0|!|FancyAmount|) desc
                 skip:5 take:10
              */
 
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select Count(|tbl0|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl0
-                join |TestSchema|!|Vendor| tbl1 on |tbl1|!|Id| = |tbl0|!|VendorId|
+                select Count(|tbl0|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl0
+                join |Testing|!|Supplier| tbl1 on |tbl1|!|Id| = |tbl0|!|VendorId|
                 where |tbl1|!|Id| = @filter0
-                order by Count(|tbl0|!|Amount|) desc
+                order by Count(|tbl0|!|FancyAmount|) desc
                 skip:5 take:10
             ");
 
@@ -168,11 +168,11 @@ namespace FlowerBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"{expectedComment}
-                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl1
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl1
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                 group by |tbl0|!|VendorName|
-                order by Sum(|tbl1|!|Amount|) desc
+                order by Sum(|tbl1|!|FancyAmount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -200,14 +200,14 @@ namespace FlowerBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl1
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl1
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                 group by |tbl0|!|VendorName|
-                order by Sum(|tbl1|!|Amount|) desc
+                order by Sum(|tbl1|!|FancyAmount|) desc
                 skip:5 take:10 ;
-                select Sum(|tbl0|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl0
+                select Sum(|tbl0|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl0
             ");
             filterParams.Names.Should().HaveCount(0);
         }
@@ -235,11 +235,11 @@ namespace FlowerBI.Engine.Tests
             var query = new Query(queryJson, Schema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"
-                select |tbl0|!|VendorName| Select0, {type}(|tbl1|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl1
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                select |tbl0|!|VendorName| Select0, {type}(|tbl1|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl1
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                 group by |tbl0|!|VendorName|
-                order by {type}(|tbl1|!|Amount|) desc
+                order by {type}(|tbl1|!|FancyAmount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -277,15 +277,15 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"{expectedComment}
                 with Aggregation0 as (
-                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
                     select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
@@ -327,15 +327,15 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
                     select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
@@ -345,12 +345,12 @@ namespace FlowerBI.Engine.Tests
                 skip:5 take:10 ;
 
                 with Aggregation0 as (
-                    select Sum(|tbl0|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl0
+                    select Sum(|tbl0|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl0
                 ) ,
                 Aggregation1 as (
                     select Count(|tbl0|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl0
+                    from |Testing|!|Invoice| tbl0
                 )
                 select a0.Value0 Value0 , a1.Value0 Value1
                 from Aggregation0 a0
@@ -397,15 +397,15 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
                     select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     where |tbl1|!|Paid| = @filter0
                     group by |tbl0|!|VendorName|
                 )
@@ -449,12 +449,12 @@ namespace FlowerBI.Engine.Tests
 
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, new[] { extra }), @"
-                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                from |TestSchema|!|Invoice| tbl1
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl1
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                 where |tbl1|!|Paid| = @filter0
                 group by |tbl0|!|VendorName|
-                order by Sum(|tbl1|!|Amount|) desc
+                order by Sum(|tbl1|!|FancyAmount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(1);
@@ -489,15 +489,15 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 with Aggregation0 as (
-                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    select |tbl0|!|VendorName| Select0, Sum(|tbl1|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 ) ,
                 Aggregation1 as (
                     select |tbl0|!|VendorName| Select0, Count(|tbl1|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl1
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                    from |Testing|!|Invoice| tbl1
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
                     group by |tbl0|!|VendorName|
                 )
                 select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
@@ -540,19 +540,19 @@ namespace FlowerBI.Engine.Tests
                 with Aggregation0 as (
                     select |tbl0|!|VendorName| Select0,
                            |tbl1|!|DepartmentName| Select1,
-                           Sum(|tbl2|!|Amount|) Value0
-                    from |TestSchema|!|Invoice| tbl2
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
-                    join |TestSchema|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
+                           Sum(|tbl2|!|FancyAmount|) Value0
+                    from |Testing|!|Invoice| tbl2
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                    join |Testing|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
                     group by |tbl0|!|VendorName| , |tbl1|!|DepartmentName|
                 ) ,
                 Aggregation1 as (
                     select |tbl0|!|VendorName| Select0,
                            |tbl1|!|DepartmentName| Select1,
                            Count(|tbl2|!|Id|) Value0
-                    from |TestSchema|!|Invoice| tbl2
-                    join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
-                    join |TestSchema|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
+                    from |Testing|!|Invoice| tbl2
+                    join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                    join |Testing|!|Department| tbl1 on |tbl1|!|Id| = |tbl2|!|DepartmentId|
                     group by |tbl0|!|VendorName| , |tbl1|!|DepartmentName|
                 )
                 select a0.Select0, a0.Select1, a0.Value0 Value0 , a1.Value0 Value1
@@ -590,13 +590,13 @@ namespace FlowerBI.Engine.Tests
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 select |tbl0|!|VendorName| Select0,
                        |tbl1|!|TagName| Select1,
-                       Sum(|tbl2|!|Amount|) Value0
-                from |TestSchema|!|InvoiceTag| tbl3
-                join |TestSchema|!|Invoice| tbl2 on |tbl2|!|Id| = |tbl3|!|InvoiceId|
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
-                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl3|!|TagId|
+                       Sum(|tbl2|!|FancyAmount|) Value0
+                from |Testing|!|InvoiceTag| tbl3
+                join |Testing|!|Invoice| tbl2 on |tbl2|!|Id| = |tbl3|!|InvoiceId|
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId|
+                join |Testing|!|Tag| tbl1 on |tbl1|!|Id| = |tbl3|!|TagId|
                 group by |tbl0|!|VendorName| , |tbl1|!|TagName|
-                order by Sum(|tbl2|!|Amount|) desc
+                order by Sum(|tbl2|!|FancyAmount|) desc
                 skip:5 take:10
             ");
             filterParams.Names.Should().HaveCount(0);
@@ -617,10 +617,10 @@ namespace FlowerBI.Engine.Tests
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 select |tbl0|!|VendorName| Select0,
                        |tbl1|!|TagName| Select1
-                from |TestSchema|!|InvoiceTag| tbl2
-                join |TestSchema|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
-                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
+                from |Testing|!|InvoiceTag| tbl2
+                join |Testing|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
+                join |Testing|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
                 group by |tbl0|!|VendorName| , |tbl1|!|TagName|
                 skip:5 take:10
 
@@ -644,10 +644,10 @@ namespace FlowerBI.Engine.Tests
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 select |tbl0|!|VendorName| Select0,
                        |tbl1|!|TagName| Select1
-                from |TestSchema|!|InvoiceTag| tbl2
-                join |TestSchema|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
-                join |TestSchema|!|Vendor| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
-                join |TestSchema|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
+                from |Testing|!|InvoiceTag| tbl2
+                join |Testing|!|Invoice| tbl3 on |tbl3|!|Id| = |tbl2|!|InvoiceId|
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId|
+                join |Testing|!|Tag| tbl1 on |tbl1|!|Id| = |tbl2|!|TagId|
                 skip:5 take:10
 
             ");

@@ -5,6 +5,7 @@ using Xunit;
 using System;
 using YamlDotNet.Core;
 using System.Linq;
+using FlowerBI.Yaml;
 
 public class YamlSchemaTests
 {
@@ -42,32 +43,21 @@ schema: hats
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table:
+  """": {}
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table must have non-empty table property");
+        a.Should().Throw<InvalidOperationException>().WithMessage("Table must have non-empty key");
     }
 
     [Fact]
-    public void TableHasId()
+    public void TableIdMustHaveSingleColumn()
     {
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby must have id property (or use 'extends')");
-    }
-
-    [Fact]
-    public void TableIdMustHaveTwoElements()
-    {
-        Action a = () => ResolvedSchema.Resolve(@"
-schema: hats
-tables:
-- table: trilby
-  id:
-    a: [int]
-    b: [int]
+  trilby:
+    id:
+      a: [int]
+      b: [int]
 ");
         a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby id must have a single column");
     }
@@ -78,9 +68,9 @@ tables:
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id:
-    id: [int]
+  trilby:
+    id:
+      id: [int]
 ");
         a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby must have columns (or use 'extends')");
     }
@@ -91,11 +81,11 @@ tables:
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id:
-    id: [int]
-  columns:
-    brim: []
+  trilby:
+    id:
+      id: [int]
+    columns:
+      brim: []
 ");
         a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
     }
@@ -106,26 +96,26 @@ tables:
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id:
-    id: [int]
-  columns:
-    brim: [short, extra, nonsense]
+  trilby:
+    id:
+      id: [int]
+    columns:
+      brim: [short, extra, nonsense]
 ");
         a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
     }
 
     [Fact]
-    public void TableIdSecondElementMustBeAType()
+    public void TableIdFirstElementMustBeAType()
     {
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id: 
-    id: [lemon]
-  columns:
-    brim: [string] 
+  trilby:
+    id: 
+      id: [lemon]
+    columns:
+      brim: [string] 
 ");
         a.Should().Throw<InvalidOperationException>().WithMessage("lemon is neither a data type nor a table, in trilby.id");
     }
@@ -136,11 +126,11 @@ tables:
         var schema = ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id:
-    id: [int]
-  columns:
-    brim: [string] 
+  trilby:
+    id:
+      id: [int]
+    columns:
+      brim: [string]
 ");
         schema.Name.Should().Be("hats");
         schema.NameInDb.Should().Be("hats");
@@ -149,6 +139,31 @@ tables:
         t.NameInDb.Should().Be("trilby");
         t.IdColumn.Name.Should().Be("id");
         t.IdColumn.DataType.Should().Be(DataType.Int);
+        t.IdColumn.NameInDb.Should().Be("id");
+        var c = t.Columns.Single();
+        c.Name.Should().Be("brim");
+        c.DataType.Should().Be(DataType.String);
+        c.Nullable.Should().BeFalse();
+        c.NameInDb.Should().Be("brim");
+        c.Extends.Should().BeNull();
+    }
+
+    [Fact]
+    public void IdIsOptional()
+    {
+        var schema = ResolvedSchema.Resolve(@"
+schema: hats
+tables:
+  trilby:
+    columns:
+      brim: [string]
+");
+        schema.Name.Should().Be("hats");
+        schema.NameInDb.Should().Be("hats");
+        var t = schema.Tables.Single();
+        t.Name.Should().Be("trilby");        
+        t.NameInDb.Should().Be("trilby");
+        t.IdColumn.Should().BeNull();        
         var c = t.Columns.Single();
         c.Name.Should().Be("brim");
         c.DataType.Should().Be(DataType.String);
@@ -163,11 +178,11 @@ tables:
         var schema = ResolvedSchema.Resolve(@"
 schema: hats
 tables:
-- table: trilby
-  id:
-    id: [int]
-  columns:
-    brim: [string?]
+  trilby:
+    id:
+      id: [int]
+    columns:
+      brim: [string?]
 ");
         var c = schema.Tables.Single().Columns.Single();
         c.Name.Should().Be("brim");
@@ -182,12 +197,12 @@ tables:
 schema: hats
 name: NiceHats
 tables:
-- table: trilby
-  name: Trilby
-  id:
-    id: [int]
-  columns:
-    brim: [string, Brim]
+  trilby:
+    name: Trilby
+    id:
+      id: [int]
+    columns:
+      brim: [string, Brim]
 ");
         schema.Name.Should().Be("hats");
         schema.NameInDb.Should().Be("NiceHats");
@@ -210,15 +225,15 @@ schema: hats
 name: NiceHats
 tables:
 
-- table: trilby
-  name: Trilby
-  id:
-    id: [int]
-  columns:
-    brim: [string] 
+  trilby:
+    name: Trilby
+    id:
+      id: [int]
+    columns:
+      brim: [string] 
 
-- table: trilby2
-  extends: trilby
+  trilby2:
+    extends: trilby
 ");
         schema.Name.Should().Be("hats");
         schema.NameInDb.Should().Be("NiceHats");
@@ -251,17 +266,19 @@ tables:
 schema: hats
 name: NiceHats
 tables:
-- table: trilby
-  name: Trilby
-  id:
-    id: [int]
-  columns:
-    brim: [string] 
-- table: trilby2
-  extends: trilby
-  name: Trilby2
-  columns:
-    extra: [decimal]
+
+  trilby:
+    name: Trilby
+    id:
+      id: [int]
+    columns:
+      brim: [string]
+
+  trilby2:
+    extends: trilby
+    name: Trilby2
+    columns:
+      extra: [decimal]
 ");
         schema.Name.Should().Be("hats");
         schema.NameInDb.Should().Be("NiceHats");
@@ -280,17 +297,19 @@ tables:
 schema: hats
 name: NiceHats
 tables:
-- table: trilby
-  name: Trilby
-  id:
-    id: [int]
-  columns:
-    brim: [brimfo]
-- table: brimfo
-  id:
-    bid: [short]
-  columns:
-    extra: [decimal]
+
+  trilby:
+    name: Trilby
+    id:
+      id: [int]
+    columns:
+      brim: [brimfo]
+
+  brimfo:
+    id:
+      bid: [short]
+    columns:
+      extra: [decimal]
 ");
         var t = schema.Tables.Single(x => x.Name == "trilby");
         var b = schema.Tables.Single(x => x.Name == "brimfo");
@@ -311,17 +330,17 @@ tables:
 schema: hats
 name: NiceHats
 tables:
-- table: trilby
-  name: Trilby
-  id:
-    id: [int]
-  columns:
-    brim: [brimfo?]
-- table: brimfo
-  id:
-    bid: [short]
-  columns:
-    extra: [decimal]
+  trilby:
+    name: Trilby
+    id:
+      id: [int]
+    columns:
+      brim: [brimfo?]
+  brimfo:
+    id:
+      bid: [short]
+    columns:
+      extra: [decimal]
 ");
         var t = schema.Tables.Single(x => x.Name == "trilby");
         var b = schema.Tables.Single(x => x.Name == "brimfo");

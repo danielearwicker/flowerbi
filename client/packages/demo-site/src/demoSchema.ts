@@ -4,34 +4,34 @@ import { QueryColumn, NumericQueryColumn } from "flowerbi";
 
 export const Date = {
     Id: new QueryColumn<Date>("Date.Id"),
-    CalendarYearNumber: new NumericQueryColumn("Date.CalendarYearNumber"),
+    CalendarYearNumber: new NumericQueryColumn<number>("Date.CalendarYearNumber"),
     FirstDayOfQuarter: new QueryColumn<Date>("Date.FirstDayOfQuarter"),
     FirstDayOfMonth: new QueryColumn<Date>("Date.FirstDayOfMonth"),
 };
 
 export const DateReported = {
     Id: new QueryColumn<Date>("DateReported.Id"),
-    CalendarYearNumber: new NumericQueryColumn("DateReported.CalendarYearNumber"),
+    CalendarYearNumber: new NumericQueryColumn<number>("DateReported.CalendarYearNumber"),
     FirstDayOfQuarter: new QueryColumn<Date>("DateReported.FirstDayOfQuarter"),
     FirstDayOfMonth: new QueryColumn<Date>("DateReported.FirstDayOfMonth"),
 };
 
 export const DateResolved = {
     Id: new QueryColumn<Date>("DateResolved.Id"),
-    CalendarYearNumber: new NumericQueryColumn("DateResolved.CalendarYearNumber"),
+    CalendarYearNumber: new NumericQueryColumn<number>("DateResolved.CalendarYearNumber"),
     FirstDayOfQuarter: new QueryColumn<Date>("DateResolved.FirstDayOfQuarter"),
     FirstDayOfMonth: new QueryColumn<Date>("DateResolved.FirstDayOfMonth"),
 };
 
 export const DateAssigned = {
     Id: new QueryColumn<Date>("DateAssigned.Id"),
-    CalendarYearNumber: new NumericQueryColumn("DateAssigned.CalendarYearNumber"),
+    CalendarYearNumber: new NumericQueryColumn<number>("DateAssigned.CalendarYearNumber"),
     FirstDayOfQuarter: new QueryColumn<Date>("DateAssigned.FirstDayOfQuarter"),
     FirstDayOfMonth: new QueryColumn<Date>("DateAssigned.FirstDayOfMonth"),
 };
 
 export const Workflow = {
-    Id: new NumericQueryColumn("Workflow.Id"),
+    Id: new NumericQueryColumn<number>("Workflow.Id"),
     Resolved: new QueryColumn<boolean>("Workflow.Resolved"),
     WorkflowState: new QueryColumn<string>("Workflow.WorkflowState"),
     SourceOfError: new QueryColumn<string>("Workflow.SourceOfError"),
@@ -39,32 +39,32 @@ export const Workflow = {
 };
 
 export const Category = {
-    Id: new NumericQueryColumn("Category.Id"),
+    Id: new NumericQueryColumn<number>("Category.Id"),
     Label: new QueryColumn<string>("Category.Label"),
 };
 
 export const Customer = {
-    Id: new NumericQueryColumn("Customer.Id"),
+    Id: new NumericQueryColumn<number>("Customer.Id"),
     CustomerName: new QueryColumn<string>("Customer.CustomerName"),
 };
 
 export const Coder = {
-    Id: new NumericQueryColumn("Coder.Id"),
+    Id: new NumericQueryColumn<number>("Coder.Id"),
     FullName: new QueryColumn<string>("Coder.FullName"),
 };
 
 export const CoderAssigned = {
-    Id: new NumericQueryColumn("CoderAssigned.Id"),
+    Id: new NumericQueryColumn<number>("CoderAssigned.Id"),
     FullName: new QueryColumn<string>("CoderAssigned.FullName"),
 };
 
 export const CoderResolved = {
-    Id: new NumericQueryColumn("CoderResolved.Id"),
+    Id: new NumericQueryColumn<number>("CoderResolved.Id"),
     FullName: new QueryColumn<string>("CoderResolved.FullName"),
 };
 
 export const CategoryCombination = {
-    Id: new NumericQueryColumn("CategoryCombination.Id"),
+    Id: new NumericQueryColumn<number>("CategoryCombination.Id"),
     Crashed: new QueryColumn<boolean>("CategoryCombination.Crashed"),
     DataLoss: new QueryColumn<boolean>("CategoryCombination.DataLoss"),
     SecurityBreach: new QueryColumn<boolean>("CategoryCombination.SecurityBreach"),
@@ -74,15 +74,15 @@ export const CategoryCombination = {
 };
 
 export const Bug = {
-    Id: new NumericQueryColumn("Bug.Id"),
-    WorkflowId: new NumericQueryColumn("Bug.WorkflowId"),
-    CustomerId: new NumericQueryColumn("Bug.CustomerId"),
+    Id: new NumericQueryColumn<number>("Bug.Id"),
+    WorkflowId: new NumericQueryColumn<number>("Bug.WorkflowId"),
+    CustomerId: new NumericQueryColumn<number>("Bug.CustomerId"),
     ReportedDate: new QueryColumn<Date>("Bug.ReportedDate"),
     ResolvedDate: new QueryColumn<Date>("Bug.ResolvedDate"),
     AssignedDate: new QueryColumn<Date>("Bug.AssignedDate"),
-    CategoryCombinationId: new NumericQueryColumn("Bug.CategoryCombinationId"),
-    AssignedCoderId: new NumericQueryColumn("Bug.AssignedCoderId"),
-    ResolvedCoderId: new NumericQueryColumn("Bug.ResolvedCoderId"),
+    CategoryCombinationId: new NumericQueryColumn<number>("Bug.CategoryCombinationId"),
+    AssignedCoderId: new NumericQueryColumn<number>("Bug.AssignedCoderId"),
+    ResolvedCoderId: new NumericQueryColumn<number>("Bug.ResolvedCoderId"),
 };
 
 export const BugSchema = {

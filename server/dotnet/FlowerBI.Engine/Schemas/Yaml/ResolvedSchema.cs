@@ -1,4 +1,4 @@
-namespace FlowerBI;
+namespace FlowerBI.Yaml;
 
 using System;
 using System.Collections.Generic;
@@ -10,9 +10,12 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
     public static ResolvedSchema Resolve(string yamlText)
     {
         var deserializer = new DeserializerBuilder().Build();
-
         var yaml = deserializer.Deserialize<YamlSchema>(yamlText);
+        return Resolve(yaml);
+    }
 
+    public static ResolvedSchema Resolve(YamlSchema yaml)
+    {        
         if (string.IsNullOrWhiteSpace(yaml.schema))
         {
             throw new InvalidOperationException("Schema must have non-empty schema property");
@@ -24,11 +27,11 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
         }
 
         // Validate all columns are [name, type] array
-        foreach (var table in yaml.tables)
+        foreach (var (tableKey, table) in yaml.tables)
         {
             if (table.id != null && table.id.Count != 1)
             {
-                throw new InvalidOperationException($"Table {table.table} id must have a single column");
+                throw new InvalidOperationException($"Table {tableKey} id must have a single column");
             }
 
             if (table.columns != null)
@@ -37,28 +40,26 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 {
                     if (type.Length < 1 || type.Length > 2)
                     {
-                        throw new InvalidOperationException($"Table {table.table} column {name} type must be an array of length 1 or 2");
+                        throw new InvalidOperationException($"Table {tableKey} column {name} type must be an array of length 1 or 2");
                     }
                 }
             }
         }
 
-        var resolvedTables = yaml.tables.Select(t => new ResolvedTable(t.table)).ToList();
+        var resolvedTables = yaml.tables.Select(t => new ResolvedTable(t.Key)).ToList();
         var usedNames = new HashSet<string>();
         
-        // Resolve all 'extends' references to get final column lists and DbNames
         var resolutionStack = new HashSet<string>();
 
-        ResolvedTable ResolveExtends(YamlTable table)
+        ResolvedTable ResolveTable(string tableKey, YamlTable table)
         {
-            var stackKey = table.table;
-            if (!resolutionStack.Add(stackKey))
+            if (!resolutionStack.Add(tableKey))
             {
                 var stackString = string.Join(", ", resolutionStack);
                 throw new InvalidOperationException($"Circular reference detected: {stackString}");
             }
 
-            var resolvedTable = resolvedTables.FirstOrDefault(x => x.Name == table.table);
+            var resolvedTable = resolvedTables.FirstOrDefault(x => x.Name == tableKey);
             if (resolvedTable.NameInDb == null)
             {
                 resolvedTable.IdColumn = table.id != null ? new ResolvedColumn(resolvedTable, table.id.First().Key, table.id.First().Value) : null;
@@ -69,14 +70,13 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 resolvedTable.NameInDb = table.name;
 
                 if (table.extends != null)
-                {
-                    var extendsYaml = yaml.tables.FirstOrDefault(x => x.table == table.extends);
-                    if (extendsYaml == null)
+                {                    
+                    if (!yaml.tables.TryGetValue(table.extends, out var extendsYaml))
                     {
-                        throw new InvalidOperationException($"No such table {table.extends}, referenced in {table.table}");
+                        throw new InvalidOperationException($"No such table {table.extends}, referenced in {tableKey}");
                     }
 
-                    var extendsTable = ResolveExtends(extendsYaml);
+                    var extendsTable = ResolveTable(table.extends, extendsYaml);
 
                     resolvedTable.Columns.AddRange(extendsTable.Columns.Select(x => new ResolvedColumn(resolvedTable, x.Name, x.YamlType)
                     {
@@ -91,37 +91,32 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                     resolvedTable.NameInDb ??= extendsTable.NameInDb;
                 }
 
-                if (resolvedTable.IdColumn == null)
-                {
-                    throw new InvalidOperationException($"Table {table.table} must have id property (or use 'extends')");
-                }
-
                 if (!resolvedTable.Columns.Any())
                 {
-                    throw new InvalidOperationException($"Table {table.table} must have columns (or use 'extends')");
+                    throw new InvalidOperationException($"Table {tableKey} must have columns (or use 'extends')");
                 }
 
-                resolvedTable.NameInDb ??= table.table;
+                resolvedTable.NameInDb ??= tableKey;
             }
 
-            resolutionStack.Remove(stackKey);
+            resolutionStack.Remove(tableKey);
 
             return resolvedTable;
         }
 
-        foreach (var table in yaml.tables)
+        foreach (var (tableKey, table) in yaml.tables)
         {
-            if (string.IsNullOrWhiteSpace(table.table))
+            if (string.IsNullOrWhiteSpace(tableKey))
             {
-                throw new InvalidOperationException("Table must have non-empty table property");
+                throw new InvalidOperationException("Table must have non-empty key");
             }
 
-            if (!usedNames.Add(table.table))
+            if (!usedNames.Add(tableKey))
             {
-                throw new InvalidOperationException($"More than one table is named '{table.table}'");
+                throw new InvalidOperationException($"More than one table is named '{tableKey}'");
             }
 
-            ResolveExtends(table);            
+            ResolveTable(tableKey, table);            
         }
 
         void ResolveColumnType(ResolvedColumn c)
@@ -161,7 +156,10 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
         foreach (var table in resolvedTables)
         {
-            ResolveColumnType(table.IdColumn);
+            if (table.IdColumn != null)
+            {
+                ResolveColumnType(table.IdColumn);
+            }
 
             foreach (var column in table.Columns)
             {

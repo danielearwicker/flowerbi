@@ -1,4 +1,4 @@
-namespace FlowerBI;
+namespace FlowerBI.Yaml;
 
 public enum DataType 
 {

@@ -1,3 +1,4 @@
+#nullable enable
 namespace FlowerBI.DemoSchema;
 using System;
 using FlowerBI;

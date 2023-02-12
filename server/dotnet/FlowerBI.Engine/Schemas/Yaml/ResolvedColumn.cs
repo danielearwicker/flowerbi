@@ -1,4 +1,4 @@
-namespace FlowerBI;
+namespace FlowerBI.Yaml;
 
 public record ResolvedColumn(ResolvedTable Table, string Name, string[] YamlType)
 {

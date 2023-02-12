@@ -122,7 +122,7 @@ export class QueryColumn<T extends FilterValue> {
     }
 }
 
-export class NumericQueryColumn extends QueryColumn<number> {
+export class NumericQueryColumn<T extends number | null = number> extends QueryColumn<T> {
     /**
      * @param name The name, of the form `table.column`.
      */
