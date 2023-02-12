@@ -69,26 +69,24 @@ The record fields `customer` and `bugCount` are strongly typed, inferred from th
 
 ## Lock down the schema
 
-Obviously it's not safe to allow clients to send raw SQL to an API and get it executed, so that's not happening here. The query refers to tables/columns (such as `Customer.CustomerName`) that are defined inside the API, declared in C# like this:
+Obviously it's not safe to allow clients to send raw SQL to an API and get it executed, so that's not happening here. The query refers to tables/columns (such as `Customer.CustomerName`) that are defined inside the API, declared in Yaml like this:
 
-```cs
-[DbTable("Customer")]
-public static class Customer
-{
-    public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
-    public static readonly Column<string> CustomerName = new Column<string>("CustomerName");
-}
+```yaml
+Customer:
+    id:
+        Id: [int]
+    columns:
+        CustomerName: [string]
 
-[DbTable("Bug")]
-public static class Bug
-{
-    public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
-    public static readonly ForeignKey<int> CustomerId = new ForeignKey<int>("CustomerId", Customer.Id);
-    // other columns
-}
+Bug:
+    id:
+        Id: [int]
+    columns:
+        CustomerId: [Customer]
+        ReportedDate: [DateReported]
 ```
 
-`FlowerBI.Tools` automatically reflects over this structure and generates a TypeScript file that the client can use to get auto-completion and type inference in its queries. So the client code can query the data in a creative and flexible way, but only within the boundaries set by your API's schema definition. Your API can also easily add extra filters to the query, to impose "row-level security" on a per-user basis.
+`FlowerBI.Tools` automatically generates TypeScript and C# files that the client can use to get auto-completion and type inference in its queries. So the client code can query the data in a creative and flexible way, but only within the boundaries set by your API's schema definition. Your API can also easily add extra filters to the query, to impose "row-level security" on a per-user basis.
 
 ## Automatic joins, grouping and aggregation
 
