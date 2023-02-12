@@ -83,10 +83,13 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                         Extends = x
                     }));
 
-                    resolvedTable.IdColumn ??= new ResolvedColumn(resolvedTable, extendsTable.IdColumn.Name, extendsTable.IdColumn.YamlType)
+                    if (extendsTable.IdColumn != null)
                     {
-                        Extends = extendsTable.IdColumn
-                    };
+                        resolvedTable.IdColumn ??= new ResolvedColumn(resolvedTable, extendsTable.IdColumn.Name, extendsTable.IdColumn.YamlType)
+                        {
+                            Extends = extendsTable.IdColumn
+                        };
+                    }
 
                     resolvedTable.NameInDb ??= extendsTable.NameInDb;
                 }
