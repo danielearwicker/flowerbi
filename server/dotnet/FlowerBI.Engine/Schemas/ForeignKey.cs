@@ -11,8 +11,8 @@ namespace FlowerBI
     {
         public PrimaryKey<T> To { get; }
 
-        public ForeignKey(string name, PrimaryKey<T> to, Func<T, T> converter = null)
-            : base(name, converter)
+        public ForeignKey(string name, PrimaryKey<T> to, Func<T, T> converter = null, Column<T> extends = null)
+            : base(name, converter, extends)
         {
             To = to;
         }

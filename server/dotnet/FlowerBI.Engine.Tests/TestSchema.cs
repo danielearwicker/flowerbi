@@ -1,9 +1,9 @@
 ﻿namespace FlowerBI.Engine.Tests
 {
-    [DbSchema("TestSchema")]
+    [DbSchema("Testing")]
     public static class TestSchema
     {
-        [DbTable("Vendor")]
+        [DbTable("Supplier")]
         public static class Vendor
         {
             public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
@@ -23,8 +23,8 @@
             public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
             public static readonly ForeignKey<int> VendorId = new ForeignKey<int>("VendorId", Vendor.Id, x => x * 2);
             public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id, x => x * 2);
-            public static readonly Column<decimal> Amount = new Column<decimal>("Amount");
-            public static readonly Column<bool> Paid = new Column<bool>("Paid");
+            public static readonly Column<decimal> Amount = new Column<decimal>("FancyAmount");
+            public static readonly Column<bool?> Paid = new Column<bool?>("Paid");
         }
 
         [DbTable("Tag")]
