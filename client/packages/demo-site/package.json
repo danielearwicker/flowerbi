@@ -1,6 +1,6 @@
 {
     "name": "demo-site",
-    "version": "3.4.3",
+    "version": "3.5.0",
     "private": true,
     "dependencies": {
         "@types/blazor__javascript-interop": "^3.1.2",
@@ -10,9 +10,9 @@
         "@types/react-dom": "^17.0.11",
         "@types/sql.js": "^1.4.3",
         "chart.js": "^3.7.0",
-        "flowerbi-react": "3.4.3",
-        "flowerbi-react-utils": "3.4.3",
-        "flowerbi-dates": "3.4.3",
+        "flowerbi-react": "3.5.0",
+        "flowerbi-react-utils": "3.5.0",
+        "flowerbi-dates": "3.5.0",
         "json-date-parser": "^1.0.1",
         "moment": "^2.29.4",
         "prettier": "^2.5.1",

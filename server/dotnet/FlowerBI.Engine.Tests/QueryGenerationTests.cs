@@ -654,6 +654,38 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
+        [Fact]
+        public void AggregationCountDistinct()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.CountDistinct
+                    }
+                },
+                Skip = 5,
+                Take = 10,                
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"
+                select |tbl0|!|VendorName| Select0, count(distinct |tbl1|!|FancyAmount|) Value0
+                from |Testing|!|Invoice| tbl1
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl1|!|VendorId|
+                group by |tbl0|!|VendorName|
+                order by count(distinct |tbl1|!|FancyAmount|) desc
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
         private void AssertSameSql(string actual, string expected)
         {
             static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();

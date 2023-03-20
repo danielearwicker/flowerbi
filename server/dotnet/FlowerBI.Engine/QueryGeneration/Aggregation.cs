@@ -12,7 +12,8 @@ namespace FlowerBI
         Sum,
         Avg,
         Min,
-        Max
+        Max,
+        CountDistinct,
     };
 
     public class Aggregation
@@ -79,6 +80,13 @@ where
 {{/if}}
 ");
 
+        private static string FormatAggFunction(AggregationType func, string expr)
+        {
+            var funcStr = func == AggregationType.CountDistinct ? "count" : func.ToString();
+            var exprStr = func == AggregationType.CountDistinct ? $"distinct {expr}" : expr;
+            return $"{funcStr}({exprStr})";
+        }
+
         public string ToSql(
             ISqlFormatter sql,
             IEnumerable<IColumn> selectColumns,
@@ -96,7 +104,7 @@ where
                 $"{sql.IdentifierPair(joins[c.Table], c.DbName)} Select{i}").ToList()
                 ?? new List<string>();
 
-            var aggColumn = Column != null ? $"{Function}({joins.Aliased(Column, sql)})" : null;
+            var aggColumn = Column != null ? FormatAggFunction(Function, joins.Aliased(Column, sql)) : null;
 
             if (aggColumn != null)
             {
