@@ -9,7 +9,7 @@ export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN";
 export type FilterValue = string | number | boolean | Date | unknown | string[] | number[];
 
 /**
- * Specifies a filter criterion. The column is specified by a string of the 
+ * Specifies a filter criterion. The column is specified by a string of the
  * form `table.column`.
  */
 export interface FilterJson {
@@ -21,10 +21,10 @@ export interface FilterJson {
 /**
  * The allowed aggregation function names.
  */
-export type AggregationType = "Count" | "Sum" | "Avg" | "Min" | "Max";
+export type AggregationType = "Count" | "Sum" | "Avg" | "Min" | "Max" | "CountDistinct";
 
 /**
- * Describes an aggregated values. It is always taken from one column, with 
+ * Describes an aggregated values. It is always taken from one column, with
  * a function applied to it. Filters can optionally be supplied to limit
  * the set of rows included in the aggregation. The column is specified by a
  * string of the form `table.column`.
@@ -37,7 +37,7 @@ export interface AggregationJson {
 
 /**
  * Specifies an ordering criteria: which column to sort by, and optionally
- * whether it is descending (the default is ascending). The column is 
+ * whether it is descending (the default is ascending). The column is
  * specified by a string of the form `table.column`.
  */
 export interface OrderingJson {

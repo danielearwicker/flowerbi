@@ -27,6 +27,14 @@ export class QueryColumn<T extends FilterValue> {
     }
 
     /**
+     * Aggregates the column by counting distinct values.
+     * @param filters Optional filters to apply.
+     */
+    countDistinct(filters?: FilterJson[]) {
+        return this.aggregation("CountDistinct", filters);
+    }
+
+    /**
      * Aggregates the column by selecting the minimum value.
      * @param filters Optional filters to apply.
      */
