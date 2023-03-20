@@ -33,7 +33,8 @@ namespace FlowerBI
 
                 column.SetTable(this, member.Name);
 
-                if (column.GetType().GetGenericTypeDefinition() == typeof(PrimaryKey<>))
+                var columnTypeDef = column.GetType().GetGenericTypeDefinition();
+                if (columnTypeDef == typeof(PrimaryKey<>) || columnTypeDef == typeof(PrimaryForeignKey<>))
                 {
                     if (Id != null)
                     {
@@ -43,7 +44,8 @@ namespace FlowerBI
 
                     Id = column;
                 }
-                else if (column is IForeignKey key)
+                
+                if (column is IForeignKey key)
                 {
                     if (_keys.ContainsKey(key.To.Table))
                     {
