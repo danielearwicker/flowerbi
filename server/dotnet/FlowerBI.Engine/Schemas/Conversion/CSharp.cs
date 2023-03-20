@@ -62,31 +62,36 @@ public static class CSharp
             schemaWriter.WriteLine($"public static class {table.Name}");
             schemaWriter.WriteLine("{");
 
-            string ExtendColumn(ResolvedColumn c) => c.Extends == null 
-                ? string.Empty 
-                : $", extends: {c.Extends.Table.Name}.{c.Extends.Name}";
+            
 
             var tableWriter = new IndentedWriter(schemaWriter);
 
+            void WriteColumn(ResolvedColumn column, string foreignKey, string plainColumn)
+            {
+                var columnType = CSColumnType(column.DataType, column.Nullable);
+                var className = column.Target != null ? foreignKey : plainColumn;
+                
+                var propertyDecl = $"public static readonly {className}<{columnType}> {column.Name} = new {className}<{columnType}>";
+                
+                var extends = column.Extends != null 
+                    ? $", extends: {column.Extends.Table.Name}.{column.Extends.Name}"
+                    : string.Empty;
+
+                var fkArgs = (column.Target != null)
+                    ? $", {column.Target.Table.Name}.{column.Target.Name}"
+                    : string.Empty;
+                
+                tableWriter.WriteLine($"{propertyDecl}(\"{column.NameInDb}\"{fkArgs}{extends});");
+            }
+
             if (table.IdColumn != null)
             {
-                var idType = CSColumnType(table.IdColumn.DataType, table.IdColumn.Nullable);
-
-                tableWriter.WriteLine($"public static readonly PrimaryKey<{idType}> {table.IdColumn.Name} = new PrimaryKey<{idType}>(\"{table.IdColumn.NameInDb}\"{ExtendColumn(table.IdColumn)});");
+                WriteColumn(table.IdColumn, "PrimaryForeignKey", "PrimaryKey");                
             }
 
             foreach (var column in table.Columns)
             {
-                var columnType = CSColumnType(column.DataType, column.Nullable);
-
-                if (column.Target != null)
-                {
-                    tableWriter.WriteLine($"public static readonly ForeignKey<{columnType}> {column.Name} = new ForeignKey<{columnType}>(\"{column.NameInDb}\", {column.Target.Table.Name}.{column.Target.Name}{ExtendColumn(column)});");
-                }
-                else
-                {
-                    tableWriter.WriteLine($"public static readonly Column<{columnType}> {column.Name} = new Column<{columnType}>(\"{column.NameInDb}\"{ExtendColumn(column)});");
-                }
+                WriteColumn(column, "ForeignKey", "Column");
             }    
 
             schemaWriter.WriteLine("}");
