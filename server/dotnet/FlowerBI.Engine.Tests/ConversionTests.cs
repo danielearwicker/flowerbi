@@ -53,6 +53,17 @@ tables:
         columns:
             InvoiceId: [Invoice]
             TagId: [Tag]
+
+    Category:
+        id:
+            Id: [int]
+        columns:
+            CategoryName: [string]
+
+    InvoiceCategory:
+        columns:
+            InvoiceId: [Invoice]
+            CategoryId: [Category]
 ");
     }
 
@@ -98,12 +109,24 @@ export const InvoiceTag = {
     TagId: new NumericQueryColumn<number>(""InvoiceTag.TagId""),
 };
 
+export const Category = {
+    Id: new NumericQueryColumn<number>(""Category.Id""),
+    CategoryName: new QueryColumn<string>(""Category.CategoryName""),
+};
+
+export const InvoiceCategory = {
+    InvoiceId: new NumericQueryColumn<number>(""InvoiceCategory.InvoiceId""),
+    CategoryId: new NumericQueryColumn<number>(""InvoiceCategory.CategoryId""),
+};
+
 export const TestSchema = {
     Vendor,
     Department,
     Invoice,
     Tag,
     InvoiceTag,
+    Category,
+    InvoiceCategory,
 };
 ");
         console.ToString().Should().Be(
@@ -112,6 +135,8 @@ Exporting table Department
 Exporting table Invoice
 Exporting table Tag
 Exporting table InvoiceTag
+Exporting table Category
+Exporting table InvoiceCategory
 Done.
 ");     
     }
@@ -170,6 +195,18 @@ public static class TestSchema
         public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>(""InvoiceId"", Invoice.Id);
         public static readonly ForeignKey<int> TagId = new ForeignKey<int>(""TagId"", Tag.Id);
     }
+    [DbTable(""Category"")]
+    public static class Category
+    {
+        public static readonly PrimaryKey<int> Id = new PrimaryKey<int>(""Id"");
+        public static readonly Column<string> CategoryName = new Column<string>(""CategoryName"");
+    }
+    [DbTable(""InvoiceCategory"")]
+    public static class InvoiceCategory
+    {
+        public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>(""InvoiceId"", Invoice.Id);
+        public static readonly ForeignKey<int> CategoryId = new ForeignKey<int>(""CategoryId"", Category.Id);
+    }
 }
 ");
 
@@ -179,6 +216,8 @@ Exporting table Department
 Exporting table Invoice
 Exporting table Tag
 Exporting table InvoiceTag
+Exporting table Category
+Exporting table InvoiceCategory
 Done.
 ");
     }

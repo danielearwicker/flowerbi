@@ -40,5 +40,19 @@
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
             public static readonly ForeignKey<int> TagId = new ForeignKey<int>("TagId", Tag.Id);
         }
+
+        [DbTable("Category")]
+        public static class Category
+        {
+            public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly Column<string> CategoryName = new Column<string>("CategoryName");
+        }
+
+        [DbTable("InvoiceCategory")]
+        public static class InvoiceCategory
+        {
+            public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            public static readonly ForeignKey<int> CategoryId = new ForeignKey<int>("CategoryId", Category.Id);
+        }
     }
 }

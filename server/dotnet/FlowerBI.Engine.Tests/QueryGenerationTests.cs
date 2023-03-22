@@ -603,6 +603,48 @@ namespace FlowerBI.Engine.Tests
         }
 
         [Fact]
+        public void MultipleManyToMany()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Tag.TagName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Filters = new List<FilterJson>
+                {
+                    new FilterJson { Column = "Category.CategoryName", Operator = "=", Value = "shopping" }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl0|!|VendorName| Select0, 
+                       |tbl1|!|TagName| Select1, 
+                       Sum(|tbl2|!|FancyAmount|) Value0 
+                from |Testing|!|InvoiceTag| tbl4 
+                join |Testing|!|Invoice| tbl2 on |tbl2|!|Id| = |tbl4|!|InvoiceId| 
+                join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl2|!|VendorId| 
+                join |Testing|!|InvoiceCategory| tbl5 on |tbl5|!|InvoiceId| = |tbl2|!|Id| 
+                join |Testing|!|Category| tbl3 on |tbl3|!|Id| = |tbl5|!|CategoryId| 
+                join |Testing|!|Tag| tbl1 on |tbl1|!|Id| = |tbl4|!|TagId| where |tbl3|!|CategoryName| = @filter0 
+                group by |tbl0|!|VendorName| , |tbl1|!|TagName| 
+                order by Sum(|tbl2|!|FancyAmount|) 
+                desc skip:5 take:10
+            ");
+            
+            filterParams.Names.Should().HaveCount(1);
+        }
+
+        [Fact]
         public void NoAggregation()
         {
             var queryJson = new QueryJson
