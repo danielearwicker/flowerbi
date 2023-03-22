@@ -92,7 +92,7 @@ namespace FlowerBI
                 => string.Join(Environment.NewLine, ToSqlLines(sql, aliases));
         }
         
-        // Generates the arrows from (and optionally to) a table
+        // Generates the arrows from and to a table
         private static IEnumerable<(IForeignKey Key, Table Table, bool Reverse)> GetArrows(Table table, IReadOnlyDictionary<Table, IEnumerable<IForeignKey>> referrers)
         {
             // Forward arrows - FKs from this table to other tables
@@ -101,8 +101,8 @@ namespace FlowerBI
                 yield return (key, key.To.Table, false);
             }
 
-            // Reverse arrows (if available) - FKs to this table from other tables
-            if (referrers != null && referrers.TryGetValue(table, out var referrersToThisTable))
+            // Reverse arrows - FKs to this table from other tables
+            if (referrers.TryGetValue(table, out var referrersToThisTable))
             {
                 foreach (var referrer in referrersToThisTable)
                 {
@@ -114,7 +114,7 @@ namespace FlowerBI
         private static string Indent(int level) => new string(' ', level * 4);
 
         // Generates a tree of joins starting from a specified table and following available arrows
-        private static JoinTree GetJoins(TextWriter log, int logIndent, Table root, ISet<Table> needed, ISet<Table> visited, IReadOnlyDictionary<Table, IEnumerable<IForeignKey>> referrers = null)
+        private static JoinTree GetJoins(TextWriter log, int logIndent, Table root, ISet<Table> needed, ISet<Table> visited, IReadOnlyDictionary<Table, IEnumerable<IForeignKey>> referrers)
         {
             var indent = Indent(logIndent);
 
