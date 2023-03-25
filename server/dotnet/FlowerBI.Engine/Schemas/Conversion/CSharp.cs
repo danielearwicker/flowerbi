@@ -58,11 +58,17 @@ public static class CSharp
         {
             console.WriteLine($"Exporting table {table.Name}");
 
-            schemaWriter.WriteLine($"[DbTable(\"{table.NameInDb}\")]");
+            if (!table.conjoint)
+            {
+                schemaWriter.WriteLine($"[DbTable(\"{table.NameInDb}\")]");
+            }
+            else
+            {
+                schemaWriter.WriteLine($"[DbTable(\"{table.NameInDb}\", true)]");
+            }
+            
             schemaWriter.WriteLine($"public static class {table.Name}");
             schemaWriter.WriteLine("{");
-
-            
 
             var tableWriter = new IndentedWriter(schemaWriter);
 

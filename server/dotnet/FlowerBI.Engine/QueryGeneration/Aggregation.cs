@@ -20,7 +20,7 @@ namespace FlowerBI
     {
         public AggregationType Function { get; }
 
-        public IColumn Column { get; }
+        public LabelledColumn Column { get; }
 
         public IEnumerable<Filter> Filters { get; }
 
@@ -89,7 +89,7 @@ where
 
         public string ToSql(
             ISqlFormatter sql,
-            IEnumerable<IColumn> selectColumns,
+            IEnumerable<LabelledColumn> selectColumns,
             IEnumerable<Filter> outerFilters,
             IFilterParameters filterParams,
             IEnumerable<Ordering> orderings = null,
@@ -101,7 +101,7 @@ where
             var joins = new Joins();
 
             var selects = selectColumns?.Select((c, i) =>
-                $"{sql.IdentifierPair(joins[c.Table], c.DbName)} Select{i}").ToList()
+                $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
                 ?? new List<string>();
 
             var aggColumn = Column != null ? FormatAggFunction(Function, joins.Aliased(Column, sql)) : null;

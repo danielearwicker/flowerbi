@@ -8,7 +8,7 @@ namespace FlowerBI
 {
     public class Filter
     {
-        public IColumn Column { get; }
+        public LabelledColumn Column { get; }
 
         public string Operator { get; }
 
@@ -18,13 +18,16 @@ namespace FlowerBI
             => filters?.Select(x => new Filter(x, schema)).ToList()
                 ?? new List<Filter>();
 
-        public Filter(IColumn column, string op, object val)
+        public Filter(LabelledColumn column, string op, object val)
         {
             Column = column;
             Operator = CheckOperator(op);
             Value = val;
         }
 
+        public Filter(IColumn column, string op, object val)
+            : this(new LabelledColumn(null, column), op, val) {}
+        
         public Filter(FilterJson json, Schema schema)
             : this(schema.GetColumn(json.Column), json.Operator, UnpackValue(json.Value)) { }
 

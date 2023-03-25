@@ -2,7 +2,7 @@ namespace FlowerBI.Yaml;
 
 using System.Collections.Generic;
 
-public record ResolvedTable(string Name)
+public record ResolvedTable(string Name, bool conjoint)
 {
     public string NameInDb { get; set; }
 
