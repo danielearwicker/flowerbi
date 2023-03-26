@@ -12,22 +12,22 @@ It focuses on supporting very succinct query definitions at the client, and stro
 
 Our users' data is:
 
-- in SQL Server databases,
-- arranged in a [star schema](https://en.wikipedia.org/wiki/Star_schema),
-- served up by our own API (dotnet core/C#),
-- subject to fine-grained row-level authorisation (that is, only some users are allowed to see some rows).
+-   in SQL Server databases,
+-   arranged in a [star schema](https://en.wikipedia.org/wiki/Star_schema),
+-   served up by our own API (dotnet core/C#),
+-   subject to fine-grained row-level authorisation (that is, only some users are allowed to see some rows).
 
 Our UI is:
 
-- written in TypeScript/React,
-- required to show aggregated statistics in nice-looking charts,
-- driven by rapid evolution and enhancement from user feedback.
+-   written in TypeScript/React,
+-   required to show aggregated statistics in nice-looking charts,
+-   driven by rapid evolution and enhancement from user feedback.
 
 We've tried using a [paid no-code BI product](./PowerBI.md), and while it had some severe drawbacks, we liked the way it worked with data:
 
-- In one central place, you describe the schema: a _fact_ table that has several foreign keys to _dimension_ tables, all many-to-one relationships.
-- For each chart you want to render, you just specify columns to group by (from any table) and columns to aggregate over (count, sum, etc.)
-- Something builds the SQL query for you - this part isn't really that hard, but it's very productive to have it automated.
+-   In one central place, you describe the schema: a _fact_ table that has several foreign keys to _dimension_ tables, all many-to-one relationships.
+-   For each chart you want to render, you just specify columns to group by (from any table) and columns to aggregate over (count, sum, etc.)
+-   Something builds the SQL query for you - this part isn't really that hard, but it's very productive to have it automated.
 
 There are a lot of free libraries for drawing charts: [chart.js](https://www.chartjs.org/) is really easy to use, and it has [a good React wrapper](https://github.com/jerairrest/react-chartjs-2).
 
@@ -41,9 +41,9 @@ Define the shape of the data you need in your client code:
 const { records } = useQuery(fetch, {
     select: {
         customer: Customer.CustomerName,
-        bugCount: Bug.Id.count()
+        bugCount: Bug.Id.count(),
     },
-    filters: [ Workflow.Resolved.equalTo(true) ]
+    filters: [Workflow.Resolved.equalTo(true)],
 });
 ```
 
@@ -56,13 +56,17 @@ You supply the `fetch` function to call your API, with your choice of authentica
 Render the returned records easily in React, maybe using [chart.js](https://github.com/jerairrest/react-chartjs-2):
 
 ```tsx
-<Pie data={{
-    labels: records.map(x => x.customer),
-    datasets: [{
-        label: "Bugs",
-        data: result.records.map(x => x.bugCount)
-    }]
-}} />
+<Pie
+    data={{
+        labels: records.map((x) => x.customer),
+        datasets: [
+            {
+                label: "Bugs",
+                data: result.records.map((x) => x.bugCount),
+            },
+        ],
+    }}
+/>
 ```
 
 The record fields `customer` and `bugCount` are strongly typed, inferred from the `select` in the query.
@@ -131,24 +135,28 @@ https://earwicker.com/flowerbi/demo/
 
 This runs the whole stack in-browser, using some WASM-based components. This is not part of the real solution; no WASM is needed. It's just a way to run a live demo without having to pay to run real boxes!
 
-- [sql.js](https://github.com/sql-js/sql.js) representing the RDBMS
-- The dotnet core engine built in [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor), representing an application server
-- The UI "fetches" data from the Blazor app, which uses `FlowerBI.Engine` to generate SQL queries and runs them against sql.js. It does some ugly hackery to make the queries compatible, as they are currently generated to target Microsoft SQL Server which has a different syntax for many basic things.
+-   [sql.js](https://github.com/sql-js/sql.js) representing the RDBMS
+-   The dotnet core engine built in [Blazor](https://dotnet.microsoft.com/apps/aspnet/web-apps/blazor), representing an application server
+-   The UI "fetches" data from the Blazor app, which uses `FlowerBI.Engine` to generate SQL queries and runs them against sql.js. It does some ugly hackery to make the queries compatible, as they are currently generated to target Microsoft SQL Server which has a different syntax for many basic things.
 
 ## Reference Documentation
 
 Gradually appearing:
 
-- [flowerbi](https://earwicker.com/flowerbi/typedoc/flowerbi)
-- [flowerbi-react](https://earwicker.com/flowerbi/typedoc/flowerbi-react)
-- [flowerbi-react-chartjs](https://earwicker.com/flowerbi/typedoc/flowerbi-react-chartjs)
-- [flowerbi-react-utils](https://earwicker.com/flowerbi/typedoc/flowerbi-react-utils)
+-   [Yaml Schemas](./docs/markdown/yaml.md)
+-   [Virtual Tables](./docs/markdown/virtual-tables.md)
+-   [Conjoint Tables](./docs/markdown/conjoint.md)
+-   UI packages:
+    -   [flowerbi](https://earwicker.com/flowerbi/typedoc/flowerbi)
+    -   [flowerbi-react](https://earwicker.com/flowerbi/typedoc/flowerbi-react)
+    -   [flowerbi-react-chartjs](https://earwicker.com/flowerbi/typedoc/flowerbi-react-chartjs)
+    -   [flowerbi-react-utils](https://earwicker.com/flowerbi/typedoc/flowerbi-react-utils)
 
 ## Contributors
 
-- [@jmulcahy-fiscaltec](https://github.com/jmulcahy-fiscaltec)
-- [@TWilkin](https://github.com/TWilkin)
-- [@shep1987](https://github.com/shep1987)
+-   [@jmulcahy-fiscaltec](https://github.com/jmulcahy-fiscaltec)
+-   [@TWilkin](https://github.com/TWilkin)
+-   [@shep1987](https://github.com/shep1987)
 
 ## License (MIT)
 
