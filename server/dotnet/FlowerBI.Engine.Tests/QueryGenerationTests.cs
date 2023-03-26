@@ -671,19 +671,19 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
                 select |tbl0|!|VendorName| Select0, 
-                       |tbl1_x|!|Value| Select1, 
-                       |tbl2_y|!|Value| Select2, 
+                       |tbl1|!|Value| Select1, 
+                       |tbl2|!|Value| Select2, 
                        Sum(|tbl3|!|FancyAmount|) Value0 
                 from |Testing|!|Invoice| tbl3 
                 join |Testing|!|Supplier| tbl0 on |tbl0|!|Id| = |tbl3|!|VendorId| 
-                join |Testing|!|InvoiceAnnotation| tbl6_x on |tbl6_x|!|InvoiceId| = |tbl3|!|Id| 
-                join |Testing|!|AnnotationValue| tbl1_x on |tbl1_x|!|Id| = |tbl6_x|!|AnnotationValueId| 
-                join |Testing|!|AnnotationName| tbl4_x on |tbl4_x|!|Id| = |tbl1_x|!|AnnotationNameId| 
-                join |Testing|!|InvoiceAnnotation| tbl7_y on |tbl7_y|!|InvoiceId| = |tbl3|!|Id| 
-                join |Testing|!|AnnotationValue| tbl2_y on |tbl2_y|!|Id| = |tbl7_y|!|AnnotationValueId| 
-                join |Testing|!|AnnotationName| tbl5_y on |tbl5_y|!|Id| = |tbl2_y|!|AnnotationNameId| 
-                where |tbl4_x|!|Name| = @filter0 and |tbl5_y|!|Name| = @filter1 
-                group by |tbl0|!|VendorName| , |tbl1_x|!|Value| , |tbl2_y|!|Value| 
+                join |Testing|!|InvoiceAnnotation| tbl6 on |tbl6|!|InvoiceId| = |tbl3|!|Id| 
+                join |Testing|!|AnnotationValue| tbl1 on |tbl1|!|Id| = |tbl6|!|AnnotationValueId| 
+                join |Testing|!|AnnotationName| tbl4 on |tbl4|!|Id| = |tbl1|!|AnnotationNameId| 
+                join |Testing|!|InvoiceAnnotation| tbl7 on |tbl7|!|InvoiceId| = |tbl3|!|Id| 
+                join |Testing|!|AnnotationValue| tbl2 on |tbl2|!|Id| = |tbl7|!|AnnotationValueId| 
+                join |Testing|!|AnnotationName| tbl5 on |tbl5|!|Id| = |tbl2|!|AnnotationNameId| 
+                where |tbl4|!|Name| = @filter0 and |tbl5|!|Name| = @filter1 
+                group by |tbl0|!|VendorName| , |tbl1|!|Value| , |tbl2|!|Value| 
                 order by Sum(|tbl3|!|FancyAmount|) desc 
                 skip:5 take:10
             ");

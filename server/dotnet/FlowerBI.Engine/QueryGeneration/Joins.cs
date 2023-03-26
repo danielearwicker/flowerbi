@@ -23,8 +23,7 @@ namespace FlowerBI
         {
             if (!Aliases.TryGetValue(table, out var alias))
             {
-                var suffix = table.JoinLabel == null ? string.Empty : $"_{table.JoinLabel}";
-                Aliases[table] = alias = $"tbl{Aliases.Count}{suffix}";
+                Aliases[table] = alias = $"tbl{Aliases.Count}";
             }
 
             return alias;
