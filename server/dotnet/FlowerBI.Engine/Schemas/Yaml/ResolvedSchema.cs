@@ -46,7 +46,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             }
         }
 
-        var resolvedTables = yaml.tables.Select(t => new ResolvedTable(t.Key)).ToList();
+        var resolvedTables = yaml.tables.Select(t => new ResolvedTable(t.Key, t.Value.conjoint)).ToList();
         var usedNames = new HashSet<string>();
         
         var resolutionStack = new HashSet<string>();

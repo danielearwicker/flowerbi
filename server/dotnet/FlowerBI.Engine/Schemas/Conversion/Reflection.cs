@@ -65,6 +65,11 @@ public static class Reflection
                 tablePropWriter.WriteLine($"name: {table.name}");
             }
 
+            if (table.conjoint)
+            {
+                tablePropWriter.WriteLine($"conjoint: true");
+            }
+
             void WriteColumns(IDictionary<string, string[]> columns)
             {
                 var columnWriter = new IndentedWriter(tablePropWriter);
@@ -126,6 +131,7 @@ public static class Reflection
             tables = schema.Tables.ToDictionary(t => t.RefName, t => new YamlTable
             {
                 name = t.DbName,
+                conjoint = t.Conjoint,
                 id = t.Id != null ? GetColumns(new[] { t.Id }) : null,
                 columns = GetColumns(t.Columns.Where(x => x != t.Id)),
             })

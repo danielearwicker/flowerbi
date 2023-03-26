@@ -64,6 +64,27 @@ tables:
         columns:
             InvoiceId: [Invoice]
             CategoryId: [Category]
+
+    AnnotationName:
+        conjoint: true
+        id:
+            Id: [int]
+        columns:
+            Name: [string]
+
+    AnnotationValue:
+        conjoint: true
+        id:
+            Id: [int]
+        columns:
+            AnnotationNameId: [AnnotationName]
+            Value: [string]
+
+    InvoiceAnnotation:
+        conjoint: true
+        columns:
+            InvoiceId: [Invoice]
+            AnnotationValueId: [AnnotationValue]
 ");
     }
 
@@ -119,6 +140,22 @@ export const InvoiceCategory = {
     CategoryId: new NumericQueryColumn<number>(""InvoiceCategory.CategoryId""),
 };
 
+export const AnnotationName = {
+    Id: new NumericQueryColumn<number>(""AnnotationName.Id""),
+    Name: new QueryColumn<string>(""AnnotationName.Name""),
+};
+
+export const AnnotationValue = {
+    Id: new NumericQueryColumn<number>(""AnnotationValue.Id""),
+    AnnotationNameId: new NumericQueryColumn<number>(""AnnotationValue.AnnotationNameId""),
+    Value: new QueryColumn<string>(""AnnotationValue.Value""),
+};
+
+export const InvoiceAnnotation = {
+    InvoiceId: new NumericQueryColumn<number>(""InvoiceAnnotation.InvoiceId""),
+    AnnotationValueId: new NumericQueryColumn<number>(""InvoiceAnnotation.AnnotationValueId""),
+};
+
 export const TestSchema = {
     Vendor,
     Department,
@@ -127,6 +164,9 @@ export const TestSchema = {
     InvoiceTag,
     Category,
     InvoiceCategory,
+    AnnotationName,
+    AnnotationValue,
+    InvoiceAnnotation,
 };
 ");
         console.ToString().Should().Be(
@@ -137,6 +177,9 @@ Exporting table Tag
 Exporting table InvoiceTag
 Exporting table Category
 Exporting table InvoiceCategory
+Exporting table AnnotationName
+Exporting table AnnotationValue
+Exporting table InvoiceAnnotation
 Done.
 ");     
     }
@@ -207,6 +250,25 @@ public static class TestSchema
         public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>(""InvoiceId"", Invoice.Id);
         public static readonly ForeignKey<int> CategoryId = new ForeignKey<int>(""CategoryId"", Category.Id);
     }
+    [DbTable(""AnnotationName"", true)]
+    public static class AnnotationName
+    {
+        public static readonly PrimaryKey<int> Id = new PrimaryKey<int>(""Id"");
+        public static readonly Column<string> Name = new Column<string>(""Name"");
+    }
+    [DbTable(""AnnotationValue"", true)]
+    public static class AnnotationValue
+    {
+        public static readonly PrimaryKey<int> Id = new PrimaryKey<int>(""Id"");
+        public static readonly ForeignKey<int> AnnotationNameId = new ForeignKey<int>(""AnnotationNameId"", AnnotationName.Id);
+        public static readonly Column<string> Value = new Column<string>(""Value"");
+    }
+    [DbTable(""InvoiceAnnotation"", true)]
+    public static class InvoiceAnnotation
+    {
+        public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>(""InvoiceId"", Invoice.Id);
+        public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>(""AnnotationValueId"", AnnotationValue.Id);
+    }
 }
 ");
 
@@ -218,6 +280,9 @@ Exporting table Tag
 Exporting table InvoiceTag
 Exporting table Category
 Exporting table InvoiceCategory
+Exporting table AnnotationName
+Exporting table AnnotationValue
+Exporting table InvoiceAnnotation
 Done.
 ");
     }

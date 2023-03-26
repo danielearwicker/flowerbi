@@ -3,7 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 
 namespace FlowerBI
-{   
+{
+    public record LabelledColumn(string JoinLabel, IColumn Value)
+    {
+        public static LabelledColumn From(string joinLabel, IColumn column)
+        {
+            if (!column.Table.Conjoint)
+            {
+                throw new InvalidOperationException($"Table {column.Table.RefName} is not conjoint");
+            }
+
+            return new LabelledColumn(joinLabel, column);
+        }
+
+        public override string ToString()
+            => string.IsNullOrWhiteSpace(JoinLabel) ? Value.RefName : $"{Value.RefName}@{JoinLabel}";
+    }
+
+    public record LabelledTable(string JoinLabel, Table Value)
+    {
+        public static LabelledTable From(string joinLabel, Table value)
+            => new LabelledTable(value.Conjoint ? joinLabel : null, value);
+
+        public override string ToString()
+            => string.IsNullOrWhiteSpace(JoinLabel) ? Value.RefName : $"{Value.RefName}@{JoinLabel}";
+    }
+
     public sealed class Schema : Named
     {
         private Dictionary<string, Table> _tables
@@ -24,17 +49,15 @@ namespace FlowerBI
             }
         }
 
-        public IList<IColumn> Load(IEnumerable<string> columns)
-            => columns?.Select(GetColumn).ToList() ?? new List<IColumn>();
+        public IList<LabelledColumn> Load(IEnumerable<string> columns)
+            => columns?.Select(GetColumn).ToList() ?? new List<LabelledColumn>();
 
         public IEnumerable<Table> Tables => _tables.Values;
 
-        public IColumn GetColumn(string name)
+        public LabelledColumn GetColumn(string labelledName)
         {
-            if (name == null)
-            {
-                return null;
-            }
+            var at = labelledName.IndexOf('@');
+            var (name, label) = at == -1 ? (labelledName, null) : (labelledName[0..at], labelledName[(at + 1)..]);
 
             var parts = name.Split(".");
             if (parts.Length != 2)
@@ -49,7 +72,7 @@ namespace FlowerBI
                     $"No such table {parts[0]}");
             }
 
-            return table.GetColumn(parts[1]);
-        }
+            return new LabelledColumn(label, table.GetColumn(parts[1]));
+        } 
     }
 }

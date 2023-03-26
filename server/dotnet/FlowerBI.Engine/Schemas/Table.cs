@@ -11,6 +11,8 @@ namespace FlowerBI
 
         public IColumn Id { get; private set; }
 
+        public bool Conjoint { get; private set; }
+
         private readonly Dictionary<Table, IForeignKey> _keys
                    = new Dictionary<Table, IForeignKey>();
 
@@ -21,9 +23,12 @@ namespace FlowerBI
         {
             Schema = schema;
 
-            DbName = source.GetCustomAttributes(false)
+            var attr = source.GetCustomAttributes(false)
                          .OfType<DbTableAttribute>()
-                         .Single().Name;
+                         .Single();
+
+            DbName = attr.Name;
+            Conjoint = attr.Conjoint;
 
             RefName = source.Name;
 

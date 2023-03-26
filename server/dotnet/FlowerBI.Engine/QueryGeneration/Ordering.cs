@@ -8,13 +8,16 @@ namespace FlowerBI
     {
         public bool Descending { get; set; }
 
-        public IColumn Column { get; }
+        public LabelledColumn Column { get; }
 
-        public Ordering(IColumn column, bool descending)
+        public Ordering(LabelledColumn column, bool descending)
         {
             Column = column;
             Descending = descending;
         }
+
+        public Ordering(IColumn column, bool descending)
+            : this(new LabelledColumn(null, column), descending) {}
 
         public string Direction => Descending? "desc" : "asc";
 

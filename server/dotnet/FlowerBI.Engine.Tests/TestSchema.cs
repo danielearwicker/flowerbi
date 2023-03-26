@@ -54,5 +54,27 @@
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
             public static readonly ForeignKey<int> CategoryId = new ForeignKey<int>("CategoryId", Category.Id);
         }
+
+        [DbTable("AnnotationName", true)]
+        public static class AnnotationName
+        {
+            public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly Column<string> Name = new Column<string>("Name");
+        }
+
+        [DbTable("AnnotationValue", true)]
+        public static class AnnotationValue
+        {
+            public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly ForeignKey<int> AnnotationNameId = new ForeignKey<int>("AnnotationNameId", AnnotationName.Id);
+            public static readonly Column<string> Value = new Column<string>("Value");
+        }
+
+        [DbTable("InvoiceAnnotation", true)]
+        public static class InvoiceAnnotation
+        {
+            public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>("AnnotationValueId", AnnotationValue.Id);
+        }
     }
 }

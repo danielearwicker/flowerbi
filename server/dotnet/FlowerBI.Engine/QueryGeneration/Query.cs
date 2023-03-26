@@ -11,7 +11,7 @@ namespace FlowerBI
 {
     public class Query
     {
-        public IList<IColumn> Select { get; }
+        public IList<LabelledColumn> Select { get; }
         public IList<Aggregation> Aggregations { get; }
         public IList<Filter> Filters { get; }
         public IList<Ordering> OrderBy { get; }
@@ -85,7 +85,7 @@ from Aggregation0 a0
 {{skipAndTake}}
 ");
 
-        private string ToSql(ISqlFormatter sql, IList<IColumn> select,
+        private string ToSql(ISqlFormatter sql, IList<LabelledColumn> select,
                              IFilterParameters filterParams, IEnumerable<Filter> outerFilters,
                              long skip, int take, bool totals)
         {
@@ -113,14 +113,14 @@ from Aggregation0 a0
 
         private string FindOrderingColumn(Ordering ordering)
         {
-            var i = Select.IndexOf(ordering.Column);
-            if (i == -1)
+            var found = Select.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
+            if (found.c == null)
             {
                 throw new InvalidOperationException(
                     $"Cannot order by {ordering.Column} as it has not been selected");
             }
 
-            return $"a0.Select{i} {ordering.Direction}";
+            return $"a0.Select{found.n} {ordering.Direction}";
         }
 
         private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
@@ -182,7 +182,7 @@ from Aggregation0 a0
                 .ToList();
         }
 
-        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<IColumn> columns)
+        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<LabelledColumn> columns)
         {
             IList<object> result = null;
 
@@ -191,7 +191,7 @@ from Aggregation0 a0
                 if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
                 if (result == null) result = new List<object>();
 
-                result.Add(columns[n].ConvertValue(value));
+                result.Add(columns[n].Value.ConvertValue(value));
             }
 
             return result;
