@@ -53,7 +53,7 @@ namespace FlowerBI.Engine.Tests
             var filterParams = new DapperFilterParameters();
             var querySql = query.ToSql(new SqlServerFormatter(), filterParams, Enumerable.Empty<Filter>());
 
-            querySql.Should().Contain("[tbl0].[Id] IN @filter0");
+            querySql.Should().Contain("[tbl00].[Id] IN @filter0");
             filterParams.ToString().Should().Be("@filter0 = 2, 4, 6, 8");
 
             var db = new Mock<IDbConnection>();
