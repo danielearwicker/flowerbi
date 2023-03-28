@@ -20,6 +20,12 @@ namespace FlowerBI.Engine.Tests
             public string EscapedIdentifierPair(string id1, string id2) => $"{id1}!{id2}";
 
             public string SkipAndTake(long skip, int take) => $"skip:{skip} take:{take}";
+
+            public string Conditional(string predExpr, string thenExpr, string elseExpr)
+                => $"[if]{predExpr}[then]{thenExpr}[else]{elseExpr}[endif]";
+
+            public string CastToFloat(string valueExpr)
+                => $"[float({valueExpr})]";
         }
 
         private static readonly ISqlFormatter Formatter = new TestFormatter();
@@ -852,7 +858,101 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(3);
         }
 
-        private void AssertSameSql(string actual, string expected)
+        [Theory]
+        [InlineData(OrderingType.Select, 0, "0")]
+        [InlineData(OrderingType.Select, 1, null)]
+        [InlineData(OrderingType.Value, 0, "1")]
+        [InlineData(OrderingType.Value, 1, "2")]
+        [InlineData(OrderingType.Value, 2, null)]
+        [InlineData(OrderingType.Calculation, 0, "3")]
+        [InlineData(OrderingType.Calculation, 1, "4")]
+        [InlineData(OrderingType.Calculation, 2, "5")]
+        [InlineData(OrderingType.Calculation, 3, null)]
+        public void CalculationsAndIndexedOrderBy(OrderingType orderingType, int orderingIndex, string orderingExpected)
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    },
+
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Id",
+                        Function = AggregationType.Count
+                    }
+                },
+                Calculations = new List<CalculationJson>
+                {
+                    new() { Aggregation = 1 },
+                    new()
+                    {
+                        Operator = "+",
+                        First = new() { Aggregation = 0 },
+                        Second = new() { Value = 3 },
+                    },
+                    new()
+                    {
+                        Operator = "/",
+                        First = new() { Aggregation = 0 },
+                        Second = new() { Aggregation = 1 },
+                    }                    
+                },
+                OrderBy = new List<OrderingJson> 
+                {
+                     new OrderingJson { Type = orderingType, Index = orderingIndex } 
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var filterParams = new DictionaryFilterParameters();
+
+            var func = new Func<Query>(() => new Query(queryJson, Schema));
+            if (orderingExpected == null)
+            {
+                func.Should().Throw<ArgumentOutOfRangeException>();
+            }
+            else
+            {
+                var query = func();
+                
+                AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"
+                    with Aggregation0 as ( 
+                        select |tbl00|!|VendorName| Select0, 
+                               Sum(|tbl01|!|FancyAmount|) Value0 
+                        from |Testing|!|Supplier| tbl00 
+                        join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                        group by |tbl00|!|VendorName| 
+                    ) , Aggregation1 as ( 
+                        select |tbl00|!|VendorName| Select0, 
+                               Count(|tbl01|!|Id|) Value0 
+                        from |Testing|!|Supplier| tbl00 
+                        join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                        group by |tbl00|!|VendorName| 
+                    ) 
+                    select a0.Select0, 
+                            a0.Value0 Value0 , 
+                            a1.Value0 Value1 , 
+                            a1.Value0 Value2 , 
+                            a0.Value0 + 3 Value3 , 
+                            a0.Value0 / [if]a1.Value0 = 0[then][float(a1.Value0)][else]0[endif] Value4 
+                    from Aggregation0 a0 
+                    left join Aggregation1 a1 on a1.Select0 = a0.Select0 
+                    order by {orderingExpected} asc 
+                    skip:5 take:10
+                ");
+
+                filterParams.Names.Should().HaveCount(0);
+            }
+        }
+
+        public static void AssertSameSql(string actual, string expected)
         {
             static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();
             var flatActual = Flatten(actual);

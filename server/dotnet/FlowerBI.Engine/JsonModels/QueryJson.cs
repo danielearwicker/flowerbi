@@ -12,6 +12,8 @@ namespace FlowerBI.Engine.JsonModels
 
         public IList<OrderingJson> OrderBy { get; set; }
 
+        public IList<CalculationJson> Calculations { get; set; }
+
         public bool? Totals { get; set; }
 
         public long? Skip { get; set; }
