@@ -5,6 +5,8 @@
         string Identifier(string name);
         string EscapedIdentifierPair(string id1, string id2);
         string SkipAndTake(long skip, int take);
+        string Conditional(string predExpr, string thenExpr, string elseExpr);
+        string CastToFloat(string valueExpr);
     }
 
     public static class SqlFormatterExtensions
@@ -21,6 +23,12 @@
         public string SkipAndTake(long skip, int take) => @$"
             offset {skip} rows
             fetch next {take} rows only";
+
+        public string Conditional(string predExpr, string thenExpr, string elseExpr)
+            => $"iif({predExpr}, {thenExpr}, {elseExpr})";
+
+        public string CastToFloat(string valueExpr)
+            => $"cast({valueExpr} as double)";
     }
 
     public class SqlLiteFormatter : ISqlFormatter
@@ -28,5 +36,10 @@
         public string Identifier(string name) => $"`{name}`";
         public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
         public string SkipAndTake(long skip, int take) => $"limit {take} offset {skip}";
+        public string Conditional(string predExpr, string thenExpr, string elseExpr)
+            => $"if({predExpr}, {thenExpr}, {elseExpr})";
+
+        public string CastToFloat(string valueExpr)
+            => $"cast({valueExpr} as real)";
     }
 }

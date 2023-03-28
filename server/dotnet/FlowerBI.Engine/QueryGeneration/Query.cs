@@ -15,6 +15,7 @@ namespace FlowerBI
         public IList<Aggregation> Aggregations { get; }
         public IList<Filter> Filters { get; }
         public IList<Ordering> OrderBy { get; }
+        public IList<CalculationJson> Calculations { get; }
 
         public bool Totals { get; }
 
@@ -31,7 +32,11 @@ namespace FlowerBI
             Select = schema.Load(json.Select);
             Aggregations = Aggregation.Load(json.Aggregations, schema);
             Filters = Filter.Load(json.Filters, schema);
-            OrderBy = Ordering.Load(json.OrderBy, schema);
+            OrderBy = Ordering.Load(json.OrderBy, schema, 
+                                    json.Select?.Count ?? 0, 
+                                    json.Aggregations?.Count ?? 0,
+                                    json.Calculations?.Count ?? 0);
+            Calculations = json.Calculations ?? new List<CalculationJson>();
             Totals = json.Totals ?? false;
             Skip = json.Skip ?? 0;
             Take = json.Take ?? 100;
@@ -56,8 +61,8 @@ select
     a0.Select{{@index}},
 {{/each}}
 
-{{#each Aggregations}}
-    a{{@index}}.Value0 Value{{@index}}
+{{#each Calculations}}
+    {{{this}}} Value{{@index}}
     {{#unless @last}},{{/unless}}
 {{/each}}
 
@@ -106,6 +111,8 @@ from Aggregation0 a0
                 skipAndTake = totals ? null : sql.SkipAndTake(skip, take),
                 Aggregations = Aggregations.Select(x =>
                     x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)),
+                Calculations = Aggregations.Select((_, i) => $"a{i}.Value0")
+                    .Concat(Calculations.Select(x => x.ToSql(sql))),
                 Select = select,
                 orderBy = totals ? null : ordering
             });
@@ -113,6 +120,11 @@ from Aggregation0 a0
 
         private string FindOrderingColumn(Ordering ordering)
         {
+            if (ordering.Column == null)
+            {
+                return $"{ordering.Index} {ordering.Direction}";
+            }
+
             var found = Select.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
             if (found.c == null)
             {
