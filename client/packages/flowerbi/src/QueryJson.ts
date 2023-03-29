@@ -37,13 +37,36 @@ export interface AggregationJson {
 
 /**
  * Specifies an ordering criteria: which column to sort by, and optionally
- * whether it is descending (the default is ascending). The column is
- * specified by a string of the form `table.column`.
+ * whether it is descending (the default is ascending). The column can be
+ * specified by a string of the form `table.column`, though this can only
+ * target one of the columns specified in select. More flexibly, specify
+ * a type of column (the type 'Value' refers to aggregations) and its
+ * zero-based position.
  */
-export interface OrderingJson {
-    column: string;
+export type OrderingJson = {
     descending?: boolean;
-}
+} & (
+    | {
+          column: string;
+      }
+    | {
+          type: "Select" | "Value" | "Calculation";
+          index: number;
+      }
+);
+
+/**
+ * Specifies an expression for calculating a derived value based on
+ * the values of aggregations, specified by zero-based position.
+ */
+export type CalculationJson =
+    | { value: number }
+    | { aggregation: number }
+    | {
+          first: CalculationJson;
+          operator: "+" | "-" | "*" | "/";
+          second: CalculationJson;
+      };
 
 /**
  * Specifies an entire query.
@@ -57,6 +80,10 @@ export interface QueryJson {
      * The aggregated values to fetch.
      */
     aggregations: AggregationJson[];
+    /**
+     * The calculations to perform.
+     */
+    calculations?: CalculationJson[];
     /**
      * Filters to apply. They are always combined with AND.
      */
