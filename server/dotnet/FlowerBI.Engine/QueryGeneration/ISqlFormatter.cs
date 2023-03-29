@@ -28,7 +28,7 @@
             => $"iif({predExpr}, {thenExpr}, {elseExpr})";
 
         public string CastToFloat(string valueExpr)
-            => $"cast({valueExpr} as double)";
+            => $"cast({valueExpr} as float)";
     }
 
     public class SqlLiteFormatter : ISqlFormatter

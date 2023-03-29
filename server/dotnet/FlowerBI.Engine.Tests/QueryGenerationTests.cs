@@ -940,8 +940,8 @@ namespace FlowerBI.Engine.Tests
                             a0.Value0 Value0 , 
                             a1.Value0 Value1 , 
                             a1.Value0 Value2 , 
-                            a0.Value0 + 3 Value3 , 
-                            a0.Value0 / [if]a1.Value0 = 0[then][float(a1.Value0)][else]0[endif] Value4 
+                            (a0.Value0 + 3) Value3 , 
+                            [if]a1.Value0 = 0[then]0[else]a0.Value0 / [float(a1.Value0)][endif] Value4
                     from Aggregation0 a0 
                     left join Aggregation1 a1 on a1.Select0 = a0.Select0 
                     order by {orderingExpected} asc 
@@ -952,7 +952,7 @@ namespace FlowerBI.Engine.Tests
             }
         }
 
-        public static void AssertSameSql(string actual, string expected)
+        internal static void AssertSameSql(string actual, string expected)
         {
             static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();
             var flatActual = Flatten(actual);
