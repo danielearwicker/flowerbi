@@ -1,29 +1,29 @@
-import { 
-    QuerySelect, 
-    ExpandedQueryRecord, 
-    AggregateValuesOnly, 
-    AggregatePropsOnly, 
-    ExpandedQueryRecordWithOptionalColumns 
+import {
+    QuerySelect,
+    ExpandedQueryRecord,
+    AggregateValuesOnly,
+    AggregatePropsOnly,
+    ExpandedQueryRecordWithOptionalColumns,
+    QueryCalculations,
+    CalculationValues,
 } from "./queryModel";
 
 /**
  * An abstract interface representing either a row from a dataset or
- * the {@link ExpandedQueryResult.totals} row, so that generic code can 
+ * the {@link ExpandedQueryResult.totals} row, so that generic code can
  * format either of them in a consistent way.
  */
-export interface QueryValues<S extends QuerySelect> {
+export interface QueryValues<S extends QuerySelect, C extends QueryCalculations<S>> {
     /**
      * The plain values of columns, which may be `undefined` if this
      * refers to the {@link ExpandedQueryResult.totals} record.
      */
-    values: ExpandedQueryRecordWithOptionalColumns<S>;
+    values: ExpandedQueryRecordWithOptionalColumns<S, C>;
     percentage<K extends AggregatePropsOnly<S>>(key: K): number;
 }
 
-export class QueryValuesRow<S extends QuerySelect> implements QueryValues<S> {
-    constructor(
-        public readonly values: ExpandedQueryRecord<S>, 
-        public readonly totals: AggregateValuesOnly<S> | undefined) {}
+export class QueryValuesRow<S extends QuerySelect, C extends QueryCalculations<S>> implements QueryValues<S, C> {
+    constructor(public readonly values: ExpandedQueryRecord<S, C>, public readonly totals: (AggregateValuesOnly<S> & CalculationValues<C>) | undefined) {}
 
     percentage<K extends AggregatePropsOnly<S>>(key: K) {
         if (!this.totals) return 0;
@@ -35,11 +35,11 @@ export class QueryValuesRow<S extends QuerySelect> implements QueryValues<S> {
     }
 }
 
-export class QueryValuesTotal<S extends QuerySelect> implements QueryValues<S> {
-    public readonly values: ExpandedQueryRecordWithOptionalColumns<S>;
+export class QueryValuesTotal<S extends QuerySelect, C extends QueryCalculations<S>> implements QueryValues<S, C> {
+    public readonly values: ExpandedQueryRecordWithOptionalColumns<S, C>;
 
-    constructor(totals: AggregateValuesOnly<S>) {
-        this.values = totals as ExpandedQueryRecordWithOptionalColumns<S>;
+    constructor(totals: AggregateValuesOnly<S> & CalculationValues<C>) {
+        this.values = totals as ExpandedQueryRecordWithOptionalColumns<S, C>;
     }
 
     percentage() {

@@ -1,13 +1,13 @@
-import { useState, useEffect, useRef } from "react";
-import { Query, QueryFetch, jsonifyQuery, QueryResultJson, QuerySelect, expandQueryResult, ExpandedQueryResult } from "flowerbi";
+import { useState, useEffect } from "react";
+import { Query, QueryFetch, jsonifyQuery, QueryResultJson, QuerySelect, expandQueryResult, ExpandedQueryResult, QueryCalculations } from "flowerbi";
 import stableStringify from "json-stable-stringify";
 
 export type UseQueryState = "init" | "ready" | "refresh" | "error";
 
-export interface UseQueryResult<S extends QuerySelect> extends ExpandedQueryResult<S> {
+export interface UseQueryResult<S extends QuerySelect, C extends QueryCalculations<S>> extends ExpandedQueryResult<S, C> {
     /**
      * The state of the query operation:
-     * 
+     *
      * - `init` - no result has been downloaded yet
      * - `ready` - result has been downloaded
      * - `refresh` - a new result is being downloaded
@@ -25,7 +25,7 @@ export type QueryDependency = {
     /**
      * The result of the query we depend on
      */
-    dependency: UseQueryResult<QuerySelect>;
+    dependency: UseQueryResult<QuerySelect, QueryCalculations<QuerySelect>>;
     /**
      * If true (default is false) then if the dependency query produces
      * an empty result, our query should also produce an empty result,
@@ -35,21 +35,25 @@ export type QueryDependency = {
 };
 
 /**
- * A custom React hook that evaluates to the result of a 
- * [Query](../flowerbi/interfaces/query.html), making it easy to perform a 
+ * A custom React hook that evaluates to the result of a
+ * [Query](../flowerbi/interfaces/query.html), making it easy to perform a
  * query from within a component.
- * 
+ *
  * The returned object has a strongly-typed `records` array, and optionally
  * a `totals` object. It has a `state` of type {@link UseQueryState} that
  * can be used to show a loading indicator.
- * 
+ *
  * @param fetch The fetch function to use.
  * @param query The [Query](../flowerbi/interfaces/query.html) specification.
  * @param dependencies Optionally, a list of one or more other queries whose
  * results are used to build this query, so we wait for them before executing,
  * and optionally short-circuit to an empty result if the dependency is empty.
  */
-export function useFlowerBI<S extends QuerySelect>(fetch: QueryFetch, query: Query<S>, dependencies?: QueryDependency[]): UseQueryResult<S> {
+export function useFlowerBI<S extends QuerySelect, C extends QueryCalculations<S>>(
+    fetch: QueryFetch,
+    query: Query<S, C>,
+    dependencies?: QueryDependency[]
+): UseQueryResult<S, C> {
     const queryJson = jsonifyQuery(query);
 
     const [state, setState] = useState<UseQueryState>("init");
@@ -60,7 +64,7 @@ export function useFlowerBI<S extends QuerySelect>(fetch: QueryFetch, query: Que
 
         if (dependencies?.length) {
             // if any not ready, neither are we
-            if (dependencies.some(x => x.dependency.state !== "ready")) {
+            if (dependencies.some((x) => x.dependency.state !== "ready")) {
                 if (state !== "init") {
                     setState("refresh");
                 }
@@ -68,7 +72,7 @@ export function useFlowerBI<S extends QuerySelect>(fetch: QueryFetch, query: Que
             }
 
             // if any with option nonEmpty produced empty result, so do we
-            if (dependencies.filter(x => !!x.nonEmpty).some(x => !x.dependency.records.length)) {
+            if (dependencies.filter((x) => !!x.nonEmpty).some((x) => !x.dependency.records.length)) {
                 setState("ready");
                 setResult({ records: [] });
                 return;
@@ -80,7 +84,7 @@ export function useFlowerBI<S extends QuerySelect>(fetch: QueryFetch, query: Que
         }
 
         fetch(queryJson).then(
-            x => {
+            (x) => {
                 if (!disposed) {
                     setState("ready");
                     setResult(x);
@@ -99,7 +103,7 @@ export function useFlowerBI<S extends QuerySelect>(fetch: QueryFetch, query: Que
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fetch, stableStringify(queryJson)]);
 
-    return { ...expandQueryResult(query.select, result), state };
+    return { ...expandQueryResult<S, C>(query.select, result, query.calculations), state };
 }
 
 /**
