@@ -183,8 +183,12 @@ from Aggregation0 a0
 
         private IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
         {
-            var aggColumns = Aggregations.Select(x => x.Column).ToList();
-            var selColumns = Select.ToList();
+            var nullConvert = new Func<object, object>(x => x);
+
+            var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Column.Value.ConvertValue))
+                        .Concat(Calculations.Select(x => nullConvert)).ToList();
+
+            var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();
 
             return list.Select(x => new QueryRecordJson
             {
@@ -194,7 +198,7 @@ from Aggregation0 a0
                 .ToList();
         }
 
-        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<LabelledColumn> columns)
+        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<Func<object, object>> converters)
         {
             IList<object> result = null;
 
@@ -202,8 +206,7 @@ from Aggregation0 a0
             {
                 if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
                 if (result == null) result = new List<object>();
-
-                result.Add(columns[n].Value.ConvertValue(value));
+                result.Add(converters[n](value));
             }
 
             return result;
