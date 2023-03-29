@@ -859,14 +859,14 @@ namespace FlowerBI.Engine.Tests
         }
 
         [Theory]
-        [InlineData(OrderingType.Select, 0, "0")]
+        [InlineData(OrderingType.Select, 0, "1")]
         [InlineData(OrderingType.Select, 1, null)]
-        [InlineData(OrderingType.Value, 0, "1")]
-        [InlineData(OrderingType.Value, 1, "2")]
+        [InlineData(OrderingType.Value, 0, "2")]
+        [InlineData(OrderingType.Value, 1, "3")]
         [InlineData(OrderingType.Value, 2, null)]
-        [InlineData(OrderingType.Calculation, 0, "3")]
-        [InlineData(OrderingType.Calculation, 1, "4")]
-        [InlineData(OrderingType.Calculation, 2, "5")]
+        [InlineData(OrderingType.Calculation, 0, "4")]
+        [InlineData(OrderingType.Calculation, 1, "5")]
+        [InlineData(OrderingType.Calculation, 2, "6")]
         [InlineData(OrderingType.Calculation, 3, null)]
         public void CalculationsAndIndexedOrderBy(OrderingType orderingType, int orderingIndex, string orderingExpected)
         {

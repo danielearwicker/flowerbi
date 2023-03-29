@@ -175,7 +175,7 @@ namespace FlowerBI.Engine.Tests
                 from Aggregation0 a0
                 left join Aggregation1 a1 on
                     a1.Select0 = a0.Select0
-                order by 4 asc
+                order by 5 asc
                 offset 5 rows
                 fetch next 10 rows only");
         }
