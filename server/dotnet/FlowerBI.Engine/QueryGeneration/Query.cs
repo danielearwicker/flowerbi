@@ -122,7 +122,7 @@ from Aggregation0 a0
         {
             if (ordering.Column == null)
             {
-                return $"{ordering.Index} {ordering.Direction}";
+                return $"{ordering.Index + 1} {ordering.Direction}";
             }
 
             var found = Select.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
@@ -185,7 +185,7 @@ from Aggregation0 a0
         {
             var nullConvert = new Func<object, object>(x => x);
 
-            var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Column.Value.ConvertValue))
+            var aggColumns = Aggregations.Select(x => x?.Column == null ? nullConvert : new Func<object, object>(x.Column.Value.ConvertValue))
                         .Concat(Calculations.Select(x => nullConvert)).ToList();
 
             var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();
