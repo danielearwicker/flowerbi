@@ -1,6 +1,6 @@
 <Project>
     <PropertyGroup>
-        <PackageVersion>3.8.3</PackageVersion>
+        <PackageVersion>3.9.0</PackageVersion>
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
