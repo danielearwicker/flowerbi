@@ -164,21 +164,27 @@ namespace FlowerBI
                 throw new InvalidOperationException($"Could not connect tables: {string.Join(",", needed)}");
             }
             
-            for (var t = 0; t < reachable.Count; t++)
+            for (var repeat = true; repeat;)
             {
-                // No need to try removing a table if we already know it's directly needed
-                if (needed.Contains(reachable[t])) continue;
+                repeat = false;
 
-                // Try removing table t
-                var without = reachable.ToList();
-                without.RemoveAt(t);
-
-                var reducedTables = new TableSubset(without, referrers, JoinLabels);                
-                if (CanReachAllNeeded(reducedTables.GetReachableTables(root)))
+                foreach (var candidateForRemoval in reachable)
                 {
-                    tables = reducedTables;
-                    reachable = without;
-                    t--;
+                    // No need to try removing a table if we already know it's directly needed
+                    if (needed.Contains(candidateForRemoval)) continue;
+
+                    // Try removing table t
+                    var without = reachable.Where(x => x != candidateForRemoval).ToList();
+
+                    var reducedTables = new TableSubset(without, referrers, JoinLabels);     
+                    var reducedReachable = reducedTables.GetReachableTables(root);
+                    if (CanReachAllNeeded(reducedReachable))
+                    {
+                        tables = reducedTables;
+                        reachable = reducedReachable;
+                        repeat = true;
+                        break;
+                    }
                 }
             }
 
