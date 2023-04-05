@@ -952,6 +952,47 @@ namespace FlowerBI.Engine.Tests
             }
         }
 
+        [Theory]
+        [InlineData(OrderingType.Select, 0, 1, false)]
+        [InlineData(OrderingType.Value, 0, 2, false)]
+        [InlineData(OrderingType.Select, 0, 1, true)]
+        [InlineData(OrderingType.Value, 0, 2, true)]
+        public void SingleAggregationIndexedOrder(OrderingType orderingType, int orderingIndex, int orderingExpected, bool descending)
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Skip = 5,
+                Take = 10,
+                OrderBy = new List<OrderingJson> 
+                { 
+                    new OrderingJson { Type = orderingType, Index = orderingIndex, Descending = descending }
+                }
+            };
+
+            var expectedDirection = descending ? "desc" : "asc";
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"
+                select |tbl00|!|VendorName| Select0, Sum(|tbl01|!|FancyAmount|) Value0 
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                group by |tbl00|!|VendorName| 
+                order by {orderingExpected} {expectedDirection}
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
         internal static void AssertSameSql(string actual, string expected)
         {
             static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();
