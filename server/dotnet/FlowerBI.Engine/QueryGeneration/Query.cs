@@ -32,8 +32,8 @@ namespace FlowerBI
             Select = schema.Load(json.Select);
             Aggregations = Aggregation.Load(json.Aggregations, schema);
             Filters = Filter.Load(json.Filters, schema);
-            OrderBy = Ordering.Load(json.OrderBy, schema, 
-                                    json.Select?.Count ?? 0, 
+            OrderBy = Ordering.Load(json.OrderBy, schema,
+                                    json.Select?.Count ?? 0,
                                     json.Aggregations?.Count ?? 0,
                                     json.Calculations?.Count ?? 0);
             Calculations = json.Calculations ?? new List<CalculationJson>();
@@ -103,7 +103,7 @@ from Aggregation0 a0
 
             if (select != null && OrderBy.Count != 0)
             {
-                ordering = string.Join(", ", OrderBy.Select(FindOrderingColumn));
+                ordering = string.Join(", ", OrderBy.Select(x => FindOrderingColumn(x, Select)));
             }
 
             return _aggregatedTemplate(new
@@ -118,14 +118,14 @@ from Aggregation0 a0
             });
         }
 
-        private string FindOrderingColumn(Ordering ordering)
+        public static string FindOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
         {
             if (ordering.Column == null)
             {
                 return $"{ordering.Index + 1} {ordering.Direction}";
             }
 
-            var found = Select.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
+            var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
             if (found.c == null)
             {
                 throw new InvalidOperationException(
