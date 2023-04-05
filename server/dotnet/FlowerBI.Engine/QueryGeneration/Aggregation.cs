@@ -135,7 +135,7 @@ where
                     : null;
 
             var orderBy = skipAndTake == null ? null :
-                orderings.Any() ? string.Join(", ", orderings.Select(x => $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
+                orderings.Any() ? string.Join(", ", orderings.Select(x => Query.FindOrderingColumn(x, selectColumns))) :
                 aggColumn != null ? $"{aggColumn} desc" :
                 null;
 
