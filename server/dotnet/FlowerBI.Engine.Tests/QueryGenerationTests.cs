@@ -176,6 +176,41 @@ namespace FlowerBI.Engine.Tests
         }
 
         [Fact]
+        public void SingleAggregationOrderBySelect()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Skip = 5,
+                Take = 10,
+                OrderBy = new List<OrderingJson>
+                {
+                    new OrderingJson { Column = "Vendor.VendorName" }
+                }
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), $@"
+                select |tbl00|!|VendorName| Select0, Sum(|tbl01|!|FancyAmount|) Value0 
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                group by |tbl00|!|VendorName| 
+                order by |tbl00|!|VendorName| asc
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
         public void SingleAggregationTotals()
         {
             var queryJson = new QueryJson
