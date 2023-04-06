@@ -103,7 +103,7 @@ from Aggregation0 a0
 
             if (select != null && OrderBy.Count != 0)
             {
-                ordering = string.Join(", ", OrderBy.Select(x => FindOrderingColumn(x, Select)));
+                ordering = string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select)));
             }
 
             return _aggregatedTemplate(new
@@ -118,13 +118,11 @@ from Aggregation0 a0
             });
         }
 
-        public static string FindOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
-        {
-            if (ordering.Column == null)
-            {
-                return $"{ordering.Index + 1} {ordering.Direction}";
-            }
+        public static string FindIndexedOrderingColumn(Ordering ordering)
+            => ordering.Column == null ? $"{ordering.Index + 1} {ordering.Direction}" : null;
 
+        public static string FindNamedSelectOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
+        {
             var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
             if (found.c == null)
             {
