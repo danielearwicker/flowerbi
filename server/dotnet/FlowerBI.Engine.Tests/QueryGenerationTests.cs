@@ -893,6 +893,55 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(3);
         }
 
+        [Fact]
+        public void ManyToManyWithComplicatedSchema()
+        {
+            // In the complicated schema, more tables have FKs to Department. This makes it 
+            // possible to reach all the tables we need without going via InvoiceAnnotation.
+            // But without that table the query would be incorrect because it is the
+            // association between two sides of a many-to-many relationship. So we have to 
+            // recognise it as such by noting that it is marked as conjoint and has at least 
+            // two FKs into the other reachable tables.
+            var complicatedSchema = new Schema(typeof(ComplicatedTestSchema));
+
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "AnnotationValue.Value@x" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Filters = new List<FilterJson>
+                {
+                    new FilterJson { Column = "AnnotationName.Name@x", Operator = "=", Value = "math" },
+                    new FilterJson { Column = "Department.DepartmentName", Operator = "=", Value = "Accounts" }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, complicatedSchema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl00|!|Value| Select0, Sum(|tbl01|!|FancyAmount|) Value0 
+                from |Testing|!|AnnotationValue| tbl00 
+                join |Testing|!|Department| tbl03 on |tbl03|!|Id| = |tbl00|!|DepartmentId| 
+                join |Testing|!|Invoice| tbl01 on |tbl01|!|DepartmentId| = |tbl03|!|Id| 
+                join |Testing|!|InvoiceAnnotation| tbl04 on |tbl04|!|InvoiceId| = |tbl01|!|Id| and |tbl04|!|AnnotationValueId| = |tbl00|!|Id| 
+                join |Testing|!|AnnotationName| tbl02 on |tbl02|!|DepartmentId| = |tbl03|!|Id| and |tbl02|!|Id| = |tbl00|!|AnnotationNameId| 
+                where |tbl02|!|Name| = @filter0 and |tbl03|!|DepartmentName| = @filter1 
+                group by |tbl00|!|Value| 
+                order by Sum(|tbl01|!|FancyAmount|) desc 
+                skip:5 take:10
+            ");
+            
+            filterParams.Names.Should().HaveCount(2);
+        }
+
         [Theory]
         [InlineData(OrderingType.Select, 0, "1")]
         [InlineData(OrderingType.Select, 1, null)]
