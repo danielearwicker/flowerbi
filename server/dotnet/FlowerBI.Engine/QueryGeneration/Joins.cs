@@ -188,8 +188,26 @@ namespace FlowerBI
                 }
             }
 
-            var joinedSoFar = new HashSet<LabelledTable>();
-            joinedSoFar.Add(root);
+            // Now look for any conjoint table that has at least two FKs to one of our surviving tables
+            // so it is part of a many-to-many system and needs to be included
+            for (var repeat = true; repeat;)
+            {
+                repeat = false;
+
+                foreach (var candidateForAddition in Tables.Where(x => x.Value.Conjoint).Except(reachable))
+                {
+                    var expandedTables = new TableSubset(reachable.Append(candidateForAddition), referrers, JoinLabels);
+                    if (expandedTables.GetLabelledArrows(candidateForAddition).Count(x => !x.Reverse && reachable.Contains(x.Table)) >= 2)
+                    {
+                        tables = expandedTables;
+                        reachable = expandedTables.GetReachableTables(root);
+                        repeat = true;
+                        break;
+                    }
+                }
+            }
+
+            var joinedSoFar = new HashSet<LabelledTable> { root };
 
             foreach (var table in reachable.Where(x => x != root))
             {
