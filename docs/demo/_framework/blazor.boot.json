@@ -199,17 +199,17 @@
       "mscorlib.dll": "sha256-y7DhCb2PceYWjnHWsZokJrty551Q9XISH3Z72o6RdwI=",
       "netstandard.dll": "sha256-REs1\/xYvAzuX2k2Y5p\/5IaM3O\/zaiYSW62pOQBGMrrA=",
       "System.Private.CoreLib.dll": "sha256-Bz7VnNtt03SzAvIN30yx1e25P6SfMdLYIaKIy7ASEnw=",
-      "FlowerBI.DemoSchema.dll": "sha256-CCwhDVNaEMjNpxbvhoUqLBuz1Tkw0YxC8\/OItMENgoI=",
-      "FlowerBI.Engine.dll": "sha256-fdzOakVosCe07GOVw1Xlhq39DfkflGVU1onFNDp0reQ=",
-      "FlowerBI.WasmHost.dll": "sha256-G5CUAEs3nVFZcGD38dHFF5mXHuH+DtsEBHsEQTCSg\/E="
+      "FlowerBI.DemoSchema.dll": "sha256-c4dv2JvJHGHK82M3YnDDJmTPkxIbtotwMr2rXeuaQu0=",
+      "FlowerBI.Engine.dll": "sha256-2DXcaTZl\/25\/IDKzdfKQrAscU74nKyGEz2w3St\/exC8=",
+      "FlowerBI.WasmHost.dll": "sha256-ukx2vYOcud4fdVV5RlaBg6OmUykqGXSFfyfLGAocHY8="
     },
     "extensions": null,
     "lazyAssembly": null,
     "libraryInitializers": null,
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-3u00h62FWvXCY5WS0sYJgJLQWd\/R6Cpm6TETTk2Lflg=",
-      "FlowerBI.Engine.pdb": "sha256-8UI3vJMcsI\/V9ioDCtoz8gao0CTgiE1OfB9JoRI9ayU=",
-      "FlowerBI.WasmHost.pdb": "sha256-n9aLmTdYSoHzm+79VxCpIM5AI4bQy5A3PvHhxm0f5tY="
+      "FlowerBI.DemoSchema.pdb": "sha256-s4UGv0+M9gXJt6vSfosCWzKfdHGeAfCRX7muDXb76UM=",
+      "FlowerBI.Engine.pdb": "sha256-HuhSeb5j4ugQW68MVDZzhelQd2v4uI0rVrfS9gp21FM=",
+      "FlowerBI.WasmHost.pdb": "sha256-N4vFBxo6sHod1lfowkGbpgJjszFSDOXp7GWkmHzVN5c="
     },
     "runtime": {
       "dotnet.6.0.15.dnzyqtdmp4.js": "sha256-fb2wBZaRp096nChMG9nDNEcW0kW1whA\/kfQNyH+5QpQ=",
