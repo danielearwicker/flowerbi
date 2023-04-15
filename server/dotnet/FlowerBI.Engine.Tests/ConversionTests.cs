@@ -83,6 +83,7 @@ tables:
 
     InvoiceAnnotation:
         conjoint: true
+        associative: [InvoiceId, AnnotationValueId]
         columns:
             InvoiceId: [Invoice]
             AnnotationValueId: [AnnotationValue]
@@ -269,7 +270,9 @@ public static class TestSchema
     [DbTable(""InvoiceAnnotation"", true)]
     public static class InvoiceAnnotation
     {
+        [DbAssociative]
         public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>(""InvoiceId"", Invoice.Id);
+        [DbAssociative]
         public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>(""AnnotationValueId"", AnnotationValue.Id);
     }
 }

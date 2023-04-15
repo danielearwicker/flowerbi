@@ -38,7 +38,9 @@
         [DbTable("InvoiceTag")]
         public static class InvoiceTag
         {
+            [DbAssociative]
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            [DbAssociative]
             public static readonly ForeignKey<int> TagId = new ForeignKey<int>("TagId", Tag.Id);
         }
 
@@ -53,7 +55,9 @@
         [DbTable("InvoiceCategory")]
         public static class InvoiceCategory
         {
+            [DbAssociative]
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            [DbAssociative]
             public static readonly ForeignKey<int> CategoryId = new ForeignKey<int>("CategoryId", Category.Id);
         }
 
@@ -77,12 +81,14 @@
         [DbTable("InvoiceAnnotation", true)]
         public static class InvoiceAnnotation
         {
+            [DbAssociative]
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            [DbAssociative]
             public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>("AnnotationValueId", AnnotationValue.Id);
         }
         
         // Another entity that could exist with FKs into above tables, and yet it's not an 
-        // associative table because it has its own PK
+        // associative table because it doesn't use [DbAssociative]
         [DbTable("VendorRevision")]
         public static class VendorRevision
         {

@@ -13,11 +13,11 @@ namespace FlowerBI
 
         public bool Conjoint { get; private set; }
 
-        private readonly Dictionary<Table, IForeignKey> _keys
-                   = new Dictionary<Table, IForeignKey>();
+        private readonly Dictionary<Table, IForeignKey> _keys = new();
 
-        private readonly Dictionary<string, IColumn> _columns
-                   = new Dictionary<string, IColumn>();
+        private readonly Dictionary<string, IColumn> _columns = new();
+
+        private readonly List<IColumn> _associative = new();
 
         public Table(Schema schema, Type source)
         {
@@ -61,6 +61,11 @@ namespace FlowerBI
                     _keys.Add(key.To.Table, key);
                 }
 
+                if (member.GetCustomAttribute<DbAssociativeAttribute>() != null)
+                {
+                    _associative.Add(column);
+                }
+
                 _columns.Add(column.RefName, column);
             }
         }
@@ -68,6 +73,8 @@ namespace FlowerBI
         public override string ToString() => $"{Schema.RefName}.{RefName}";
 
         public IEnumerable<IColumn> Columns => _columns.Values;
+
+        public IEnumerable<IColumn> Associative => _associative;
 
         public IColumn GetColumn(string refName)
         {

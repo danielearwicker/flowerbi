@@ -10,4 +10,6 @@ public record ResolvedTable(string Name, bool conjoint)
     public ResolvedColumn IdColumn { get; set; }
 
     public List<ResolvedColumn> Columns { get; } = new List<ResolvedColumn>();
+
+    public List<ResolvedColumn> Associative { get; } = new List<ResolvedColumn>();
 }

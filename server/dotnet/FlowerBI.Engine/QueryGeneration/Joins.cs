@@ -188,17 +188,18 @@ namespace FlowerBI
                 }
             }
 
-            // Now add back any pure associative tables:
-            // - no primary key (not an entity in its own right)
-            // - at least two FKs to our surviving tables (links them together)
+            // Now add back any associative tables that associate with two or more of our surviving tables
             for (var repeat = true; repeat;)
             {
                 repeat = false;
 
-                foreach (var candidateForAddition in Tables.Where(x => x.Value.Id == null).Except(reachable))
+                foreach (var candidateForAddition in Tables.Where(x => x.Value.Associative.Count() >= 2).Except(reachable))
                 {
                     var expandedTables = new TableSubset(reachable.Append(candidateForAddition), referrers, JoinLabels);
-                    if (expandedTables.GetLabelledArrows(candidateForAddition).Count(x => !x.Reverse && reachable.Contains(x.Table)) >= 2)
+                    if (expandedTables.GetLabelledArrows(candidateForAddition)
+                                      .Count(x => !x.Reverse && 
+                                                  candidateForAddition.Value.Associative.Contains(x.Key) &&
+                                                  reachable.Contains(x.Table)) >= 2)
                     {
                         tables = expandedTables;
                         reachable = expandedTables.GetReachableTables(root);

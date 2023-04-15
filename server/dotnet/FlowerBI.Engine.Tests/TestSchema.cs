@@ -74,7 +74,9 @@
         [DbTable("InvoiceAnnotation", true)]
         public static class InvoiceAnnotation
         {
+            [DbAssociative]
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
+            [DbAssociative]
             public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>("AnnotationValueId", AnnotationValue.Id);
         }
     }

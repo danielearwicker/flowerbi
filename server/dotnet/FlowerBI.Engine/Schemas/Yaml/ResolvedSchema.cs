@@ -100,6 +100,23 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 }
 
                 resolvedTable.NameInDb ??= tableKey;
+
+                if (table.associative != null)
+                {
+                    var allColumns = resolvedTable.IdColumn == null 
+                        ? resolvedTable.Columns
+                        : resolvedTable.Columns.Append(resolvedTable.IdColumn);
+
+                    foreach (var assoc in table.associative)
+                    {
+                        var resolvedAssoc = allColumns.FirstOrDefault(c => c.Name == assoc);
+                        if (resolvedAssoc == null)
+                        {
+                            throw new InvalidOperationException($"Table {tableKey} has an association {assoc} that is not a column");
+                        }
+                        resolvedTable.Associative.Add(resolvedAssoc);
+                    }                    
+                }
             }
 
             resolutionStack.Remove(tableKey);

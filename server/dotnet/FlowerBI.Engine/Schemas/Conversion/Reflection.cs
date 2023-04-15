@@ -70,6 +70,11 @@ public static class Reflection
                 tablePropWriter.WriteLine($"conjoint: true");
             }
 
+            if (table.associative != null && table.associative.Length > 0)
+            {
+                tablePropWriter.WriteLine($"associative: [{string.Join(", ", table.associative)}]");
+            }
+
             void WriteColumns(IDictionary<string, string[]> columns)
             {
                 var columnWriter = new IndentedWriter(tablePropWriter);
@@ -134,6 +139,7 @@ public static class Reflection
                 conjoint = t.Conjoint,
                 id = t.Id != null ? GetColumns(new[] { t.Id }) : null,
                 columns = GetColumns(t.Columns.Where(x => x != t.Id)),
+                associative = t.Associative.Select(x => x.RefName).ToArray()
             })
         };
     }

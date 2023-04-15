@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using FlowerBI.Yaml;
 
 namespace FlowerBI.Conversion;
@@ -76,6 +77,11 @@ public static class CSharp
             {
                 var columnType = CSColumnType(column.DataType, column.Nullable);
                 var className = column.Target != null ? foreignKey : plainColumn;
+                
+                if (table.Associative != null && table.Associative.Any(a => a.Name == column.Name))
+                {
+                    tableWriter.WriteLine("[DbAssociative]");
+                }
                 
                 var propertyDecl = $"public static readonly {className}<{columnType}> {column.Name} = new {className}<{columnType}>";
                 
