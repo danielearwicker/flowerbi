@@ -30,7 +30,7 @@ InventoryItemAnnotation:
 
 Here we have a table of `InventoryItem`s and we are able to add "annotations" to them, which are simple name-value pairs. The names are expected to be heavily reused, and probably the values too. So we have a table `AnnotationName` that collects all the distinct names ever used, and also another table `AnnotationValue` that holds all the values, plus an FK to the name to which the value applies.
 
-Finally, to link a value to an `InventoryItem`, we have `InventoryItemAnnotation` as our [associative table](https://en.wikipedia.org/wiki/Associative_entity), so that just has FKs to the item and the value.
+Finally, to link a value to an `InventoryItem`, we have `InventoryItemAnnotation` as our [associative table](./many-to-many.md), so that just has FKs to the item and the value.
 
 Now suppose we want to send a query that counts how many items have a given distinct value for the annotation `shopping`. In JSON the query is simple:
 

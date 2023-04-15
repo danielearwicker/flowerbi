@@ -145,6 +145,7 @@ Gradually appearing:
 
 -   [Yaml Schemas](./docs/markdown/yaml.md)
 -   [Virtual Tables](./docs/markdown/virtual-tables.md)
+-   [Many-to-Many](./docs/markdown/many-to-many.md)
 -   [Conjoint Tables](./docs/markdown/conjoint.md)
 -   UI packages:
     -   [flowerbi](https://earwicker.com/flowerbi/typedoc/flowerbi)
