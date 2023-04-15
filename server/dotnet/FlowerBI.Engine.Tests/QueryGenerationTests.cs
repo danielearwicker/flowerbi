@@ -12,6 +12,7 @@ namespace FlowerBI.Engine.Tests
     public class QueryGenerationTests
     {
         public static readonly Schema Schema = new Schema(typeof(TestSchema));
+        public static readonly Schema ComplicatedSchema = new Schema(typeof(ComplicatedTestSchema));
             
         public class TestFormatter : ISqlFormatter
         {
@@ -896,17 +897,49 @@ namespace FlowerBI.Engine.Tests
         [Fact]
         public void ManyToManyWithComplicatedSchema()
         {
-            // In the complicated schema, more tables have FKs to Department. This makes it 
-            // possible to reach all the tables we need without going via InvoiceAnnotation.
-            // But without that table the query would be incorrect because it is the
-            // association between two sides of a many-to-many relationship. So we have to 
-            // recognise it as such by noting that it is marked as conjoint and has at least 
-            // two FKs into the other reachable tables.
-            var complicatedSchema = new Schema(typeof(ComplicatedTestSchema));
-
             var queryJson = new QueryJson
             {
-                Select = new List<string> { "AnnotationValue.Value@x" },
+                Select = new List<string> { "Vendor.VendorName", "Category.CategoryName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                Filters = new List<FilterJson>
+                {
+                    new FilterJson { Column = "Department.DepartmentName", Operator = "=", Value = "Accounts" }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, ComplicatedSchema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl00|!|VendorName| Select0, |tbl01|!|CategoryName| Select1, Sum(|tbl02|!|FancyAmount|) Value0 
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Department| tbl03 on |tbl03|!|Id| = |tbl00|!|DepartmentId| 
+                join |Testing|!|Invoice| tbl02 on |tbl02|!|VendorId| = |tbl00|!|Id| and |tbl02|!|DepartmentId| = |tbl03|!|Id| 
+                join |Testing|!|InvoiceCategory| tbl04 on |tbl04|!|InvoiceId| = |tbl02|!|Id| 
+                join |Testing|!|Category| tbl01 on |tbl01|!|DepartmentId| = |tbl03|!|Id| and |tbl01|!|Id| = |tbl04|!|CategoryId|
+                where |tbl03|!|DepartmentName| = @filter0 
+                group by |tbl00|!|VendorName| , |tbl01|!|CategoryName| 
+                order by Sum(|tbl02|!|FancyAmount|) desc 
+                skip:5 take:10
+            ");
+            
+            filterParams.Names.Should().HaveCount(1);
+        }
+
+        [Fact]
+        public void ManyToManyConjointWithComplicatedSchema()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "AnnotationValue.Value@x", "AnnotationValue.Value@y" },
                 Aggregations = new List<AggregationJson>
                 {
                     new AggregationJson
@@ -918,28 +951,45 @@ namespace FlowerBI.Engine.Tests
                 Filters = new List<FilterJson>
                 {
                     new FilterJson { Column = "AnnotationName.Name@x", Operator = "=", Value = "math" },
+                    new FilterJson { Column = "AnnotationName.Name@y", Operator = "=", Value = "shopping" },
                     new FilterJson { Column = "Department.DepartmentName", Operator = "=", Value = "Accounts" }
                 },
                 Skip = 5,
                 Take = 10
             };
 
-            var query = new Query(queryJson, complicatedSchema);
+            var query = new Query(queryJson, ComplicatedSchema);
             var filterParams = new DictionaryFilterParameters();
             AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
-                select |tbl00|!|Value| Select0, Sum(|tbl01|!|FancyAmount|) Value0 
+                select |tbl00|!|Value| Select0, |tbl01|!|Value| Select1, Sum(|tbl02|!|FancyAmount|) Value0 
                 from |Testing|!|AnnotationValue| tbl00 
-                join |Testing|!|Department| tbl03 on |tbl03|!|Id| = |tbl00|!|DepartmentId| 
-                join |Testing|!|Invoice| tbl01 on |tbl01|!|DepartmentId| = |tbl03|!|Id| 
-                join |Testing|!|InvoiceAnnotation| tbl04 on |tbl04|!|InvoiceId| = |tbl01|!|Id| and |tbl04|!|AnnotationValueId| = |tbl00|!|Id| 
-                join |Testing|!|AnnotationName| tbl02 on |tbl02|!|DepartmentId| = |tbl03|!|Id| and |tbl02|!|Id| = |tbl00|!|AnnotationNameId| 
-                where |tbl02|!|Name| = @filter0 and |tbl03|!|DepartmentName| = @filter1 
-                group by |tbl00|!|Value| 
-                order by Sum(|tbl01|!|FancyAmount|) desc 
+                join |Testing|!|Department| tbl05 
+                    on |tbl05|!|Id| = |tbl00|!|DepartmentId| 
+                join |Testing|!|Invoice| tbl02 
+                    on |tbl02|!|DepartmentId| = |tbl05|!|Id| 
+                join |Testing|!|InvoiceAnnotation| tbl06 
+                    on |tbl06|!|InvoiceId| = |tbl02|!|Id| 
+                    and |tbl06|!|AnnotationValueId| = |tbl00|!|Id| 
+                join |Testing|!|InvoiceAnnotation| tbl07 
+                    on |tbl07|!|InvoiceId| = |tbl02|!|Id| 
+                join |Testing|!|AnnotationValue| tbl01 
+                    on |tbl01|!|DepartmentId| = |tbl05|!|Id| 
+                    and |tbl01|!|Id| = |tbl07|!|AnnotationValueId| 
+                join |Testing|!|AnnotationName| tbl04 
+                    on |tbl04|!|DepartmentId| = |tbl05|!|Id| 
+                    and |tbl04|!|Id| = |tbl01|!|AnnotationNameId| 
+                join |Testing|!|AnnotationName| tbl03 
+                    on |tbl03|!|DepartmentId| = |tbl05|!|Id| 
+                    and |tbl03|!|Id| = |tbl00|!|AnnotationNameId| 
+                where |tbl03|!|Name| = @filter0 
+                    and |tbl04|!|Name| = @filter1 
+                    and |tbl05|!|DepartmentName| = @filter2 
+                group by |tbl00|!|Value| , |tbl01|!|Value| 
+                order by Sum(|tbl02|!|FancyAmount|) desc 
                 skip:5 take:10
             ");
             
-            filterParams.Names.Should().HaveCount(2);
+            filterParams.Names.Should().HaveCount(3);
         }
 
         [Theory]
@@ -1077,9 +1127,29 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
+        private static (string KeyWord, int Indent)[] newLineKeywords = 
+        { 
+            ("select", 0), 
+            ("from", 0), 
+            ("join", 0), 
+            ("on", 4), 
+            ("where", 0), 
+            ("and", 4), 
+            ("group", 0), 
+            ("order", 0), 
+            ("skip:", 0), 
+        };
+
         internal static void AssertSameSql(string actual, string expected)
         {
-            static string Flatten(string sql) => new Regex("\\s+").Replace(sql, " ").Trim();
+            static string Flatten(string sql) => string.Join(" ", 
+                new Regex(@"\s+").Split(sql).Select(token => 
+                {
+                    var (keyword, indent) = newLineKeywords.FirstOrDefault(
+                        k => (k.KeyWord.EndsWith(':') && token.StartsWith(k.KeyWord)) || token == k.KeyWord);
+                    return keyword != null ? $"\r\n{new string(' ', indent)}{token}" : token;
+                })).Trim();
+
             var flatActual = Flatten(actual);
             var flatExpected = Flatten(expected);
 

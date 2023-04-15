@@ -14,7 +14,7 @@
         public static class Vendor
         {
             public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
-            public static readonly Column<string> VendorName = new Column<string>("VendorName", x => $"[{x}]");
+            public static readonly Column<string> VendorName = new Column<string>("VendorName");
             public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id);
         }
 
@@ -22,8 +22,8 @@
         public static class Invoice
         {
             public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
-            public static readonly ForeignKey<int> VendorId = new ForeignKey<int>("VendorId", Vendor.Id, x => x * 2);
-            public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id, x => x * 2);
+            public static readonly ForeignKey<int> VendorId = new ForeignKey<int>("VendorId", Vendor.Id);
+            public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id);
             public static readonly Column<decimal> Amount = new Column<decimal>("FancyAmount");
             public static readonly Column<bool?> Paid = new Column<bool?>("Paid");
         }
@@ -46,6 +46,7 @@
         public static class Category
         {
             public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id);
             public static readonly Column<string> CategoryName = new Column<string>("CategoryName");
         }
 
@@ -78,6 +79,16 @@
         {
             public static readonly ForeignKey<int> InvoiceId = new ForeignKey<int>("InvoiceId", Invoice.Id);
             public static readonly ForeignKey<int> AnnotationValueId = new ForeignKey<int>("AnnotationValueId", AnnotationValue.Id);
+        }
+        
+        // Another entity that could exist with FKs into above tables, and yet it's not an 
+        // associative table because it has its own PK
+        [DbTable("VendorRevision")]
+        public static class VendorRevision
+        {
+            public static readonly PrimaryKey<int> Id = new PrimaryKey<int>("Id");
+            public static readonly ForeignKey<int> VendorId = new ForeignKey<int>("VendorId", Vendor.Id);
+            public static readonly ForeignKey<int> DepartmentId = new ForeignKey<int>("DepartmentId", Department.Id);
         }
     }
 }

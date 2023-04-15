@@ -188,13 +188,14 @@ namespace FlowerBI
                 }
             }
 
-            // Now look for any conjoint table that has at least two FKs to one of our surviving tables
-            // so it is part of a many-to-many system and needs to be included
+            // Now add back any pure associative tables:
+            // - no primary key (not an entity in its own right)
+            // - at least two FKs to our surviving tables (links them together)
             for (var repeat = true; repeat;)
             {
                 repeat = false;
 
-                foreach (var candidateForAddition in Tables.Where(x => x.Value.Conjoint).Except(reachable))
+                foreach (var candidateForAddition in Tables.Where(x => x.Value.Id == null).Except(reachable))
                 {
                     var expandedTables = new TableSubset(reachable.Append(candidateForAddition), referrers, JoinLabels);
                     if (expandedTables.GetLabelledArrows(candidateForAddition).Count(x => !x.Reverse && reachable.Contains(x.Table)) >= 2)
