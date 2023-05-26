@@ -1075,15 +1075,20 @@ namespace FlowerBI.Engine.Tests
                 {
                     new() { Aggregation = 1 },
                     new()
-                    {
+                    {                        
+                        First = new() 
+                        {                             
+                            First = new() { Aggregation = 0 }, 
+                            Operator = "??", 
+                            Second = new() { Value = 42 } 
+                        },
                         Operator = "+",
-                        First = new() { Aggregation = 0 },
                         Second = new() { Value = 3 },
                     },
                     new()
-                    {
-                        Operator = "/",
+                    {                        
                         First = new() { Aggregation = 0 },
+                        Operator = "/",
                         Second = new() { Aggregation = 1 },
                     }                    
                 },
@@ -1119,14 +1124,13 @@ namespace FlowerBI.Engine.Tests
                         from |Testing|!|Supplier| tbl00 
                         join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
                         group by |tbl00|!|VendorName| 
-                    ) 
+                    )                     
                     select a0.Select0, 
                         a0.Value0 Value0 , 
                         a1.Value0 Value1 , 
                         a1.Value0 Value2 , 
-                        ([if]a0.Value0 is null[then]0[else]a0.Value0[endif] + [if]3 is null[then]0[else]3[endif]) Value3 ,
-                        [if][if]a1.Value0 is null[then]0[else]a1.Value0[endif] = 0[then]0[else][if]a0.Value0 is null[then]0[else]a0.Value0[endif] 
-                            / [float([if]a1.Value0 is null[then]0[else]a1.Value0[endif])][endif] Value4 
+                        ([if]a0.Value0 is null[then]42[else]a0.Value0[endif] + 3) Value3 , 
+                        [if]a1.Value0 = 0[then]0[else]a0.Value0 / [float(a1.Value0)][endif] Value4 
                     from Aggregation0 a0 
                     left join Aggregation1 a1 on a1.Select0 = a0.Select0 
                     order by {orderingExpected} asc 

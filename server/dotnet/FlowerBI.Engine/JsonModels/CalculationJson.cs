@@ -17,7 +17,7 @@ public class CalculationJson
     public string Operator { get; set; }
 
     private static readonly ISet<string> _allowedOperators 
-        = new[] { "+", "-", "*", "/" }.ToHashSet();
+        = new[] { "+", "-", "*", "/", "??" }.ToHashSet();
 
     public string ToSql(ISqlFormatter sql)
     {
@@ -42,17 +42,13 @@ public class CalculationJson
                 throw new InvalidOperationException($"Operator '{Operator}' not supported");
             }
 
-            string ValueOrZero(CalculationJson Node)
-            {
-                var expr = Node.ToSql(sql);
-                return sql.Conditional($"{expr} is null", "0", expr);
-            }
-
-            var firstExpr = ValueOrZero(First);
-            var secondExpr = ValueOrZero(Second);
+            var firstExpr = First.ToSql(sql);
+            var secondExpr = Second.ToSql(sql);
 
             return Operator == "/"
                 ? sql.Conditional($"{secondExpr} = 0", "0", $"{firstExpr} / {sql.CastToFloat(secondExpr)}")
+                : Operator == "??"
+                ? sql.Conditional($"{firstExpr} is null", secondExpr, firstExpr)
                 : $"({firstExpr} {Operator} {secondExpr})";
         }
 
