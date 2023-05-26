@@ -127,7 +127,7 @@ export function getColumnsOnly(select: QuerySelect) {
         .map((x) => x as QueryColumn<any>);
 }
 
-export type Calculation<S extends QuerySelect> = number | AggregatePropsOnly<S> | [Calculation<S>, "+" | "-" | "*" | "/", Calculation<S>];
+export type Calculation<S extends QuerySelect> = number | AggregatePropsOnly<S> | [Calculation<S>, "+" | "-" | "*" | "/" | "??", Calculation<S>];
 
 /**
  * The `select` object of a query has named properties of type {@link SelectMember}.
