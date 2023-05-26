@@ -64,7 +64,7 @@ export type CalculationJson =
     | { aggregation: number }
     | {
           first: CalculationJson;
-          operator: "+" | "-" | "*" | "/";
+          operator: "+" | "-" | "*" | "/" | "??";
           second: CalculationJson;
       };
 
