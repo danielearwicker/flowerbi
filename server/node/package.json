@@ -1,0 +1,19 @@
+{
+    "name": "node",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "tsc",
+        "execute": "tsc && node built/parse.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/node": "^18.16.3",
+        "typescript": "^5.0.4",
+        "yaml": "^2.2.2"
+    }
+}
