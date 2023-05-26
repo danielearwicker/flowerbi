@@ -166,12 +166,14 @@ namespace FlowerBI.Engine.Tests
                     group by [tbl00].[VendorName]
                 )
                 select
-                    a0.Select0,
-                    a0.Value0 Value0 ,
-                    a1.Value0 Value1 ,
-                    a1.Value0 Value2 ,
-                    (a0.Value0 + 3) Value3 , 
-                    iif(a1.Value0 = 0, 0, a0.Value0 / cast(a1.Value0 as float)) Value4
+                    a0.Select0, 
+                    a0.Value0 Value0 , 
+                    a1.Value0 Value1 , 
+                    a1.Value0 Value2 , 
+                    (iif(a0.Value0 is null, 0, a0.Value0) + iif(3 is null, 0, 3)) Value3 , 
+                    iif(iif(a1.Value0 is null, 0, a1.Value0) = 0, 0, 
+                        iif(a0.Value0 is null, 0, a0.Value0) / 
+                        cast(iif(a1.Value0 is null, 0, a1.Value0) as float)) Value4 
                 from Aggregation0 a0
                 left join Aggregation1 a1 on
                     a1.Select0 = a0.Select0

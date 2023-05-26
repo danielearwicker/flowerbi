@@ -27,6 +27,8 @@ namespace FlowerBI
 
         public bool AllowDuplicates { get; }
 
+        public bool FullJoins { get; }
+
         public Query(QueryJson json, Schema schema)
         {
             Select = schema.Load(json.Select);
@@ -42,6 +44,7 @@ namespace FlowerBI
             Take = json.Take ?? 100;
             Comment = json.Comment;
             AllowDuplicates = json.AllowDuplicates ?? false;
+            FullJoins = json.FullJoins ?? false;
         }
 
         private static readonly HandlebarsTemplate<object, string> _aggregatedTemplate = Handlebars.Compile(@"
@@ -71,7 +74,7 @@ from Aggregation0 a0
 {{#each Aggregations}}
     {{#unless @first}}
         {{#if ../Select}}
-            left join Aggregation{{@index}} a{{@index}} on
+            {{../joinType}} join Aggregation{{@index}} a{{@index}} on
             {{#each ../Select}}
                 a{{@../index}}.Select{{@index}} = a0.Select{{@index}}
                 {{#unless @last}}and{{/unless}}
@@ -114,7 +117,8 @@ from Aggregation0 a0
                 Calculations = Aggregations.Select((_, i) => $"a{i}.Value0")
                     .Concat(Calculations.Select(x => x.ToSql(sql))),
                 Select = select,
-                orderBy = totals ? null : ordering
+                orderBy = totals ? null : ordering,
+                joinType = FullJoins ? "full" : "left" 
             });
         }
 

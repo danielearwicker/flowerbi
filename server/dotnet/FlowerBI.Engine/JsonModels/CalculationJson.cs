@@ -42,9 +42,18 @@ public class CalculationJson
                 throw new InvalidOperationException($"Operator '{Operator}' not supported");
             }
 
+            string ValueOrZero(CalculationJson Node)
+            {
+                var expr = Node.ToSql(sql);
+                return sql.Conditional($"{expr} is null", "0", expr);
+            }
+
+            var firstExpr = ValueOrZero(First);
+            var secondExpr = ValueOrZero(Second);
+
             return Operator == "/"
-                ? sql.Conditional($"{Second.ToSql(sql)} = 0", "0", $"{First.ToSql(sql)} / {sql.CastToFloat(Second.ToSql(sql))}")
-                : $"({First.ToSql(sql)} {Operator} {Second.ToSql(sql)})";
+                ? sql.Conditional($"{secondExpr} = 0", "0", $"{firstExpr} / {sql.CastToFloat(secondExpr)}")
+                : $"({firstExpr} {Operator} {secondExpr})";
         }
 
         throw new InvalidOperationException("Calculation does not specify enough properties");
