@@ -332,6 +332,56 @@ namespace FlowerBI.Engine.Tests
         }
 
         [Fact]
+        public void DoubleAggregationFullJoin()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    },
+
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Id",
+                        Function = AggregationType.Count
+                    }
+                },
+                Skip = 5,
+                Take = 10,
+                FullJoins = true,
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                with Aggregation0 as (
+                    select |tbl00|!|VendorName| Select0, Sum(|tbl01|!|FancyAmount|) Value0
+                    from |Testing|!|Supplier| tbl00
+                    join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id|
+                    group by |tbl00|!|VendorName|
+                ) ,
+                Aggregation1 as (
+                    select |tbl00|!|VendorName| Select0, Count(|tbl01|!|Id|) Value0
+                    from |Testing|!|Supplier| tbl00
+                    join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id|
+                    group by |tbl00|!|VendorName|
+                )
+                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                from Aggregation0 a0
+                full join Aggregation1 a1 on a1.Select0 = a0.Select0
+                order by a0.Value0 desc
+                skip:5 take:10
+            ");
+
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
         public void DoubleAggregationTotals()
         {
             var queryJson = new QueryJson
@@ -1025,15 +1075,20 @@ namespace FlowerBI.Engine.Tests
                 {
                     new() { Aggregation = 1 },
                     new()
-                    {
+                    {                        
+                        First = new() 
+                        {                             
+                            First = new() { Aggregation = 0 }, 
+                            Operator = "??", 
+                            Second = new() { Value = 42 } 
+                        },
                         Operator = "+",
-                        First = new() { Aggregation = 0 },
                         Second = new() { Value = 3 },
                     },
                     new()
-                    {
-                        Operator = "/",
+                    {                        
                         First = new() { Aggregation = 0 },
+                        Operator = "/",
                         Second = new() { Aggregation = 1 },
                     }                    
                 },
@@ -1069,13 +1124,13 @@ namespace FlowerBI.Engine.Tests
                         from |Testing|!|Supplier| tbl00 
                         join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
                         group by |tbl00|!|VendorName| 
-                    ) 
+                    )                     
                     select a0.Select0, 
-                            a0.Value0 Value0 , 
-                            a1.Value0 Value1 , 
-                            a1.Value0 Value2 , 
-                            (a0.Value0 + 3) Value3 , 
-                            [if]a1.Value0 = 0[then]0[else]a0.Value0 / [float(a1.Value0)][endif] Value4
+                        a0.Value0 Value0 , 
+                        a1.Value0 Value1 , 
+                        a1.Value0 Value2 , 
+                        ([if]a0.Value0 is null[then]42[else]a0.Value0[endif] + 3) Value3 , 
+                        [if]a1.Value0 = 0[then]0[else]a0.Value0 / [float(a1.Value0)][endif] Value4 
                     from Aggregation0 a0 
                     left join Aggregation1 a1 on a1.Select0 = a0.Select0 
                     order by {orderingExpected} asc 
