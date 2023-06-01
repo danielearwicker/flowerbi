@@ -371,13 +371,46 @@ namespace FlowerBI.Engine.Tests
                     join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id|
                     group by |tbl00|!|VendorName|
                 )
-                select a0.Select0, a0.Value0 Value0 , a1.Value0 Value1
+                select coalesce( a0.Select0 , a1.Select0 ) Select0, 
+                    a0.Value0 Value0 , a1.Value0 Value1 
                 from Aggregation0 a0
                 full join Aggregation1 a1 on a1.Select0 = a0.Select0
                 order by a0.Value0 desc
                 skip:5 take:10
             ");
 
+            filterParams.Names.Should().HaveCount(0);
+        }
+
+        [Fact]
+        public void SingleAggregationFullJoin()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    }
+                },
+                FullJoins = true,
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl00|!|VendorName| Select0, Sum(|tbl01|!|FancyAmount|) Value0
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id|
+                group by |tbl00|!|VendorName|
+                order by Sum(|tbl01|!|FancyAmount|) desc
+                skip:5 take:10
+            ");
             filterParams.Names.Should().HaveCount(0);
         }
 

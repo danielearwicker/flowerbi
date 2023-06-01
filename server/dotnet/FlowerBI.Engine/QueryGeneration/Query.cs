@@ -60,9 +60,22 @@ with {{#each Aggregations}}
 
 select
 
-{{#each Select}}
-    a0.Select{{@index}},
-{{/each}}
+{{#if fullJoins}}
+    {{#each Select}}
+        coalesce(
+            {{#each ../Aggregations}}
+                a{{@index}}.Select{{@../index}}
+                {{#unless @last}},{{/unless}}
+            {{/each}}
+        ) Select{{@index}},
+    {{/each}}
+{{/if}}
+
+{{#unless fullJoins}}
+    {{#each Select}}
+        a0.Select{{@index}},
+    {{/each}}
+{{/unless}}
 
 {{#each Calculations}}
     {{{this}}} Value{{@index}}
@@ -118,7 +131,8 @@ from Aggregation0 a0
                     .Concat(Calculations.Select(x => x.ToSql(sql))),
                 Select = select,
                 orderBy = totals ? null : ordering,
-                joinType = FullJoins ? "full" : "left" 
+                joinType = FullJoins ? "full" : "left",
+                fullJoins = FullJoins ? "full" : null,
             });
         }
 
