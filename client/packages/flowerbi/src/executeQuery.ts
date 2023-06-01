@@ -128,7 +128,7 @@ function jsonifyOrdering<S extends QuerySelect, C extends QueryCalculations<S>>(
  * @param query
  */
 export function jsonifyQuery<S extends QuerySelect, C extends QueryCalculations<S>>(query: Query<S, C>): QueryJson {
-    const { select, filters, calculations, orderBy, totals, take, skip, comment, allowDuplicates } = query;
+    const { select, filters, calculations, orderBy, totals, take, skip, comment, allowDuplicates, fullJoins } = query;
 
     const columnProps = getColumnPropsOnly(select);
     const aggregationProps = getAggregatePropsOnly(select);
@@ -145,6 +145,7 @@ export function jsonifyQuery<S extends QuerySelect, C extends QueryCalculations<
         take: take ?? 100,
         comment,
         allowDuplicates,
+        fullJoins,
     };
 }
 
