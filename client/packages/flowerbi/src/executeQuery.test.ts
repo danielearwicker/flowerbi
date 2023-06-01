@@ -38,6 +38,7 @@ test("jsonifies mixed columns", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 
@@ -59,6 +60,7 @@ test("jsonifies select", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 
@@ -83,6 +85,7 @@ test("jsonifies params", () => {
         totals: true,
         allowDuplicates: true,
         comment: "a comment",
+        fullJoins: undefined,
     });
 });
 
@@ -123,6 +126,7 @@ test("jsonifies filters", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 
@@ -148,6 +152,7 @@ test("jsonifies orderBy", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 
@@ -226,6 +231,7 @@ test("jsonifies calculations and ordering by keys", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 
@@ -251,6 +257,7 @@ test("passes through JSON orderBy", () => {
         totals: false,
         allowDuplicates: undefined,
         comment: undefined,
+        fullJoins: undefined,
     });
 });
 

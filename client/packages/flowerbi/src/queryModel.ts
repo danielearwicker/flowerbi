@@ -198,4 +198,11 @@ export interface Query<S extends QuerySelect, C extends QueryCalculations<S>> {
      * are known to be impossible.
      */
     allowDuplicates?: boolean;
+    /**
+     * If false, the number of rows returned will be limited by the first
+     * aggregation. This is probably not desirable and it would be better if
+     * this option defaulted to true, but it defaults to false for absolute
+     * backward compatibility.
+     */
+    fullJoins?: boolean;
 }
