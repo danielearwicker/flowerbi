@@ -55,7 +55,23 @@ namespace FlowerBI
         }
 
         // Don't want to depend on a specific version, so...
-        private static object UnpackNewtonsoft(dynamic val) => val.Value;
+        private static object UnpackNewtonsoft(object val)
+        {
+            if (val == null)
+            {
+                return null;
+            }
+
+            var type = val.GetType();
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type == typeof(decimal))
+            {
+                return val;
+            }
+
+            // Assume it's a Newtonsoft value wrapper (don't want to depend on a specific version)
+            var d = (dynamic)val;
+            return d.Value;
+        }
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>
         {
