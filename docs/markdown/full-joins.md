@@ -2,7 +2,7 @@
 
 > This topic only applies to queries featuring multiple aggregations, and was finished in 3.10.2.
 
-Such queries produce a separate CTE for each aggregation, because they can each have different filters. So of the availiable records, each aggregation may produce a different subset, and the subsets may overlap (or not overlap at all).
+Multi-aggregation queries produce a separate CTE for each aggregation, because they can each have different filters. So of the availiable records, each aggregation may produce a different subset, and the subsets may overlap (or not overlap at all).
 
 Then the CTE results are joined together by matching on all their non-aggregated columns. By default, this uses `left join`, which is unfortunate because it is not commutative, so the order of the aggregations is significant. Suppose a query selects four columns, comprising two non-aggregated and two aggregated coumns. The non-aggregated columns are categories: _Colour_ and _Flavour_. This is achieved by writing two separate queries, one for each aggregation, producing intermediate results like this:
 
