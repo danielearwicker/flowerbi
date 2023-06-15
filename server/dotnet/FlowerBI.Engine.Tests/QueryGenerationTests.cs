@@ -1215,6 +1215,47 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
+        [Fact]
+        public void BitFilters()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Filters = new List<FilterJson>
+                {
+                    new FilterJson
+                    {
+                        Column = "Invoice.VendorId",
+                        Operator = "BITS ON",
+                        Value = 1 & 2
+                    },
+                    new FilterJson
+                    {
+                        Column = "Invoice.VendorId",
+                        Operator = "BITS OFF",
+                        Value = 4 & 8
+                    }
+                },
+                Skip = 5,
+                Take = 10
+            };
+
+            var query = new Query(queryJson, Schema);
+
+            var filterParams = new DictionaryFilterParameters();
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @"
+                select |tbl00|!|VendorName| Select0 
+                from |Testing|!|Supplier| tbl00 
+                join |Testing|!|Invoice| tbl01 
+                    on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                where (|tbl01|!|VendorId| & @filter0) = @filter0 
+                    and (|tbl01|!|VendorId| & @filter1) = 0 
+                group by |tbl00|!|VendorName| 
+                skip:5 take:10
+            ");
+            filterParams.Names.Should().HaveCount(2);
+        }
+
         private static (string KeyWord, int Indent)[] newLineKeywords = 
         { 
             ("select", 0), 

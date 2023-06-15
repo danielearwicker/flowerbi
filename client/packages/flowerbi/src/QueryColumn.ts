@@ -50,7 +50,7 @@ export class QueryColumn<T extends FilterValue> {
         return this.aggregation("Max", filters);
     }
 
-    private filter(operator: FilterOperator, value: T): FilterJson {
+    protected filter(operator: FilterOperator, value: T): FilterJson {
         return {
             column: this.name,
             operator,
@@ -128,6 +128,18 @@ export class QueryColumn<T extends FilterValue> {
             value,
         };
     }
+
+    /**
+     * Produces a filter that requires this column's value to not appear in the list.
+     * Only supported for number or string columns.
+     */
+    notIn(value: T extends number | string ? T[] : never): FilterJson {
+        return {
+            column: this.name,
+            operator: "IN",
+            value,
+        };
+    }
 }
 
 export class NumericQueryColumn<T extends number | null = number> extends QueryColumn<T> {
@@ -152,5 +164,22 @@ export class NumericQueryColumn<T extends number | null = number> extends QueryC
      */
     avg(filters?: FilterJson[]) {
         return this.aggregation("Avg", filters);
+    }
+}
+
+export class IntegerQueryColumn<T extends number | null = number> extends NumericQueryColumn<T> {
+    /**
+     * @param name The name, of the form `table.column`.
+     */
+    constructor(public readonly name: string) {
+        super(name);
+    }
+
+    bitsOn(value: NonNullable<T>) {
+        return this.filter("BITS ON", value);
+    }
+
+    bitsOff(value: NonNullable<T>) {
+        return this.filter("BITS OFF", value);
     }
 }

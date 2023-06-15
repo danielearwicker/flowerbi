@@ -1,7 +1,7 @@
 /**
  * The allowed filter comparison operators.
  */
-export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN";
+export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN" | "NOT IN" | "BITS ON" | "BITS OFF";
 
 /**
  * The allowed value types for a filter.
