@@ -58,7 +58,7 @@ select
 {{#if filters}}
 where
     {{#each filters}}
-        {{Column}} {{{Operator}}} {{Param}}
+        {{{FilterSql}}}
         {{#unless @last}} and {{/unless}}
     {{/each}}
 {{/if}}
@@ -85,6 +85,18 @@ where
             var funcStr = func == AggregationType.CountDistinct ? "count" : func.ToString();
             var exprStr = func == AggregationType.CountDistinct ? $"distinct {expr}" : expr;
             return $"{funcStr}({exprStr})";
+        }
+
+        private static string FormatFilter(string column, string op, string param)
+        {
+            if (op == "BITS ON" || op == "BITS OFF")
+            {
+                var equals = op == "BITS ON" ? param : "0";
+                return $"({column} & {param}) = {equals}";
+            }
+
+            // "BITS_ON", "BITS_OFF"
+            return $"{column} {op} {param}";
         }
 
         public string ToSql(
@@ -118,9 +130,7 @@ where
 
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
-                Column = joins.Aliased(f.Column, sql),
-                f.Operator,
-                Param = filterParams[f]
+                FilterSql = FormatFilter(joins.Aliased(f.Column, sql), f.Operator, filterParams[f]),
             })
             .ToList();
 
