@@ -29,6 +29,8 @@ namespace FlowerBI
 
         public bool FullJoins { get; }
 
+        public int CommandTimeoutSeconds { get; } = 30;
+
         public Query(QueryJson json, Schema schema)
         {
             Select = schema.Load(json.Select);
@@ -181,7 +183,7 @@ from Aggregation0 a0
 
             log?.Invoke($"{querySql} with parameters: {filterParams}");
 
-            var reader = db.QueryMultiple(querySql, filterParams.DapperParams);
+            var reader = db.QueryMultiple(querySql, filterParams.DapperParams, commandTimeout: CommandTimeoutSeconds);
 
             var result = new QueryResultJson();
 
