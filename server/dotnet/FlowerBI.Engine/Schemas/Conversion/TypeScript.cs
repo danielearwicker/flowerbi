@@ -87,6 +87,8 @@ public static class TypeScript
 
         outputWriter.Write(writer.ToString());
 
+        outputWriter.Flush();
+
         console.WriteLine("Done.");
     }
 }
