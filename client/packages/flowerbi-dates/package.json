@@ -1,6 +1,6 @@
 {
     "name": "flowerbi-dates",
-    "version": "3.11.1",
+    "version": "3.11.2",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "FlowerBI: ultra-minimal BI analytics query and UI tools",
