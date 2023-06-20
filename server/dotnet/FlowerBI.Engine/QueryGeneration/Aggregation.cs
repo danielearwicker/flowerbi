@@ -92,8 +92,9 @@ where
             if (op == "BITS IN")
             {
                 // constant must be provided and is treated as an integer bit mask
-                var mask = constant is int n ? n : 
-                           constant is double d ? (int)d : 
+                var mask = constant is int i ? i :
+                           constant is long l ? l :
+                           constant is double d ? (int)d :
                            throw new InvalidOperationException("BITS IN filter requires integer constant");
 
                 return $"({column} & {mask}) in {param}";

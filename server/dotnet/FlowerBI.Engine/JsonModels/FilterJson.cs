@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace FlowerBI.Engine.JsonModels
+﻿namespace FlowerBI.Engine.JsonModels
 {
     public class FilterJson
     {
