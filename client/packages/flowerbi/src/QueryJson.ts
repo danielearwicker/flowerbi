@@ -1,7 +1,7 @@
 /**
  * The allowed filter comparison operators.
  */
-export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN" | "NOT IN" | "BITS ON" | "BITS OFF";
+export type FilterOperator = "=" | "<>" | ">" | "<" | ">=" | "<=" | "IN" | "NOT IN" | "BITS IN";
 
 /**
  * The allowed value types for a filter.
@@ -16,6 +16,7 @@ export interface FilterJson {
     column: string;
     operator: FilterOperator;
     value: FilterValue;
+    constant?: unknown;
 }
 
 /**

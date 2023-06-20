@@ -9,5 +9,7 @@ namespace FlowerBI.Engine.JsonModels
         public string Operator { get; set; }
 
         public object Value { get; set; }
+
+        public object Constant { get; set; }
     }
 }

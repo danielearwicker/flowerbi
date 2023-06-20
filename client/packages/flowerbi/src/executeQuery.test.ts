@@ -1,9 +1,9 @@
 import { expandQueryResult, jsonifyQuery, QueryResultJson } from "./executeQuery";
-import { QueryColumn } from "./QueryColumn";
+import { IntegerQueryColumn, QueryColumn } from "./QueryColumn";
 import { Query, QueryCalculations, QuerySelect } from "./queryModel";
 
 export const Customer = {
-    Id: new QueryColumn<number>("Customer.Id"),
+    Id: new IntegerQueryColumn<number>("Customer.Id"),
     CustomerName: new QueryColumn<string>("Customer.CustomerName"),
 };
 
@@ -95,7 +95,7 @@ test("jsonifies filters", () => {
             select: {
                 bugCount: Bug.Id.count([Customer.CustomerName.lessThan("z")]),
             },
-            filters: [Customer.CustomerName.greaterThan("a")],
+            filters: [Customer.CustomerName.greaterThan("a"), Customer.Id.bitsIn(4 | 8, [0, 4])],
         })
     ).toStrictEqual({
         select: [],
@@ -118,6 +118,12 @@ test("jsonifies filters", () => {
                 column: "Customer.CustomerName",
                 operator: ">",
                 value: "a",
+            },
+            {
+                column: "Customer.Id",
+                operator: "BITS IN",
+                constant: 12,
+                value: [0, 4],
             },
         ],
         orderBy: [],
