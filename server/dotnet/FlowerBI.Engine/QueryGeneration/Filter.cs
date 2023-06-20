@@ -14,22 +14,25 @@ namespace FlowerBI
 
         public object Value { get; }
 
+        public object Constant { get; }
+
         public static IList<Filter> Load(IEnumerable<FilterJson> filters, Schema schema)
             => filters?.Select(x => new Filter(x, schema)).ToList()
                 ?? new List<Filter>();
 
-        public Filter(LabelledColumn column, string op, object val)
+        public Filter(LabelledColumn column, string op, object val, object constant)
         {
             Column = column;
             Operator = CheckOperator(op);
             Value = val;
+            Constant = constant;
         }
 
-        public Filter(IColumn column, string op, object val)
-            : this(new LabelledColumn(null, column), op, val) {}
-        
+        public Filter(IColumn column, string op, object val, object constant)
+            : this(new LabelledColumn(null, column), op, val, constant) {}
+
         public Filter(FilterJson json, Schema schema)
-            : this(schema.GetColumn(json.Column), json.Operator, UnpackValue(json.Value)) { }
+            : this(schema.GetColumn(json.Column), json.Operator, UnpackValue(json.Value), UnpackValue(json.Constant)) { }
 
         private static object UnpackValue(object json)
         {
@@ -75,7 +78,7 @@ namespace FlowerBI
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>
         {
-            "=", "<>", "!=", ">", "<", ">=", "<=", "IN", "NOT IN", "BITS ON", "BITS OFF"
+            "=", "<>", "!=", ">", "<", ">=", "<=", "IN", "NOT IN", "BITS IN"
         };
 
         private static string CheckOperator(string op)

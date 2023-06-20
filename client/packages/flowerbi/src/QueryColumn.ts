@@ -175,11 +175,12 @@ export class IntegerQueryColumn<T extends number | null = number> extends Numeri
         super(name);
     }
 
-    bitsOn(value: NonNullable<T>) {
-        return this.filter("BITS ON", value);
-    }
-
-    bitsOff(value: NonNullable<T>) {
-        return this.filter("BITS OFF", value);
+    bitsIn(mask: number, value: NonNullable<T>[]): FilterJson {
+        return {
+            column: this.name,
+            operator: "BITS IN",
+            constant: mask,
+            value,
+        };
     }
 }

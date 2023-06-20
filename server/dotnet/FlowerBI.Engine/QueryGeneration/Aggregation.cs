@@ -87,15 +87,19 @@ where
             return $"{funcStr}({exprStr})";
         }
 
-        private static string FormatFilter(string column, string op, string param)
+        private static string FormatFilter(string column, string op, string param, object constant)
         {
-            if (op == "BITS ON" || op == "BITS OFF")
+            if (op == "BITS IN")
             {
-                var equals = op == "BITS ON" ? param : "0";
-                return $"({column} & {param}) = {equals}";
+                // constant must be provided and is treated as an integer bit mask
+                var mask = constant is int i ? i :
+                           constant is long l ? l :
+                           constant is double d ? (int)d :
+                           throw new InvalidOperationException("BITS IN filter requires integer constant");
+
+                return $"({column} & {mask}) in {param}";
             }
 
-            // "BITS_ON", "BITS_OFF"
             return $"{column} {op} {param}";
         }
 
@@ -130,7 +134,7 @@ where
 
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
-                FilterSql = FormatFilter(joins.Aliased(f.Column, sql), f.Operator, filterParams[f]),
+                FilterSql = FormatFilter(joins.Aliased(f.Column, sql), f.Operator, filterParams[f], f.Constant),
             })
             .ToList();
 

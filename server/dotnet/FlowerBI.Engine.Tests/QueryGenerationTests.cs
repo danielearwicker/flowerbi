@@ -1226,14 +1226,16 @@ namespace FlowerBI.Engine.Tests
                     new FilterJson
                     {
                         Column = "Invoice.VendorId",
-                        Operator = "BITS ON",
-                        Value = 1 & 2
+                        Operator = "BITS IN",
+                        Constant = 1 | 2,
+                        Value = new[] { 0, 2 }
                     },
                     new FilterJson
                     {
                         Column = "Invoice.VendorId",
-                        Operator = "BITS OFF",
-                        Value = 4 & 8
+                        Operator = "BITS IN",
+                        Constant = 4 | 8,
+                        Value = new[] { 0, 4 }
                     }
                 },
                 Skip = 5,
@@ -1248,8 +1250,8 @@ namespace FlowerBI.Engine.Tests
                 from |Testing|!|Supplier| tbl00 
                 join |Testing|!|Invoice| tbl01 
                     on |tbl01|!|VendorId| = |tbl00|!|Id| 
-                where (|tbl01|!|VendorId| & @filter0) = @filter0 
-                    and (|tbl01|!|VendorId| & @filter1) = 0 
+                where (|tbl01|!|VendorId| & 3) in @filter0 
+                    and (|tbl01|!|VendorId| & 12) in @filter1 
                 group by |tbl00|!|VendorName| 
                 skip:5 take:10
             ");
