@@ -60,46 +60,73 @@ with {{#each Aggregations}}
 
 {{/each}}
 
-select
-
 {{#if fullJoins}}
-    {{#each Select}}
-        coalesce(
-            {{#each ../Aggregations}}
-                a{{@index}}.Select{{@../index}}
-                {{#unless @last}},{{/unless}}
-            {{/each}}
-        ) Select{{@index}},
+    
+    , UnionedValues as (
+
+    {{#each unionedValues}}
+        select 
+        {{#each this}}
+            {{#unless @first}}, {{/unless}}
+            {{this}}
+        {{/each}}
+        {{#unless @last}}union all{{/unless}}
     {{/each}}
+    ),
+    CombinedValues as (
+        select
+        {{#each Select}}
+            Select{{@index}},
+        {{/each}}
+        {{#each Aggregations}}
+            {{#unless @first}}, {{/unless}}
+            max(Value{{@index}}) as Value{{@index}}
+        {{/each}}
+        from UnionedValues
+        group by 
+        {{#each Select}}
+            {{#unless @first}}, {{/unless}}Select{{@index}}
+        {{/each}}
+    )
+    select 
+    {{#each Select}}
+        Select{{@index}},
+    {{/each}}
+    {{#each Calculations}}
+        {{{this}}} as Value{{@index}}
+        {{#unless @last}},{{/unless}}
+    {{/each}}
+    from CombinedValues
 {{/if}}
 
 {{#unless fullJoins}}
+select 
     {{#each Select}}
         a0.Select{{@index}},
     {{/each}}
-{{/unless}}
 
-{{#each Calculations}}
-    {{{this}}} Value{{@index}}
-    {{#unless @last}},{{/unless}}
-{{/each}}
+    {{#each Calculations}}
+        {{{this}}} Value{{@index}}
+        {{#unless @last}},{{/unless}}
+    {{/each}}
 
-from Aggregation0 a0
+    from Aggregation0 a0
 
-{{#each Aggregations}}
-    {{#unless @first}}
-        {{#if ../Select}}
-            {{../joinType}} join Aggregation{{@index}} a{{@index}} on
-            {{#each ../Select}}
-                a{{@../index}}.Select{{@index}} = a0.Select{{@index}}
-                {{#unless @last}}and{{/unless}}
-            {{/each}}
-        {{/if}}
-        {{#unless ../Select}}
-            cross join Aggregation{{@index}} a{{@index}}
+    {{#each Aggregations}}
+        {{#unless @first}}
+            {{#if ../Select}}
+                left join Aggregation{{@index}} a{{@index}} on
+                {{#each ../Select}}
+                    a{{@../index}}.Select{{@index}} = a0.Select{{@index}}
+                    {{#unless @last}}and{{/unless}}
+                {{/each}}
+            {{/if}}
+            {{#unless ../Select}}
+                cross join Aggregation{{@index}} a{{@index}}
+            {{/unless}}
         {{/unless}}
-    {{/unless}}
-{{/each}}
+    {{/each}}
+{{/unless}}
 
 {{#if orderBy}}
     order by {{orderBy}}
@@ -117,7 +144,11 @@ from Aggregation0 a0
                 return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates, totals);
             }
 
-            var ordering = "a0.Value0 desc";
+            var fullJoins = FullJoins && select != null && select.Count > 0 && Aggregations.Count > 1 ? "full" : null;
+
+            string FetchAggValue(int i) => fullJoins == null ? $"a{i}.Value0" : $"Value{i}";
+
+            var ordering = $"{FetchAggValue(0)} desc";
 
             if (select != null && OrderBy.Count != 0)
             {
@@ -128,13 +159,16 @@ from Aggregation0 a0
             {
                 skipAndTake = totals ? null : sql.SkipAndTake(skip, take),
                 Aggregations = Aggregations.Select(x =>
-                    x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)),
-                Calculations = Aggregations.Select((_, i) => $"a{i}.Value0")
-                    .Concat(Calculations.Select(x => x.ToSql(sql))),
+                    x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)).ToList(),
+                Calculations = Aggregations.Select((_, i) => FetchAggValue(i))
+                    .Concat(Calculations.Select(x => x.ToSql(sql, FetchAggValue))),
                 Select = select,
                 orderBy = totals ? null : ordering,
-                joinType = FullJoins ? "full" : "left",
-                fullJoins = FullJoins ? "full" : null,
+                fullJoins,
+                unionedValues = Aggregations.Select((_, aRow) => 
+                    select.Select((_, s) => $"Select{s}")
+                          .Concat(Aggregations.Select((_, aCol) => (Source: aRow == aCol ? "Value0" : "null", Target: $"Value{aCol}"))
+                                              .Select(x => $"{x.Source} as {x.Target}")))
             });
         }
 

@@ -68,9 +68,11 @@ namespace FlowerBI.Engine.Tests
         }
 
         [Theory]
-        [InlineData(false)]
-        [InlineData(true)]
-        public void MinimalSelectOneColumn(bool allowDuplicates)
+        [InlineData(false, false)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(true, true)]
+        public void MinimalSelectOneColumn(bool allowDuplicates, bool fullJoins)
         {
             var queryJson = new QueryJson
             {
@@ -83,7 +85,8 @@ namespace FlowerBI.Engine.Tests
                 },
                 Skip = 5,
                 Take = 10,
-                AllowDuplicates = allowDuplicates
+                AllowDuplicates = allowDuplicates,
+                FullJoins = fullJoins,
             };
 
             var query = new Query(queryJson, Schema);
@@ -176,8 +179,10 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
-        [Fact]
-        public void SingleAggregationOrderBySelect()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SingleAggregationOrderBySelect(bool fullJoins)
         {
             var queryJson = new QueryJson
             {
@@ -195,7 +200,8 @@ namespace FlowerBI.Engine.Tests
                 OrderBy = new List<OrderingJson>
                 {
                     new OrderingJson { Column = "Vendor.VendorName" }
-                }
+                },
+                FullJoins = fullJoins
             };
 
             var query = new Query(queryJson, Schema);
@@ -211,8 +217,10 @@ namespace FlowerBI.Engine.Tests
             filterParams.Names.Should().HaveCount(0);
         }
 
-        [Fact]
-        public void SingleAggregationTotals()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public void SingleAggregationTotals(bool fullJoins)
         {
             var queryJson = new QueryJson
             {
@@ -227,7 +235,8 @@ namespace FlowerBI.Engine.Tests
                 },
                 Totals = true,
                 Skip = 5,
-                Take = 10
+                Take = 10,
+                FullJoins = true,
             };
 
             var query = new Query(queryJson, Schema);
@@ -370,12 +379,19 @@ namespace FlowerBI.Engine.Tests
                     from |Testing|!|Supplier| tbl00
                     join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id|
                     group by |tbl00|!|VendorName|
-                )
-                select coalesce( a0.Select0 , a1.Select0 ) Select0, 
-                    a0.Value0 Value0 , a1.Value0 Value1 
-                from Aggregation0 a0
-                full join Aggregation1 a1 on a1.Select0 = a0.Select0
-                order by a0.Value0 desc
+                ) ,
+                UnionedValues as ( 
+                    select Select0 , Value0 as Value0 , null as Value1 union all 
+                    select Select0 , null as Value0 , Value0 as Value1 
+                ),
+                CombinedValues as ( 
+                    select Select0, max(Value0) as Value0 , max(Value1) as Value1 
+                    from UnionedValues 
+                    group by Select0 
+                ) 
+                select Select0, Value0 as Value0 , Value1 as Value1 
+                from CombinedValues 
+                order by Value0 desc 
                 skip:5 take:10
             ");
 
@@ -1172,6 +1188,203 @@ namespace FlowerBI.Engine.Tests
 
                 filterParams.Names.Should().HaveCount(0);
             }
+        }
+
+        [Theory]
+        [InlineData(OrderingType.Select, 0, "1")]
+        [InlineData(OrderingType.Select, 1, null)]
+        [InlineData(OrderingType.Value, 0, "2")]
+        [InlineData(OrderingType.Value, 1, "3")]
+        [InlineData(OrderingType.Value, 2, null)]
+        [InlineData(OrderingType.Calculation, 0, "4")]
+        [InlineData(OrderingType.Calculation, 1, "5")]
+        [InlineData(OrderingType.Calculation, 2, "6")]
+        [InlineData(OrderingType.Calculation, 3, null)]
+        public void CalculationsAndIndexedOrderByFullJoins(OrderingType orderingType, int orderingIndex, string orderingExpected)
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    },
+
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Id",
+                        Function = AggregationType.Count
+                    }
+                },
+                Calculations = new List<CalculationJson>
+                {
+                    new() { Aggregation = 1 },
+                    new()
+                    {                        
+                        First = new() 
+                        {                             
+                            First = new() { Aggregation = 0 }, 
+                            Operator = "??", 
+                            Second = new() { Value = 42 } 
+                        },
+                        Operator = "+",
+                        Second = new() { Value = 3 },
+                    },
+                    new()
+                    {                        
+                        First = new() { Aggregation = 0 },
+                        Operator = "/",
+                        Second = new() { Aggregation = 1 },
+                    }                    
+                },
+                OrderBy = new List<OrderingJson> 
+                {
+                     new OrderingJson { Type = orderingType, Index = orderingIndex } 
+                },
+                Skip = 5,
+                Take = 10,
+                FullJoins = true,
+            };
+
+            var filterParams = new DictionaryFilterParameters();
+
+            var func = new Func<Query>(() => new Query(queryJson, Schema));
+            if (orderingExpected == null)
+            {
+                func.Should().Throw<ArgumentOutOfRangeException>();
+            }
+            else
+            {
+                var query = func();
+                
+                AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"
+                    with Aggregation0 as ( 
+                        select |tbl00|!|VendorName| Select0, 
+                               Sum(|tbl01|!|FancyAmount|) Value0 
+                        from |Testing|!|Supplier| tbl00 
+                        join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                        group by |tbl00|!|VendorName| 
+                    ) , Aggregation1 as ( 
+                        select |tbl00|!|VendorName| Select0, 
+                               Count(|tbl01|!|Id|) Value0 
+                        from |Testing|!|Supplier| tbl00 
+                        join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                        group by |tbl00|!|VendorName| 
+                    ) , 
+                    UnionedValues as ( 
+                        select Select0 , Value0 as Value0 , null as Value1 union all 
+                        select Select0 , null as Value0 , Value0 as Value1 ), 
+                    CombinedValues as ( 
+                        select Select0, max(Value0) as Value0 , max(Value1) as Value1 
+                        from UnionedValues 
+                        group by Select0 
+                    ) 
+                    select Select0, Value0 as Value0 , 
+                            Value1 as Value1 , 
+                            Value1 as Value2 , 
+                            ([if]Value0 is null[then]42[else]Value0[endif] + 3) as Value3 , 
+                            [if]Value1 = 0[then]0[else]Value0 / [float(Value1)][endif] as Value4 
+                    from CombinedValues 
+                    order by {orderingExpected} asc 
+                    skip:5 take:10
+                ");
+
+                filterParams.Names.Should().HaveCount(0);
+            }
+        }
+
+        [Fact]
+        public void CalculationsFullJoinsAndMultiSelect()
+        {
+            var queryJson = new QueryJson
+            {
+                Select = new List<string> { "Vendor.VendorName", "Vendor.DepartmentId" },
+                Aggregations = new List<AggregationJson>
+                {
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Amount",
+                        Function = AggregationType.Sum
+                    },
+
+                    new AggregationJson
+                    {
+                        Column = "Invoice.Id",
+                        Function = AggregationType.Count
+                    }
+                },
+                Calculations = new List<CalculationJson>
+                {
+                    new() { Aggregation = 1 },
+                    new()
+                    {                        
+                        First = new() 
+                        {                             
+                            First = new() { Aggregation = 0 }, 
+                            Operator = "??", 
+                            Second = new() { Value = 42 } 
+                        },
+                        Operator = "+",
+                        Second = new() { Value = 3 },
+                    },
+                    new()
+                    {                        
+                        First = new() { Aggregation = 0 },
+                        Operator = "/",
+                        Second = new() { Aggregation = 1 },
+                    }                    
+                },
+                OrderBy = new List<OrderingJson> 
+                {
+                     new OrderingJson { Type = OrderingType.Select, Index = 1 } 
+                },
+                Skip = 5,
+                Take = 10,
+                FullJoins = true,
+            };
+
+            var filterParams = new DictionaryFilterParameters();
+
+            var query = new Query(queryJson, Schema);
+            
+            AssertSameSql(query.ToSql(Formatter, filterParams, Enumerable.Empty<Filter>()), @$"
+                with Aggregation0 as ( 
+                    select |tbl00|!|VendorName| Select0, 
+                            |tbl00|!|DepartmentId| Select1,
+                            Sum(|tbl01|!|FancyAmount|) Value0 
+                    from |Testing|!|Supplier| tbl00 
+                    join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                    group by |tbl00|!|VendorName| , |tbl00|!|DepartmentId|
+                ) , Aggregation1 as ( 
+                    select |tbl00|!|VendorName| Select0, 
+                            |tbl00|!|DepartmentId| Select1,
+                            Count(|tbl01|!|Id|) Value0 
+                    from |Testing|!|Supplier| tbl00 
+                    join |Testing|!|Invoice| tbl01 on |tbl01|!|VendorId| = |tbl00|!|Id| 
+                    group by |tbl00|!|VendorName| , |tbl00|!|DepartmentId|
+                ) , 
+                UnionedValues as ( 
+                    select Select0 , Select1 , Value0 as Value0 , null as Value1 union all 
+                    select Select0 , Select1 , null as Value0 , Value0 as Value1 ), 
+                CombinedValues as ( 
+                    select Select0, Select1, max(Value0) as Value0 , max(Value1) as Value1 
+                    from UnionedValues 
+                    group by Select0 , Select1
+                ) 
+                select Select0, Select1, Value0 as Value0 , 
+                        Value1 as Value1 , 
+                        Value1 as Value2 , 
+                        ([if]Value0 is null[then]42[else]Value0[endif] + 3) as Value3 , 
+                        [if]Value1 = 0[then]0[else]Value0 / [float(Value1)][endif] as Value4 
+                from CombinedValues 
+                order by 2 asc 
+                skip:5 take:10
+            ");
+
+            filterParams.Names.Should().HaveCount(0);
         }
 
         [Theory]

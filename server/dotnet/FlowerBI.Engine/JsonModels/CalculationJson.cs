@@ -19,7 +19,7 @@ public class CalculationJson
     private static readonly ISet<string> _allowedOperators 
         = new[] { "+", "-", "*", "/", "??" }.ToHashSet();
 
-    public string ToSql(ISqlFormatter sql)
+    public string ToSql(ISqlFormatter sql, Func<int, string> fetchAggValue)
     {
         if (Value != null)
         {
@@ -30,7 +30,7 @@ public class CalculationJson
         if (Aggregation != null)
         {
             RequireNulls(Value, First, Second, Operator);
-            return $"a{Aggregation}.Value0";
+            return fetchAggValue(Aggregation.Value);
         }
 
         if (First != null && Second != null && Operator != null)
@@ -42,8 +42,8 @@ public class CalculationJson
                 throw new InvalidOperationException($"Operator '{Operator}' not supported");
             }
 
-            var firstExpr = First.ToSql(sql);
-            var secondExpr = Second.ToSql(sql);
+            var firstExpr = First.ToSql(sql, fetchAggValue);
+            var secondExpr = Second.ToSql(sql, fetchAggValue);
 
             return Operator == "/"
                 ? sql.Conditional($"{secondExpr} = 0", "0", $"{firstExpr} / {sql.CastToFloat(secondExpr)}")
