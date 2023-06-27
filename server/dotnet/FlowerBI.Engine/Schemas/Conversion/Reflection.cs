@@ -35,9 +35,11 @@ public static class Reflection
 
     public static void ToYaml(string path, string schemaClass, string yamlFile, TextWriter console)
     {
-        var yaml = ToYaml(path, schemaClass, console);
-        using var yamlWriter = new StreamWriter(yamlFile);
-        Serialize(yaml, yamlWriter);
+        using var writer = new WriteIfDifferent(yamlFile, console);
+
+        var yaml = ToYaml(path, schemaClass, writer.Console);
+
+        Serialize(yaml, writer.Output);
     }
 
     public static void Serialize(YamlSchema yaml, TextWriter yamlWriter)

@@ -34,10 +34,9 @@ public static class TypeScript
     
     static void FromSchema(ResolvedSchema schema, string tsFile, TextWriter console)
     {
-        using var writer = new StreamWriter(tsFile);
-
-        console.WriteLine($"Saving to file {tsFile}");
-        FromSchema(schema, writer, console);
+        using var writer = new WriteIfDifferent(tsFile, console);
+        
+        FromSchema(schema, writer.Output, writer.Console);
     }
 
     public static void FromSchema(ResolvedSchema schema, TextWriter outputWriter, TextWriter console)
