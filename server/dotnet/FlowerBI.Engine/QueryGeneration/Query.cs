@@ -66,10 +66,11 @@ with {{#each Aggregations}}
 
     {{#each unionedValues}}
         select 
-        {{#each this}}
+        {{#each Columns}}
             {{#unless @first}}, {{/unless}}
             {{this}}
         {{/each}}
+        from {{Source}}
         {{#unless @last}}union all{{/unless}}
     {{/each}}
     ),
@@ -165,10 +166,14 @@ select
                 Select = select,
                 orderBy = totals ? null : ordering,
                 fullJoins,
-                unionedValues = Aggregations.Select((_, aRow) => 
-                    select.Select((_, s) => $"Select{s}")
-                          .Concat(Aggregations.Select((_, aCol) => (Source: aRow == aCol ? "Value0" : "null", Target: $"Value{aCol}"))
-                                              .Select(x => $"{x.Source} as {x.Target}")))
+                unionedValues = Aggregations.Select((_, aRow) => new
+                {
+                    Source = $"Aggregation{aRow}",
+                    Columns = select.Select((_, s) => $"Select{s}")
+                                    .Concat(Aggregations
+                                            .Select((_, aCol) => (Source: aRow == aCol ? "Value0" : "null", Target: $"Value{aCol}"))
+                                            .Select(x => $"{x.Source} as {x.Target}"))
+                })
             });
         }
 

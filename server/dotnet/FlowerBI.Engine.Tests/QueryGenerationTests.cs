@@ -236,7 +236,7 @@ namespace FlowerBI.Engine.Tests
                 Totals = true,
                 Skip = 5,
                 Take = 10,
-                FullJoins = true,
+                FullJoins = fullJoins,
             };
 
             var query = new Query(queryJson, Schema);
@@ -381,8 +381,11 @@ namespace FlowerBI.Engine.Tests
                     group by |tbl00|!|VendorName|
                 ) ,
                 UnionedValues as ( 
-                    select Select0 , Value0 as Value0 , null as Value1 union all 
+                    select Select0 , Value0 as Value0 , null as Value1 
+                    from Aggregation0
+                    union all 
                     select Select0 , null as Value0 , Value0 as Value1 
+                    from Aggregation1
                 ),
                 CombinedValues as ( 
                     select Select0, max(Value0) as Value0 , max(Value1) as Value1 
@@ -1275,8 +1278,12 @@ namespace FlowerBI.Engine.Tests
                         group by |tbl00|!|VendorName| 
                     ) , 
                     UnionedValues as ( 
-                        select Select0 , Value0 as Value0 , null as Value1 union all 
-                        select Select0 , null as Value0 , Value0 as Value1 ), 
+                        select Select0 , Value0 as Value0 , null as Value1 
+                        from Aggregation0
+                        union all 
+                        select Select0 , null as Value0 , Value0 as Value1
+                        from Aggregation1
+                    ), 
                     CombinedValues as ( 
                         select Select0, max(Value0) as Value0 , max(Value1) as Value1 
                         from UnionedValues 
@@ -1367,8 +1374,12 @@ namespace FlowerBI.Engine.Tests
                     group by |tbl00|!|VendorName| , |tbl00|!|DepartmentId|
                 ) , 
                 UnionedValues as ( 
-                    select Select0 , Select1 , Value0 as Value0 , null as Value1 union all 
-                    select Select0 , Select1 , null as Value0 , Value0 as Value1 ), 
+                    select Select0 , Select1 , Value0 as Value0 , null as Value1 
+                    from Aggregation0
+                    union all 
+                    select Select0 , Select1 , null as Value0 , Value0 as Value1 
+                    from Aggregation1
+                ), 
                 CombinedValues as ( 
                     select Select0, Select1, max(Value0) as Value0 , max(Value1) as Value1 
                     from UnionedValues 
