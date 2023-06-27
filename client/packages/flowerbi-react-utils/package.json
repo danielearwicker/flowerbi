@@ -1,6 +1,6 @@
 {
     "name": "flowerbi-react-utils",
-    "version": "4.0.0",
+    "version": "4.1.0",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "React helpers useful in FlowerBI apps (but not actually dependent on it",
