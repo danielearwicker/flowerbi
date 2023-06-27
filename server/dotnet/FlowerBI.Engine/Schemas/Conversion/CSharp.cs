@@ -31,11 +31,10 @@ public static class CSharp
         => FromSchema(ResolvedSchema.Resolve(File.ReadAllText(yamlFile)), csFile, csNamespace, console);
 
     static void FromSchema(ResolvedSchema schema, string csFile, string csNamespace, TextWriter console)
-    {
-        using var writer = new StreamWriter(csFile);
+    {        
+        using var writer = new WriteIfDifferent(csFile, console);
 
-        console.WriteLine($"Saving to file {csFile}");
-        FromSchema(schema, writer, csNamespace, console);
+        FromSchema(schema, writer.Output, csNamespace, writer.Console);
     }
 
     public static void FromSchema(ResolvedSchema schema, TextWriter writer, string csNamespace, TextWriter console)
