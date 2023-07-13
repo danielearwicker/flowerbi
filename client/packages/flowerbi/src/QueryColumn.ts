@@ -184,3 +184,19 @@ export class IntegerQueryColumn<T extends number | null = number> extends Numeri
         };
     }
 }
+
+export class StringQueryColumn<T extends string | null = string> extends QueryColumn<T> {
+    /**
+     * @param name The name, of the form `table.column`.
+     */
+    constructor(public readonly name: string) {
+        super(name);
+    }
+
+    /**
+     * Produces a filter that requires this column to match a LIKE expression.
+     */
+    like(value: T) {
+        return this.filter("LIKE", value);
+    }
+}

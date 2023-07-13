@@ -78,7 +78,7 @@ namespace FlowerBI
 
         private static readonly HashSet<string> _allowedOperators = new HashSet<string>
         {
-            "=", "<>", "!=", ">", "<", ">=", "<=", "IN", "NOT IN", "BITS IN"
+            "=", "<>", "!=", ">", "<", ">=", "<=", "IN", "NOT IN", "BITS IN", "LIKE"
         };
 
         private static string CheckOperator(string op)
