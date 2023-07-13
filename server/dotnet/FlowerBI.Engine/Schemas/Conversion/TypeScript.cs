@@ -21,7 +21,8 @@ public static class TypeScript
             jsType = $"{jsType} | null";
         }
 
-        return jsType != "number" ? ($"QueryColumn<{jsType}>", "QueryColumn") :
+        return jsType == "string" ? ($"StringQueryColumn<{jsType}>", "StringQueryColumn") :
+                jsType != "number" ? ($"QueryColumn<{jsType}>", "QueryColumn") :
                dataType is DataType.Decimal or DataType.Float or DataType.Double ? ($"NumericQueryColumn<{jsType}>", "NumericQueryColumn") : 
                ($"IntegerQueryColumn<{jsType}>", "IntegerQueryColumn");
     }
