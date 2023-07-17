@@ -136,7 +136,7 @@ export class QueryColumn<T extends FilterValue> {
     notIn(value: T extends number | string ? T[] : never): FilterJson {
         return {
             column: this.name,
-            operator: "IN",
+            operator: "NOT IN",
             value,
         };
     }

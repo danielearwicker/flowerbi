@@ -243,3 +243,16 @@ export function expandQueryResult<S extends QuerySelect, C extends QueryCalculat
         totals: result.totals && getAggregateValuesOnly(select, result.totals, calcs),
     };
 }
+
+/**
+ * The complete statically typed query mechanism.
+ * 
+ * @param fetch Your API for performing FlowerBI queries in the JSON format
+ * @param query The query in statically-typed form
+ * @returns The query results in statically-typed form
+ */
+export async function executeQuery<S extends QuerySelect, C extends QueryCalculations<S>>(fetch: QueryFetch, query: Query<S, C>) {
+    const queryJson = jsonifyQuery(query);
+    const resultJson = await fetch(queryJson);
+    return expandQueryResult<S, C>(query.select, resultJson, query.calculations);
+}
