@@ -118,11 +118,11 @@ namespace FlowerBI
                         {
                             yield return new LabelledArrow(arrow.Key, toTable, arrow.Reverse);
                         }
-                    }            
+                    }
                 }
             }
 
-            public IReadOnlyList<LabelledTable> GetReachableTables(LabelledTable from)
+            public IReadOnlyList<LabelledTable> GetReachableTablesInJoinOrder(LabelledTable from)
             {
                 var visited = new HashSet<LabelledTable>();
 
@@ -141,6 +141,28 @@ namespace FlowerBI
 
                 return visited.ToList();
             }
+
+            public IReadOnlyList<LabelledTable> GetReachableTablesMostDistantFirst(LabelledTable from)
+            {
+                var visited = new Dictionary<LabelledTable, int>();
+
+                void Recurse(LabelledTable from, int depth)
+                {
+                    if (!visited.TryGetValue(from, out int previousDepth) || previousDepth > depth)
+                    {
+                        visited[from] = depth;
+
+                        foreach (var arrow in GetLabelledArrows(from))
+                        {
+                            Recurse(arrow.Table, depth + 1);
+                        }
+                    }
+                }
+
+                Recurse(from, 0);
+
+                return visited.OrderByDescending(x => x.Value).Select(x => x.Key).ToList();
+            }
         }
 
         public string ToSql(ISqlFormatter sql)
@@ -156,7 +178,7 @@ namespace FlowerBI
                 => needed.All(n => n == root || reached.Contains(n));
 
             var tables = new TableSubset(Tables, referrers, JoinLabels);
-            var reachable = tables.GetReachableTables(root);
+            var reachable = tables.GetReachableTablesMostDistantFirst(root);
 
             if (!CanReachAllNeeded(reachable))
             {
@@ -175,8 +197,8 @@ namespace FlowerBI
                     // Try removing table t
                     var without = reachable.Where(x => x != candidateForRemoval).ToList();
 
-                    var reducedTables = new TableSubset(without, referrers, JoinLabels);     
-                    var reducedReachable = reducedTables.GetReachableTables(root);
+                    var reducedTables = new TableSubset(without, referrers, JoinLabels);
+                    var reducedReachable = reducedTables.GetReachableTablesMostDistantFirst(root);
                     if (CanReachAllNeeded(reducedReachable))
                     {
                         tables = reducedTables;
@@ -186,6 +208,8 @@ namespace FlowerBI
                     }
                 }
             }
+
+            reachable = tables.GetReachableTablesInJoinOrder(root);
 
             // Now add back any associative tables that associate with two or more of our surviving tables
             for (var repeat = true; repeat;)
@@ -201,7 +225,7 @@ namespace FlowerBI
                                                   reachable.Contains(x.Table)) >= 2)
                     {
                         tables = expandedTables;
-                        reachable = expandedTables.GetReachableTables(root);
+                        reachable = expandedTables.GetReachableTablesInJoinOrder(root);
                         repeat = true;
                         break;
                     }
