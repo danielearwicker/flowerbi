@@ -83,6 +83,7 @@ where
 {{/if}}
 ");
 
+        // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
         private static string FormatAggFunction(AggregationType func, string expr)
             => func == AggregationType.CountDistinct
                 ? $"count(distinct {expr})"
@@ -106,22 +107,18 @@ where
 
         public string ToSql(
             ISqlFormatter sql,
-            IEnumerable<Filter> outerFilters,
             IFilterParameters filterParams,
-            IEnumerable<Ordering> orderings = null,
-            long? skip = null,
-            int? take = null,
-            bool allowDuplicates = false,
-            bool totals = false)
+            IEnumerable<Filter> outerFilters,
+            bool totals)
         {
             var joins = new Joins();
 
-            var selects = Select?.Select((c, i) =>
+            var selects = (totals ? null : Select)?.Select((c, i) =>
                 $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
                 ?? new List<string>();
 
             var aggs = Aggregations?.Select((a, i) =>
-                $"{FormatAggFunction(Function, joins.Aliased(Column, sql))} Value{i}").ToList()
+                $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql))} Value{i}").ToList()
                 ?? new List<string>();
 
             selects.AddRange(aggs);
@@ -137,19 +134,19 @@ where
             })
             .ToList();
 
-            var groupBy = (allowDuplicates && Column == null) ? null : Select?.Select(x => new
+            var groupBy = totals || (AllowDuplicates && (Aggregations?.Count ?? 0) == 0) ? null : Select?.Select(x => new
             {
                 Part = joins.Aliased(x, sql)
             })
             .ToList();
 
-            var skipAndTake = skip != null && take != null && !totals
-                    ? sql.SkipAndTake(skip.Value, take.Value)
+            var skipAndTake = !totals
+                    ? sql.SkipAndTake(Skip, Take)
                     : null;
 
             var orderBy = skipAndTake == null ? null :
-                orderings.Any() ? string.Join(", ", orderings.Select(x => Query.FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select)) :
-                aggColumn != null ? $"{aggColumn} desc" :
+                OrderBy.Any() ? string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select))) :
+                aggs.Count > 0 ? $"{selects.Count + 1} desc" :
                 null;
 
             return _template(new
@@ -184,11 +181,11 @@ where
                             IFilterParameters filterParams,
                             IEnumerable<Filter> outerFilters)
         {
-            var result = ToSql(sql, Select, filterParams, outerFilters, Skip, Take, false);
+            var result = ToSql(sql, filterParams, outerFilters, false);
 
             if (Totals)
             {
-                result += ";" + ToSql(sql, null, filterParams, outerFilters, 0, 1, true);
+                result += ";" + ToSql(sql, filterParams, outerFilters, true);
             }
 
             if (!string.IsNullOrWhiteSpace(Comment))
@@ -210,10 +207,12 @@ where
 
             var reader = db.QueryMultiple(querySql, filterParams.DapperParams, commandTimeout: CommandTimeoutSeconds);
 
-            var result = new QueryResultJson();
-
-            result.Records = ConvertRecords(reader.Read<dynamic>()
-                                .Cast<IDictionary<string, object>>());
+            var result = new QueryResultJson
+            {
+                Records = ConvertRecords(reader.Read<dynamic>()
+                                .Cast<IDictionary<string, object>>())
+            };
+            
             if (Totals)
             {
                 result.Totals = ConvertRecords(reader.Read<dynamic>()
