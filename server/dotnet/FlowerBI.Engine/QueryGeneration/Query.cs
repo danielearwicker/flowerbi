@@ -242,7 +242,7 @@ select
         {
             var nullConvert = new Func<object, object>(x => x);
 
-            var aggColumns = Aggregations.Select(x => x?.Column == null ? nullConvert : new Func<object, object>(x.Column.Value.ConvertValue))
+            var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Convert))
                         .Concat(Calculations.Select(x => nullConvert)).ToList();
 
             var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();

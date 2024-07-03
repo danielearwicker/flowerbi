@@ -85,7 +85,7 @@ namespace FlowerBI.Engine.Tests
             reader.Setup(x => x.GetName(2)).Returns("Select1");
 
             reader.SetupSequence(x => x.Read()).Returns(true).Returns(false);
-            reader.Setup(x => x.GetValue(0)).Returns("chips");
+            reader.Setup(x => x.GetValue(0)).Returns(7);
             reader.Setup(x => x.GetValue(1)).Returns(DBNull.Value);
             reader.Setup(x => x.GetValue(2)).Returns(13);
 
@@ -93,7 +93,7 @@ namespace FlowerBI.Engine.Tests
             var result = query.Run(new SqlServerFormatter(), db.Object, log.Add);
 
             var record = result.Records.Single();
-            record.Aggregated.Single().Should().Be("[chips]");
+            record.Aggregated.Single().Should().Be(7);
             record.Selected.First().Should().Be(null);
             record.Selected.Last().Should().Be(26);
         }
