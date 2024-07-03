@@ -49,131 +49,117 @@ namespace FlowerBI
             FullJoins = json.FullJoins ?? false;
         }
 
-        private static readonly HandlebarsTemplate<object, string> _aggregatedTemplate = Handlebars.Compile(@"
+        private static readonly HandlebarsTemplate<object, string> _template = Handlebars.Compile(@"
+select
 
-with {{#each Aggregations}}
-
-    Aggregation{{@index}} as (
-        {{{this}}}
-    )
-    {{#unless @last}},{{/unless}}
-
-{{/each}}
-
-{{#if fullJoins}}
-    
-    , UnionedValues as (
-
-    {{#each unionedValues}}
-        select 
-        {{#each Columns}}
-            {{#unless @first}}, {{/unless}}
-            {{this}}
-        {{/each}}
-        from {{Source}}
-        {{#unless @last}}union all{{/unless}}
+    {{#each selects}}
+        {{this}}{{#unless @last}}, {{/unless}}
     {{/each}}
-    ),
-    CombinedValues as (
-        select
-        {{#each Select}}
-            Select{{@index}},
-        {{/each}}
-        {{#each Aggregations}}
-            {{#unless @first}}, {{/unless}}
-            max(Value{{@index}}) as Value{{@index}}
-        {{/each}}
-        from UnionedValues
-        group by 
-        {{#each Select}}
-            {{#unless @first}}, {{/unless}}Select{{@index}}
-        {{/each}}
-    )
-    select 
-    {{#each Select}}
-        Select{{@index}},
+
+{{joins}}
+
+{{#if filters}}
+where
+    {{#each filters}}
+        {{{FilterSql}}}
+        {{#unless @last}} and {{/unless}}
     {{/each}}
-    {{#each Calculations}}
-        {{{this}}} as Value{{@index}}
-        {{#unless @last}},{{/unless}}
-    {{/each}}
-    from CombinedValues
 {{/if}}
 
-{{#unless fullJoins}}
-select 
-    {{#each Select}}
-        a0.Select{{@index}},
+{{#if groupBy}}
+    group by
+    {{#each groupBy}}
+        {{Part}}
+        {{#unless @last}} , {{/unless}}
     {{/each}}
-
-    {{#each Calculations}}
-        {{{this}}} Value{{@index}}
-        {{#unless @last}},{{/unless}}
-    {{/each}}
-
-    from Aggregation0 a0
-
-    {{#each Aggregations}}
-        {{#unless @first}}
-            {{#if ../Select}}
-                left join Aggregation{{@index}} a{{@index}} on
-                {{#each ../Select}}
-                    a{{@../index}}.Select{{@index}} = a0.Select{{@index}}
-                    {{#unless @last}}and{{/unless}}
-                {{/each}}
-            {{/if}}
-            {{#unless ../Select}}
-                cross join Aggregation{{@index}} a{{@index}}
-            {{/unless}}
-        {{/unless}}
-    {{/each}}
-{{/unless}}
+{{/if}}
 
 {{#if orderBy}}
     order by {{orderBy}}
 {{/if}}
 
-{{skipAndTake}}
+{{#if skipAndTake}}
+    {{skipAndTake}}
+{{/if}}
 ");
 
-        private string ToSql(ISqlFormatter sql, IList<LabelledColumn> select,
-                             IFilterParameters filterParams, IEnumerable<Filter> outerFilters,
-                             long skip, int take, bool totals)
+        private static string FormatAggFunction(AggregationType func, string expr)
+            => func == AggregationType.CountDistinct
+                ? $"count(distinct {expr})"
+                : $"{func}({expr})";
+
+        private static string FormatFilter(string column, string op, string param, object constant)
         {
-            if (Aggregations.Count == 1)
+            if (op == "BITS IN")
             {
-                return Aggregations[0].ToSql(sql, select, outerFilters.Concat(Filters), filterParams, OrderBy, skip, take, AllowDuplicates, totals);
+                // constant must be provided and is treated as an integer bit mask
+                var mask = constant is int i ? i :
+                           constant is long l ? l :
+                           constant is double d ? (int)d :
+                           throw new InvalidOperationException("BITS IN filter requires integer constant");
+
+                return $"({column} & {mask}) in {param}";
             }
 
-            var fullJoins = FullJoins && select != null && select.Count > 0 && Aggregations.Count > 1 ? "full" : null;
+            return $"{column} {op} {param}";
+        }
 
-            string FetchAggValue(int i) => fullJoins == null ? $"a{i}.Value0" : $"Value{i}";
+        public string ToSql(
+            ISqlFormatter sql,
+            IEnumerable<Filter> outerFilters,
+            IFilterParameters filterParams,
+            IEnumerable<Ordering> orderings = null,
+            long? skip = null,
+            int? take = null,
+            bool allowDuplicates = false,
+            bool totals = false)
+        {
+            var joins = new Joins();
 
-            var ordering = $"{FetchAggValue(0)} desc";
+            var selects = Select?.Select((c, i) =>
+                $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
+                ?? new List<string>();
 
-            if (select != null && OrderBy.Count != 0)
+            var aggs = Aggregations?.Select((a, i) =>
+                $"{FormatAggFunction(Function, joins.Aliased(Column, sql))} Value{i}").ToList()
+                ?? new List<string>();
+
+            selects.AddRange(aggs);
+
+            if (selects.Count == 0)
             {
-                ordering = string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select)));
+                throw new InvalidOperationException("Must select something");
             }
 
-            return _aggregatedTemplate(new
+            var filters = outerFilters.Concat(Filters).Select(f => new
             {
-                skipAndTake = totals ? null : sql.SkipAndTake(skip, take),
-                Aggregations = Aggregations.Select(x =>
-                    x.ToSql(sql, select, outerFilters.Concat(Filters), filterParams)).ToList(),
-                Calculations = Aggregations.Select((_, i) => FetchAggValue(i))
-                    .Concat(Calculations.Select(x => x.ToSql(sql, FetchAggValue))),
-                Select = select,
-                orderBy = totals ? null : ordering,
-                fullJoins,
-                unionedValues = Aggregations.Select((_, aRow) => new
-                {
-                    Source = $"Aggregation{aRow}",
-                    Columns = select.Select((_, s) => $"Select{s}")
-                                    .Concat(Aggregations
-                                            .Select((_, aCol) => (Source: aRow == aCol ? "Value0" : "null", Target: $"Value{aCol}"))
-                                            .Select(x => $"{x.Source} as {x.Target}"))
-                })
+                FilterSql = FormatFilter(joins.Aliased(f.Column, sql), f.Operator, filterParams[f], f.Constant),
+            })
+            .ToList();
+
+            var groupBy = (allowDuplicates && Column == null) ? null : Select?.Select(x => new
+            {
+                Part = joins.Aliased(x, sql)
+            })
+            .ToList();
+
+            var skipAndTake = skip != null && take != null && !totals
+                    ? sql.SkipAndTake(skip.Value, take.Value)
+                    : null;
+
+            var orderBy = skipAndTake == null ? null :
+                orderings.Any() ? string.Join(", ", orderings.Select(x => Query.FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select)) :
+                aggColumn != null ? $"{aggColumn} desc" :
+                null;
+
+            return _template(new
+            {
+                selects,
+                filters,
+                joins = joins.ToSql(sql),
+                groupBy,
+                orderBy,
+                skipAndTake
             });
         }
 
