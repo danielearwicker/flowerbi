@@ -149,7 +149,7 @@ select
 
             string FetchAggValue(int i) => fullJoins == null ? $"a{i}.Value0" : $"Value{i}";
 
-            var ordering = $"{FetchAggValue(0)} desc";
+            var ordering = (Aggregations?.Count ?? 0) > 0 ? $"{(select?.Count ?? 0) + 1} desc" : "1 asc";
 
             if (select != null && OrderBy.Count != 0)
             {

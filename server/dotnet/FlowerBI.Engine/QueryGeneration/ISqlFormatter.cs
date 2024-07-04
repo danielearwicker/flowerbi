@@ -37,7 +37,7 @@
         public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
         public string SkipAndTake(long skip, int take) => $"limit {take} offset {skip}";
         public string Conditional(string predExpr, string thenExpr, string elseExpr)
-            => $"if({predExpr}, {thenExpr}, {elseExpr})";
+            => $"iif({predExpr}, {thenExpr}, {elseExpr})";
 
         public string CastToFloat(string valueExpr)
             => $"cast({valueExpr} as real)";

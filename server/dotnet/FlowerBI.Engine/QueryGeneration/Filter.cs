@@ -45,7 +45,7 @@ namespace FlowerBI
                     e.ValueKind == JsonValueKind.Array ? e.EnumerateArray().Select(item =>
                         item.ValueKind == JsonValueKind.Number ? (object)item.GetDouble() :
                         item.ValueKind == JsonValueKind.String ? item.GetString()
-                        : throw new InvalidOperationException("Unsupported filter value format in list item"))
+                        : throw new InvalidOperationException("Unsupported filter value format in list item")).ToList()
                     : throw new InvalidOperationException("Unsupported filter value format");
             }
 

@@ -156,7 +156,7 @@ where
             var orderBy = skipAndTake == null ? null :
                 orderings.Any() ? string.Join(", ", orderings.Select(x => Query.FindIndexedOrderingColumn(x) ?? $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
                 aggColumn != null ? $"{aggColumn} desc" :
-                null;
+                "1 asc";
 
             return _template(new
             {
