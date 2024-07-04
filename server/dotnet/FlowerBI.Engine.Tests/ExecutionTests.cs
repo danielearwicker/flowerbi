@@ -32,11 +32,9 @@ public abstract class ExecutionTests
         };
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public void MinimalSelectOneColumn(bool allowDuplicates, bool fullJoins)
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MinimalSelectOneColumn(bool allowDuplicates)
     {
         var results = ExecuteQuery(new()
         {
@@ -46,8 +44,7 @@ public abstract class ExecutionTests
             ],
             Skip = 0,
             Take = 1,
-            AllowDuplicates = allowDuplicates,
-            FullJoins = fullJoins,
+            AllowDuplicates = allowDuplicates,            
         });
 
         results.Records.Single().Aggregated.Single().Should().Be(14);
@@ -179,10 +176,8 @@ public abstract class ExecutionTests
         results.Totals.Should().BeNull();
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void SingleAggregationTotals(bool fullJoins)
+    [Fact]
+    public void SingleAggregationTotals()
     {
         var queryJson = new QueryJson
         {
@@ -197,7 +192,6 @@ public abstract class ExecutionTests
             ],
             Skip = 2,
             Take = 10,
-            FullJoins = fullJoins,
             Totals = true,
         };
 
@@ -841,7 +835,7 @@ public abstract class ExecutionTests
     }
 
     [Fact]
-    public void CalculationsFullJoinsAndMultiSelect()
+    public void CalculationsAndMultiSelect()
     {
         var queryJson = new QueryJson
         {
@@ -885,7 +879,6 @@ public abstract class ExecutionTests
             [
                 new OrderingJson { Type = OrderingType.Select, Index = 1 } 
             ],
-            FullJoins = true,
         };
 
         var results = ExecuteQuery(queryJson);

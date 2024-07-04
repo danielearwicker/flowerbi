@@ -27,8 +27,6 @@ namespace FlowerBI
 
         public bool AllowDuplicates { get; }
 
-        public bool FullJoins { get; }
-
         public int CommandTimeoutSeconds { get; } = 30;
 
         public Query(QueryJson json, Schema schema)
@@ -46,7 +44,6 @@ namespace FlowerBI
             Take = json.Take ?? 100;
             Comment = json.Comment;
             AllowDuplicates = json.AllowDuplicates ?? false;
-            FullJoins = json.FullJoins ?? false;
         }
 
         private static readonly HandlebarsTemplate<object, string> _template = Handlebars.Compile(@"
