@@ -1,10 +1,4 @@
-// Run once with START_DOCKER_SQL and CREATE_TEST_DB defined to set everything up
-// then commment them back out to repeat-run tests with no setup cost.
-
-#define START_DOCKER_SQL
-#define CREATE_TEST_DB
-#define DELETE_TEST_DB
-#define STOP_DOCKER_SQL
+// #define STOP_DOCKER_SQL
 
 using System;
 using System.Data;
@@ -19,13 +13,41 @@ public sealed class SqlServerFixture : IDisposable
 {
     public IDbConnection Db { get; }
 
-    private const string _container = "FlowerBITestSqlServer";
+    private const string _containerName = "FlowerBITestSqlServer";
+    private const string _databaseName = "FlowerBITest";
     private const string _password = "Str0ngPa$$w0rd";
     private const int _port = 61316;
 
-    private const string _setup = """
+    public SqlServerFixture()
+    {
+        Docker(string.Join(" ", [
+            "run",
+            "--name", _containerName,
+            "-e", "\"ACCEPT_EULA=Y\"",
+            "-e", $"\"MSSQL_SA_PASSWORD={_password}\"",
+            "-p", $"{_port}:1433",
+            "-d", "mcr.microsoft.com/mssql/server:2022-latest"
+        ]));
 
-    """;
+        CreateDb();
+
+        _cs.InitialCatalog = _databaseName;
+
+        Db = new SqlConnection(_cs.ConnectionString);
+
+        Db.Execute("CREATE SCHEMA Testing;");
+        Db.Execute(SqlScripts.SetupTestingDb);
+    }
+
+    public void Dispose()
+    {
+        Db?.Dispose();
+
+#if STOP_DOCKER_SQL
+        Docker($"kill {_container}");
+        Docker($"rm {_container}");
+#endif      
+    }
 
     private static void Docker(string cmd)
     {
@@ -57,76 +79,39 @@ public sealed class SqlServerFixture : IDisposable
         TrustServerCertificate = true,
     };
 
-    public SqlServerFixture()
+    private void CreateDb()
     {
-        
-#if START_DOCKER_SQL
-        var startCommand = string.Join(" ", [
-            "run",
-            "--name", _container,
-            "-e", "\"ACCEPT_EULA=Y\"",
-            "-e", $"\"MSSQL_SA_PASSWORD={_password}\"",
-            "-p", $"{_port}:1433",
-            "-d", "mcr.microsoft.com/mssql/server:2022-latest"
-        ]);
-        
-        Docker(startCommand);
-#endif
+        const int attempts = 100;
 
-#if CREATE_TEST_DB
-        for (var i = 0; i < 100; i++) 
+        for (var i = 1; i <= attempts; i++) 
         {
             using var db = new SqlConnection(_cs.ConnectionString);
 
             try
             {
-                db.Execute(
-                    """
-                    CREATE DATABASE FlowerBITest;
-                    """
-                );
-
-                break;
+                db.Execute($"CREATE DATABASE {_databaseName};");
+                return;
             }
-            catch (Exception x)
+            catch (SqlException x) when (x.Number == 1801)
+            {
+                // Database already exists - delete and retry
+                DeleteDb(db);
+            }
+            catch (Exception x) when (i < attempts)
             {
                 Debug.WriteLine($"Retrying soon due to {x.GetBaseException().Message}");
                 Thread.Sleep(1000);
             }
         }
-#endif
-        _cs.InitialCatalog = "FlowerBITest";
-
-        Db = new SqlConnection(_cs.ConnectionString);
-
-#if CREATE_TEST_DB
-        Db.Execute(
-            """
-            CREATE SCHEMA Testing;
-            """);
-
-        Db.Execute(SqlScripts.SetupTestingDb);
-#endif            
     }
 
-    public void Dispose()
+    private static void DeleteDb(IDbConnection db)
     {
-        Db?.Dispose();
-
-#if STOP_DOCKER_SQL
-        Docker($"kill {_container}");
-        Docker($"rm {_container}");
-#elif DELETE_TEST_DB
-        _cs.InitialCatalog = "master";
-
-        using var db = new SqlConnection(_cs.ConnectionString);
-
         db.Execute(
-            """
-            ALTER DATABASE FlowerBITest SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-            DROP DATABASE FlowerBITest;
+            $"""
+            ALTER DATABASE {_databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+            DROP DATABASE {_databaseName};
             """
         );
-#endif
     }
 }
