@@ -42,9 +42,6 @@ namespace FlowerBI
                 : objVal;
 
         public static IList<Aggregation> Load(IEnumerable<AggregationJson> aggs, Schema schema)
-        {
-            var list = aggs?.Select(x => new Aggregation(x, schema)).ToList();
-            return list?.Count > 0 ? list : new List<Aggregation> { new Aggregation() };
-        }
+            => aggs?.Select(x => new Aggregation(x, schema)).ToList() ?? [];
     }
 }

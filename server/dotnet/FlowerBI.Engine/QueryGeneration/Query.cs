@@ -84,25 +84,36 @@ where
 ");
 
         // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
-        private static string FormatAggFunction(AggregationType func, string expr)
-            => func == AggregationType.CountDistinct
+        private static string FormatAggFunction(AggregationType func, string expr, IEnumerable<Filter> filters, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+        {
+            if (filters.Any())
+            {
+                var when = string.Join(" and ", filters.Select(f => FormatFilter(f, joins, sql, filterParams)));
+                expr = $"case when {when} then {expr} end";
+            }
+
+            return func == AggregationType.CountDistinct
                 ? $"count(distinct {expr})"
                 : $"{func}({expr})";
+        }
 
-        private static string FormatFilter(string column, string op, string param, object constant)
+        private static string FormatFilter(Filter f, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
         {
-            if (op == "BITS IN")
+            var column = joins.Aliased(f.Column, sql);
+            var param = filterParams[f];
+
+            if (f.Operator == "BITS IN")
             {
                 // constant must be provided and is treated as an integer bit mask
-                var mask = constant is int i ? i :
-                           constant is long l ? l :
-                           constant is double d ? (int)d :
+                var mask = f.Constant is int i ? i :
+                           f.Constant is long l ? l :
+                           f.Constant is double d ? (int)d :
                            throw new InvalidOperationException("BITS IN filter requires integer constant");
 
                 return $"({column} & {mask}) in {param}";
             }
 
-            return $"{column} {op} {param}";
+            return $"{column} {f.Operator} {param}";
         }
 
         public string ToSql(
@@ -115,11 +126,11 @@ where
 
             var selects = (totals ? null : Select)?.Select((c, i) =>
                 $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
-                ?? new List<string>();
+                ?? [];
 
             var aggs = Aggregations?.Select((a, i) =>
-                $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql))} Value{i}").ToList()
-                ?? new List<string>();
+                $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}").ToList()
+                ?? [];
 
             selects.AddRange(aggs);
 
@@ -130,7 +141,7 @@ where
 
             var filters = outerFilters.Concat(Filters).Select(f => new
             {
-                FilterSql = FormatFilter(joins.Aliased(f.Column, sql), f.Operator, filterParams[f], f.Constant),
+                FilterSql = FormatFilter(f, joins, sql, filterParams),
             })
             .ToList();
 
@@ -146,8 +157,8 @@ where
 
             var orderBy = skipAndTake == null ? null :
                 OrderBy.Any() ? string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select))) :
-                aggs.Count > 0 ? $"{selects.Count + 1} desc" :
-                null;
+                aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc" :
+                "1 asc";
 
             return _template(new
             {
@@ -172,7 +183,7 @@ where
                     $"Cannot order by {ordering.Column} as it has not been selected");
             }
 
-            return $"a0.Select{found.n} {ordering.Direction}";
+            return $"{found.n + 1} {ordering.Direction}";
         }
 
         private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
