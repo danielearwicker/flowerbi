@@ -4,6 +4,7 @@
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
+        <LangVersion>latest</LangVersion>
     </PropertyGroup>
 
     <PropertyGroup Label="SDK Versions">
