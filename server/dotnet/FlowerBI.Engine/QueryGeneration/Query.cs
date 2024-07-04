@@ -7,270 +7,273 @@ using Dapper;
 using HandlebarsDotNet;
 using System.Text.RegularExpressions;
 
-namespace FlowerBI
+namespace FlowerBI;
+
+public class Query(QueryJson json, Schema schema)
 {
-    public class Query
+    public IList<LabelledColumn> Select { get; } = schema.Load(json.Select);
+    
+    public IList<Aggregation> Aggregations { get; } = Aggregation.Load(json.Aggregations, schema);
+
+    public IList<Filter> Filters { get; } = Filter.Load(json.Filters, schema);
+
+    public IList<Ordering> OrderBy { get; } = Ordering.Load(
+        json.OrderBy, schema, 
+        json.Select?.Count ?? 0, 
+        json.Aggregations?.Count ?? 0, 
+        json.Calculations?.Count ?? 0);
+
+    public IList<CalculationJson> Calculations { get; } = json.Calculations ?? [];
+
+    public bool Totals { get; } = json.Totals ?? false;
+
+    public long Skip { get; } = json.Skip ?? 0;
+
+    public int Take { get; } = json.Take ?? 100;
+
+    public string Comment { get; } = json.Comment;
+
+    public bool AllowDuplicates { get; } = json.AllowDuplicates ?? false;
+
+    public int CommandTimeoutSeconds { get; } = 30;
+
+    private const string _templateMain = """
+        select
+            {{#each selects}}
+                {{this}}{{#unless @last}}, {{/unless}}
+            {{/each}}
+        {{joins}}
+        {{#if filters}}
+        where
+            {{#each filters}}
+                {{{FilterSql}}}
+                {{#unless @last}} and {{/unless}}
+            {{/each}}
+        {{/if}}
+        {{#if groupBy}}
+            group by
+            {{#each groupBy}}
+                {{Part}}
+                {{#unless @last}}, {{/unless}}
+            {{/each}}
+        {{/if}}
+        """;
+
+    private const string _templateFooter = """
+        {{#if orderBy}}
+            order by {{orderBy}}
+        {{/if}}
+        {{#if skipAndTake}}
+            {{skipAndTake}}
+        {{/if}}
+        """;
+
+    private static readonly HandlebarsTemplate<object, string> _templateWithoutCalculations = Handlebars.Compile(
+        $"""
+        {_templateMain}
+        {_templateFooter}
+        """);
+
+    private static readonly HandlebarsTemplate<object, string> _templateWithCalculations = Handlebars.Compile(
+        $$$"""
+        with calculation_source as (
+            {{{_templateMain}}}
+        )
+        select calculation_source.*
+            {{#each calculations}}
+                ,{{this}}
+            {{/each}}
+        from calculation_source
+        {{{_templateFooter}}}
+        """);
+
+    // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
+    private static string FormatAggFunction(AggregationType func, string expr, IEnumerable<Filter> filters, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
     {
-        public IList<LabelledColumn> Select { get; }
-        public IList<Aggregation> Aggregations { get; }
-        public IList<Filter> Filters { get; }
-        public IList<Ordering> OrderBy { get; }
-        public IList<CalculationJson> Calculations { get; }
-
-        public bool Totals { get; }
-
-        public long Skip { get; }
-
-        public int Take { get; }
-
-        public string Comment { get; }
-
-        public bool AllowDuplicates { get; }
-
-        public int CommandTimeoutSeconds { get; } = 30;
-
-        public Query(QueryJson json, Schema schema)
+        if (filters.Any())
         {
-            Select = schema.Load(json.Select);
-            Aggregations = Aggregation.Load(json.Aggregations, schema);
-            Filters = Filter.Load(json.Filters, schema);
-            OrderBy = Ordering.Load(json.OrderBy, schema,
-                                    json.Select?.Count ?? 0,
-                                    json.Aggregations?.Count ?? 0,
-                                    json.Calculations?.Count ?? 0);
-            Calculations = json.Calculations ?? new List<CalculationJson>();
-            Totals = json.Totals ?? false;
-            Skip = json.Skip ?? 0;
-            Take = json.Take ?? 100;
-            Comment = json.Comment;
-            AllowDuplicates = json.AllowDuplicates ?? false;
+            var when = string.Join(" and ", filters.Select(f => FormatFilter(f, joins, sql, filterParams)));
+            expr = $"case when {when} then {expr} end";
         }
 
-        private static readonly HandlebarsTemplate<object, string> _template = Handlebars.Compile(@"
-with raw as (
-    select
+        return func == AggregationType.CountDistinct
+            ? $"count(distinct {expr})"
+            : $"{func}({expr})";
+    }
 
-        {{#each selects}}
-            {{this}}{{#unless @last}}, {{/unless}}
-        {{/each}}
+    private static string FormatFilter(Filter f, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+    {
+        var column = joins.Aliased(f.Column, sql);
+        var param = filterParams[f];
 
-    {{joins}}
-
-    {{#if filters}}
-    where
-        {{#each filters}}
-            {{{FilterSql}}}
-            {{#unless @last}} and {{/unless}}
-        {{/each}}
-    {{/if}}
-
-    {{#if groupBy}}
-        group by
-        {{#each groupBy}}
-            {{Part}}
-            {{#unless @last}} , {{/unless}}
-        {{/each}}
-    {{/if}}
-)
-select raw.*
-    {{#each calculations}}
-        ,{{this}}
-    {{/each}}
-from raw
-
-{{#if orderBy}}
-    order by {{orderBy}}
-{{/if}}
-
-{{#if skipAndTake}}
-    {{skipAndTake}}
-{{/if}}
-");
-
-        // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
-        private static string FormatAggFunction(AggregationType func, string expr, IEnumerable<Filter> filters, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+        if (f.Operator == "BITS IN")
         {
-            if (filters.Any())
-            {
-                var when = string.Join(" and ", filters.Select(f => FormatFilter(f, joins, sql, filterParams)));
-                expr = $"case when {when} then {expr} end";
-            }
+            // constant must be provided and is treated as an integer bit mask
+            var mask = f.Constant is int i ? i :
+                       f.Constant is long l ? l :
+                       f.Constant is double d ? (int)d :
+                       throw new InvalidOperationException("BITS IN filter requires integer constant");
 
-            return func == AggregationType.CountDistinct
-                ? $"count(distinct {expr})"
-                : $"{func}({expr})";
+            return $"({column} & {mask}) in {param}";
         }
 
-        private static string FormatFilter(Filter f, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+        return $"{column} {f.Operator} {param}";
+    }
+
+    public string ToSql(
+        ISqlFormatter sql,
+        IFilterParameters filterParams,
+        IEnumerable<Filter> outerFilters,
+        bool totals)
+    {
+        var joins = new Joins();
+
+        var selects = (totals ? null : Select)?.Select((c, i) =>
+            $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
+            ?? [];
+
+        var aggs = Aggregations?.Select((a, i) =>
+            $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}").ToList()
+            ?? [];
+
+        selects.AddRange(aggs);
+
+        if (selects.Count == 0)
         {
-            var column = joins.Aliased(f.Column, sql);
-            var param = filterParams[f];
-
-            if (f.Operator == "BITS IN")
-            {
-                // constant must be provided and is treated as an integer bit mask
-                var mask = f.Constant is int i ? i :
-                           f.Constant is long l ? l :
-                           f.Constant is double d ? (int)d :
-                           throw new InvalidOperationException("BITS IN filter requires integer constant");
-
-                return $"({column} & {mask}) in {param}";
-            }
-
-            return $"{column} {f.Operator} {param}";
+            throw new InvalidOperationException("Must select something");
         }
 
-        public string ToSql(
-            ISqlFormatter sql,
-            IFilterParameters filterParams,
-            IEnumerable<Filter> outerFilters,
-            bool totals)
+        var filters = outerFilters.Concat(Filters).Select(f => new
         {
-            var joins = new Joins();
+            FilterSql = FormatFilter(f, joins, sql, filterParams),
+        })
+        .ToList();
 
-            var selects = (totals ? null : Select)?.Select((c, i) =>
-                $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
-                ?? [];
+        var groupBy = totals || (AllowDuplicates && (Aggregations?.Count ?? 0) == 0) ? null : Select?.Select(x => new
+        {
+            Part = joins.Aliased(x, sql)
+        })
+        .ToList();
 
-            var aggs = Aggregations?.Select((a, i) =>
-                $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}").ToList()
-                ?? [];
+        var skipAndTake = !totals
+                ? sql.SkipAndTake(Skip, Take)
+                : null;
 
-            selects.AddRange(aggs);
+        var orderBy = skipAndTake == null ? null :
+            OrderBy.Any() ? string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select))) :
+            aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc" :
+            "1 asc";
 
-            if (selects.Count == 0)
-            {
-                throw new InvalidOperationException("Must select something");
-            }
+        var calculations = Calculations?.Select(x => x.ToSql(sql, i => $"Value{i}"))
+                .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}").ToList() ?? [];
 
-            var filters = outerFilters.Concat(Filters).Select(f => new
-            {
-                FilterSql = FormatFilter(f, joins, sql, filterParams),
-            })
-            .ToList();
+        var template = calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
 
-            var groupBy = totals || (AllowDuplicates && (Aggregations?.Count ?? 0) == 0) ? null : Select?.Select(x => new
-            {
-                Part = joins.Aliased(x, sql)
-            })
-            .ToList();
+        return template(new
+        {
+            selects,
+            filters,
+            calculations,
+            joins = joins.ToSql(sql),
+            groupBy,
+            orderBy,
+            skipAndTake
+        });
+    }
 
-            var skipAndTake = !totals
-                    ? sql.SkipAndTake(Skip, Take)
-                    : null;
+    public static string FindIndexedOrderingColumn(Ordering ordering)
+        => ordering.Column == null ? $"{ordering.Index + 1} {ordering.Direction}" : null;
 
-            var orderBy = skipAndTake == null ? null :
-                OrderBy.Any() ? string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select))) :
-                aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc" :
-                "1 asc";
-
-            var calculations = Calculations.Select(x => x.ToSql(sql, i => $"Value{i}"))
-                    .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}");
-
-            return _template(new
-            {
-                selects,
-                filters,
-                calculations,
-                joins = joins.ToSql(sql),
-                groupBy,
-                orderBy,
-                skipAndTake
-            });
+    public static string FindNamedSelectOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
+    {
+        var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
+        if (found.c == null)
+        {
+            throw new InvalidOperationException(
+                $"Cannot order by {ordering.Column} as it has not been selected");
         }
 
-        public static string FindIndexedOrderingColumn(Ordering ordering)
-            => ordering.Column == null ? $"{ordering.Index + 1} {ordering.Direction}" : null;
+        return $"{found.n + 1} {ordering.Direction}";
+    }
 
-        public static string FindNamedSelectOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
+    private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
+
+    public string ToSql(ISqlFormatter sql,
+                        IFilterParameters filterParams,
+                        IEnumerable<Filter> outerFilters)
+    {
+        var result = ToSql(sql, filterParams, outerFilters, false);
+
+        if (Totals)
         {
-            var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
-            if (found.c == null)
-            {
-                throw new InvalidOperationException(
-                    $"Cannot order by {ordering.Column} as it has not been selected");
-            }
-
-            return $"{found.n + 1} {ordering.Direction}";
+            result += ";" + ToSql(sql, filterParams, outerFilters, true);
         }
 
-        private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
-
-        public string ToSql(ISqlFormatter sql,
-                            IFilterParameters filterParams,
-                            IEnumerable<Filter> outerFilters)
+        if (!string.IsNullOrWhiteSpace(Comment))
         {
-            var result = ToSql(sql, filterParams, outerFilters, false);
-
-            if (Totals)
-            {
-                result += ";" + ToSql(sql, filterParams, outerFilters, true);
-            }
-
-            if (!string.IsNullOrWhiteSpace(Comment))
-            {
-                var stripped = SanitiseCommentPattern.Replace(Comment, " ").Trim();
-                result = $"/* {stripped} */ \r\n{result}";
-            }
-
-            return result;
+            var stripped = SanitiseCommentPattern.Replace(Comment, " ").Trim();
+            result = $"/* {stripped} */ \r\n{result}";
         }
 
-        public QueryResultJson Run(ISqlFormatter sql, IDbConnection db, Action<string> log, params Filter[] outerFilters)
+        return result;
+    }
+
+    public QueryResultJson Run(ISqlFormatter sql, IDbConnection db, Action<string> log, params Filter[] outerFilters)
+    {
+        var filterParams = new DapperFilterParameters();
+
+        var querySql = ToSql(sql, filterParams, outerFilters);
+
+        log?.Invoke($"{querySql} with parameters: {filterParams}");
+
+        var reader = db.QueryMultiple(querySql, filterParams.DapperParams, commandTimeout: CommandTimeoutSeconds);
+
+        var result = new QueryResultJson
         {
-            var filterParams = new DapperFilterParameters();
-
-            var querySql = ToSql(sql, filterParams, outerFilters);
-
-            log?.Invoke($"{querySql} with parameters: {filterParams}");
-
-            var reader = db.QueryMultiple(querySql, filterParams.DapperParams, commandTimeout: CommandTimeoutSeconds);
-
-            var result = new QueryResultJson
-            {
-                Records = ConvertRecords(reader.Read<dynamic>()
-                                .Cast<IDictionary<string, object>>())
-            };
-            
-            if (Totals)
-            {
-                result.Totals = ConvertRecords(reader.Read<dynamic>()
-                                .Cast<IDictionary<string, object>>())
-                                .Single();
-            }
-
-            return result;
+            Records = ConvertRecords(reader.Read<dynamic>()
+                            .Cast<IDictionary<string, object>>())
+        };
+        
+        if (Totals)
+        {
+            result.Totals = ConvertRecords(reader.Read<dynamic>()
+                            .Cast<IDictionary<string, object>>())
+                            .Single();
         }
 
-        private IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
-        {
-            var nullConvert = new Func<object, object>(x => x);
+        return result;
+    }
 
-            var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Convert))
-                        .Concat(Calculations.Select(x => nullConvert)).ToList();
+    private IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
+    {
+        var nullConvert = new Func<object, object>(x => x);
 
-            var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();
+        var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Convert))
+                    .Concat(Calculations.Select(x => nullConvert)).ToList();
 
-            return list.Select(x => new QueryRecordJson
+        var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();
+
+        return list.Select(
+            x => new QueryRecordJson
             {
                 Selected = GetList(x, "Select", selColumns),
                 Aggregated = GetList(x, "Value", aggColumns),
-            })
-                .ToList();
-        }
-
-        private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<Func<object, object>> converters)
-        {
-            IList<object> result = null;
-
-            for (var n = 0; n < 100; n++)
-            {
-                if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
-                if (result == null) result = new List<object>();
-                result.Add(converters[n](value));
             }
+        ).ToList();
+    }
 
-            return result;
+    private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<Func<object, object>> converters)
+    {
+        IList<object> result = null;
+
+        for (var n = 0; n < 100; n++)
+        {
+            if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
+
+            result ??= [];
+            result.Add(converters[n](value));
         }
+
+        return result;
     }
 }

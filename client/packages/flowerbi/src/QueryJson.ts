@@ -113,8 +113,4 @@ export interface QueryJson {
      * See {@link Query.allowDuplicates}.
      */
     allowDuplicates?: boolean;
-    /**
-     * See {@link Query.fullJoins}.
-     */
-    fullJoins?: boolean;
 }
