@@ -380,9 +380,7 @@ public abstract class ExecutionTests
 
         var results = ExecuteQuery(queryJson);
 
-        // Current implementation puts NULL in aggregate 2 if it has no records matching its filter
-        // Want to switch in next major version to returning 0 for count in that situation, so hide it!
-        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1] ?? 0));
+        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
 
         records.Should().BeEquivalentTo(new[]
             {

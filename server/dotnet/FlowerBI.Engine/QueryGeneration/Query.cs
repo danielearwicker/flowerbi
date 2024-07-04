@@ -50,29 +50,36 @@ namespace FlowerBI
         }
 
         private static readonly HandlebarsTemplate<object, string> _template = Handlebars.Compile(@"
-select
+with raw as (
+    select
 
-    {{#each selects}}
-        {{this}}{{#unless @last}}, {{/unless}}
+        {{#each selects}}
+            {{this}}{{#unless @last}}, {{/unless}}
+        {{/each}}
+
+    {{joins}}
+
+    {{#if filters}}
+    where
+        {{#each filters}}
+            {{{FilterSql}}}
+            {{#unless @last}} and {{/unless}}
+        {{/each}}
+    {{/if}}
+
+    {{#if groupBy}}
+        group by
+        {{#each groupBy}}
+            {{Part}}
+            {{#unless @last}} , {{/unless}}
+        {{/each}}
+    {{/if}}
+)
+select raw.*
+    {{#each calculations}}
+        ,{{this}}
     {{/each}}
-
-{{joins}}
-
-{{#if filters}}
-where
-    {{#each filters}}
-        {{{FilterSql}}}
-        {{#unless @last}} and {{/unless}}
-    {{/each}}
-{{/if}}
-
-{{#if groupBy}}
-    group by
-    {{#each groupBy}}
-        {{Part}}
-        {{#unless @last}} , {{/unless}}
-    {{/each}}
-{{/if}}
+from raw
 
 {{#if orderBy}}
     order by {{orderBy}}
@@ -160,10 +167,14 @@ where
                 aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc" :
                 "1 asc";
 
+            var calculations = Calculations.Select(x => x.ToSql(sql, i => $"Value{i}"))
+                    .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}");
+
             return _template(new
             {
                 selects,
                 filters,
+                calculations,
                 joins = joins.ToSql(sql),
                 groupBy,
                 orderBy,
