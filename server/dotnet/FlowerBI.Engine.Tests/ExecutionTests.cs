@@ -612,28 +612,42 @@ public abstract class ExecutionTests
                 {
                     Column = "Invoice.Amount",
                     Function = AggregationType.CountDistinct
+                },
+                new()
+                {
+                    Column = "Invoice.Amount",
+                    Function = AggregationType.CountDistinct,
+                    Filters =
+                    [
+                        new FilterJson
+                        {
+                            Column = "Invoice.Paid",
+                            Operator = "=",
+                            Value = true
+                        }
+                    ]
                 }
-            ]
+            ],
         };
 
         var results = ExecuteQuery(queryJson);
-        var records = results.Records.Select(x => (x.Selected[0], x.Aggregated[0]));
+        var records = results.Records.Select(x => (x.Selected[0], x.Aggregated[0], x.Aggregated[1] ?? 0));
 
         records.Should().BeEquivalentTo(new[]
             {
-                ("[Awnings-R-Us]", 1),
-                ("[Disgusting Ltd]", 2),
-                ("[Handbags-a-Plenty]", 4),
-                ("[Manchesterford Supplies Inc]", 3),
-                ("[Mats and More]", 2),
-                ("[Party Hats 4 U]", 1),
-                ("[Pleasant Plc]", 1),
-                ("[Stationary Stationery]", 1),
-                ("[Statues While You Wait]", 1),
-                ("[Steve Makes Sandwiches]", 1),
-                ("[Tiles Tiles Tiles]", 2),
-                ("[United Cheese]", 6),
-                ("[Uranium 4 Less]", 1),
+                ("[Awnings-R-Us]", 1, 1),
+                ("[Disgusting Ltd]", 2, 0),
+                ("[Handbags-a-Plenty]", 4, 0),
+                ("[Manchesterford Supplies Inc]", 3, 2),
+                ("[Mats and More]", 2, 0),
+                ("[Party Hats 4 U]", 1, 0),
+                ("[Pleasant Plc]", 1, 0),
+                ("[Stationary Stationery]", 1, 0),
+                ("[Statues While You Wait]", 1, 1),
+                ("[Steve Makes Sandwiches]", 1, 1),
+                ("[Tiles Tiles Tiles]", 2, 1),
+                ("[United Cheese]", 6, 2),
+                ("[Uranium 4 Less]", 1, 0),
             });
 
         records.Select(x => x.Item2).Should().BeInDescendingOrder();
