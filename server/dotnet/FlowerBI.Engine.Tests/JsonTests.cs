@@ -27,7 +27,7 @@ namespace FlowerBI.Engine.Tests
             };
 
             var parsed = System.Text.Json.JsonSerializer.Deserialize<FilterJson>(MakeFilterJson(name, value), jsonOptions);
-            var filter = new Filter(parsed, QueryGenerationTests.Schema);
+            var filter = new Filter(parsed, ExecutionTests.Schema);
             return filter.Value;
         }
 
@@ -36,7 +36,7 @@ namespace FlowerBI.Engine.Tests
             var jsonOptions = new JsonSerializerSettings { };
 
             var parsed = JsonConvert.DeserializeObject<FilterJson>(MakeFilterJson(name, value), jsonOptions);
-            var filter = new Filter(parsed, QueryGenerationTests.Schema);
+            var filter = new Filter(parsed, ExecutionTests.Schema);
             return filter.Value;
         }
 

@@ -149,7 +149,7 @@ select
 
             string FetchAggValue(int i) => fullJoins == null ? $"a{i}.Value0" : $"Value{i}";
 
-            var ordering = $"{FetchAggValue(0)} desc";
+            var ordering = (Aggregations?.Count ?? 0) > 0 ? $"{(select?.Count ?? 0) + 1} desc" : "1 asc";
 
             if (select != null && OrderBy.Count != 0)
             {
@@ -242,7 +242,7 @@ select
         {
             var nullConvert = new Func<object, object>(x => x);
 
-            var aggColumns = Aggregations.Select(x => x?.Column == null ? nullConvert : new Func<object, object>(x.Column.Value.ConvertValue))
+            var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Convert))
                         .Concat(Calculations.Select(x => nullConvert)).ToList();
 
             var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();

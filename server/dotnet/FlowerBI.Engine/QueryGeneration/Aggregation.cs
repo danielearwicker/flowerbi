@@ -36,6 +36,11 @@ namespace FlowerBI
             Filters = Enumerable.Empty<Filter>();
         }
 
+        public object Convert(object objVal)
+            => (objVal?.GetType()?.IsAssignableTo(Column.Value.ClrType.GetType()) ?? false) 
+                ? Column.Value.ConvertValue(objVal) 
+                : objVal;
+
         public static IList<Aggregation> Load(IEnumerable<AggregationJson> aggs, Schema schema)
         {
             var list = aggs?.Select(x => new Aggregation(x, schema)).ToList();
@@ -151,7 +156,7 @@ where
             var orderBy = skipAndTake == null ? null :
                 orderings.Any() ? string.Join(", ", orderings.Select(x => Query.FindIndexedOrderingColumn(x) ?? $"{joins.Aliased(x.Column, sql)} {x.Direction}")) :
                 aggColumn != null ? $"{aggColumn} desc" :
-                null;
+                "1 asc";
 
             return _template(new
             {
