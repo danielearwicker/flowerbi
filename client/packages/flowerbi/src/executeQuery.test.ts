@@ -1,16 +1,18 @@
 import { expandQueryResult, jsonifyQuery, QueryResultJson } from "./executeQuery";
-import { IntegerQueryColumn, QueryColumn } from "./QueryColumn";
+import { IntegerQueryColumn, QueryColumn, QueryColumnRuntimeType } from "./QueryColumn";
 import { Query, QueryCalculations, QuerySelect } from "./queryModel";
 
+const fakeType = {} as QueryColumnRuntimeType;
+
 export const Customer = {
-    Id: new IntegerQueryColumn<number>("Customer.Id"),
-    CustomerName: new QueryColumn<string>("Customer.CustomerName"),
+    Id: new IntegerQueryColumn<number>("Customer.Id", fakeType),
+    CustomerName: new QueryColumn<string>("Customer.CustomerName", fakeType),
 };
 
 export const Bug = {
-    Id: new QueryColumn<number>("Bug.Id"),
-    CustomerId: new QueryColumn<number>("Bug.CustomerId"),
-    Fixed: new QueryColumn<boolean>("Bug.Fixed"),
+    Id: new QueryColumn<number>("Bug.Id", fakeType),
+    CustomerId: new QueryColumn<number>("Bug.CustomerId", fakeType),
+    Fixed: new QueryColumn<boolean>("Bug.Fixed", fakeType),
 };
 
 test("jsonifies mixed columns", () => {

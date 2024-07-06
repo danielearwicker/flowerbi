@@ -4,11 +4,30 @@ import { FilterValue, AggregationType, FilterJson, AggregationJson, FilterOperat
  * A column from the schema, with a name and a data type. A whole schema of
  * such declared columns can be auto-generated using the CLI.
  */
+
+export enum QueryColumnDataType {
+    None = "None",
+    Bool = "Bool",
+    Byte = "Byte",
+    Short = "Short",
+    Int = "Int",
+    Long = "Long",
+    Float = "Float",
+    Double = "Double",
+    Decimal = "Decimal",
+    String = "String",
+    DateTime = "DateTime",
+}
+
+export class QueryColumnRuntimeType {
+    constructor(public readonly dataType: QueryColumnDataType, public readonly targetColumn: string) {}
+}
+
 export class QueryColumn<T extends FilterValue> {
     /**
      * @param name The name, of the form `table.column`.
      */
-    constructor(public readonly name: string) {}
+    constructor(public readonly name: string, public readonly type: QueryColumnRuntimeType) {}
 
     protected aggregation(aggregationType: AggregationType, filters?: FilterJson[]): AggregationJson {
         return {
@@ -146,8 +165,8 @@ export class NumericQueryColumn<T extends number | null = number> extends QueryC
     /**
      * @param name The name, of the form `table.column`.
      */
-    constructor(public readonly name: string) {
-        super(name);
+    constructor(name: string, type: QueryColumnRuntimeType) {
+        super(name, type);
     }
 
     /**
@@ -171,8 +190,8 @@ export class IntegerQueryColumn<T extends number | null = number> extends Numeri
     /**
      * @param name The name, of the form `table.column`.
      */
-    constructor(public readonly name: string) {
-        super(name);
+    constructor(name: string, type: QueryColumnRuntimeType) {
+        super(name, type);
     }
 
     bitsIn(mask: number, value: NonNullable<T>[]): FilterJson {
@@ -189,8 +208,8 @@ export class StringQueryColumn<T extends string | null = string> extends QueryCo
     /**
      * @param name The name, of the form `table.column`.
      */
-    constructor(public readonly name: string) {
-        super(name);
+    constructor(name: string, type: QueryColumnRuntimeType) {
+        super(name, type);
     }
 
     /**

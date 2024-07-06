@@ -42,7 +42,7 @@ public static class TypeScript
 
     public static void FromSchema(ResolvedSchema schema, TextWriter outputWriter, TextWriter console)
     {
-        var imports = new HashSet<string>();
+        var imports = new HashSet<string>(["QueryColumnRuntimeType", "QueryColumnDataType"]);
 
         var writer = new StringWriter();
 
@@ -58,12 +58,21 @@ public static class TypeScript
 
             var idColumn = table.IdColumn != null ? new[] { table.IdColumn } : Enumerable.Empty<ResolvedColumn>();
 
+            string GetTargetString(ResolvedColumn column) => column == null ? "" : $"{column.Table.Name}.{column.Name}";
+            
             foreach (var column in idColumn.Concat(table.Columns))
             {
                 var (tsType, importType) = TSColumnType(column.DataType, column.Nullable);
                 imports.Add(importType);
 
-                tableWriter.WriteLine(@$"{column.Name}: new {tsType}(""{table.Name}.{column.Name}""),");
+                tableWriter.WriteLine($"""
+                    {column.Name}: new {tsType}("{table.Name}.{column.Name}",
+                        new QueryColumnRuntimeType(
+                            QueryColumnDataType.{column.DataType},
+                            "{GetTargetString(column.Target)}"
+                        )
+                    ), 
+                    """);
             }
 
             writer.WriteLine("};");

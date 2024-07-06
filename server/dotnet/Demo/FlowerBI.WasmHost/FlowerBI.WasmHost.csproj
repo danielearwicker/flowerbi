@@ -1,37 +1,25 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
-  <PropertyGroup>
-    <TargetFramework>$(NetTargetVersion)</TargetFramework>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>$(NetTargetVersion)</TargetFramework>
+    </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-  	<CustomCommands>
-  		<CustomCommands>
-  			<Command>
-  				<type>AfterBuild</type>
-  				<command>rm -rf ../../../../client/packages/demo-site/public/_framework</command>
-  				<workingdir>${ProjectDir}</workingdir>
-  			</Command>
-  			<Command>
-  				<type>AfterBuild</type>
-  				<command>cp -R bin/Debug/$(NetTargetVersion)/wwwroot/_framework ../../../../client/packages/demo-site/public/_framework/</command>
-  				<workingdir>${ProjectDir}</workingdir>
-  			</Command>
-  		</CustomCommands>
-  	</CustomCommands>
-  </PropertyGroup>
+    <Target Name="CustomAfterBuild" AfterTargets="AfterBuild"> 
+        <Exec WorkingDirectory="$(ProjectDir)" Command="rm -rf ../../../../client/packages/demo-site/public/_framework"/>
+        <Exec WorkingDirectory="$(ProjectDir)" Command="cp -R bin/Debug/$(NetTargetVersion)/wwwroot/_framework ../../../../client/packages/demo-site/public/_framework/"/>
+    </Target>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.2" PrivateAssets="all" />
-	<PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
-	<PackageReference Include="System.Text.Json" Version="6.0.2" />
-  </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="6.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="6.0.2" PrivateAssets="all" />
+        <PackageReference Include="System.Net.Http.Json" Version="6.0.0" />
+        <PackageReference Include="System.Text.Json" Version="6.0.2" />
+     </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\FlowerBI.DemoSchema\FlowerBI.DemoSchema.csproj">
-  	    <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
-    </ProjectReference>
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\FlowerBI.DemoSchema\FlowerBI.DemoSchema.csproj">
+            <GlobalPropertiesToRemove></GlobalPropertiesToRemove>
+        </ProjectReference>
+    </ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 import React from "react";
-import { FlowerBITable, useQuery } from "flowerbi-react";
+import { FlowerBITable, useFlowerBI } from "flowerbi-react";
 import { FlowerBIChartBox } from "flowerbi-react-utils";
 import { Bug, Workflow } from "../demoSchema";
 import { VisualProps } from "./VisualProps";
@@ -10,20 +10,14 @@ export interface RecoverySummaryProps extends VisualProps {
 }
 
 export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: RecoverySummaryProps) {
-
-    const data = useQuery(fetch, {
+    const data = useFlowerBI(fetch, {
         select: {
             state: Workflow.WorkflowState,
             bugCount: Bug.Id.count(),
-            resolvedBugCount: Bug.Id.count([
-                Workflow.Resolved.equalTo(true)
-            ])
+            resolvedBugCount: Bug.Id.count([Workflow.Resolved.equalTo(true)]),
         },
-        filters: [
-            Workflow.FixedByCustomer.equalTo(fixedByCustomer),
-            ...pageFilters.getFilters(""),
-        ],
-        totals: true
+        filters: [Workflow.FixedByCustomer.equalTo(fixedByCustomer), ...pageFilters.getFilters("")],
+        totals: true,
     });
 
     return (
@@ -34,7 +28,7 @@ export function RecoverySummary({ pageFilters, fixedByCustomer, title, fetch }: 
                     State: (d) => d.values.state ?? "Total",
                     Count: (d) => [`${d.values.bugCount}`, "right"],
                     "% of Count": (d) => [`${d.percentage("resolvedBugCount")}%`, "right"],
-                }} 
+                }}
             />
         </FlowerBIChartBox>
     );

@@ -2,8 +2,9 @@ import { jsonDateParser } from "json-date-parser";
 import { getDb } from "./database";
 import { QueryResultJson, QuerySelectValue, QueryJson } from "flowerbi";
 
+export let latestSql = "";
+
 async function querySql(sql: string) {
-    
     const db = await getDb();
 
     const started = new Date();
@@ -13,21 +14,21 @@ async function querySql(sql: string) {
     if (sql.includes("allbugs")) {
         console.log(sql);
     }
+
+    latestSql = sql;
+
     return result;
 }
 
 (window as any).querySql = querySql;
 
-const blazorReady = new Promise(done => (window as any).notifyBlazorReady = done);
+const blazorReady = new Promise((done) => ((window as any).notifyBlazorReady = done));
 
 export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson> {
-
     await blazorReady;
 
-    const started = new Date();    
-    const json = await DotNet.invokeMethodAsync(
-        "FlowerBI.WasmHost", "Query", JSON.stringify(queryJson)
-    ) as string;    
+    const started = new Date();
+    const json = (await DotNet.invokeMethodAsync("FlowerBI.WasmHost", "Query", JSON.stringify(queryJson))) as string;
     const finished = new Date();
     console.log(queryJson.comment, `Blazor + SQL query took ${finished.getTime() - started.getTime()} ms`, queryJson);
 
@@ -49,16 +50,16 @@ export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson>
     const endOfSelects = firstValueIndex === -1 ? columns.length : firstValueIndex;
 
     const result: QueryResultJson = {
-        records: values.map(x => ({
+        records: values.map((x) => ({
             selected: x.slice(0, endOfSelects),
-            aggregated: x.slice(endOfSelects) as number[]
-        }))
+            aggregated: x.slice(endOfSelects) as number[],
+        })),
     };
-    
+
     if (parsed[1]) {
         result.totals = {
             selected: [],
-            aggregated: parsed[1].values
+            aggregated: parsed[1].values,
         };
     }
 

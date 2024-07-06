@@ -69,7 +69,7 @@ namespace FlowerBI.WasmHost
                 var query = new Query(parsed, Demo);
 
                 var filterParams = new EmbeddedFilterParameters();
-                sql = query.ToSql(Formatter, filterParams, new Filter[0]);
+                sql = query.ToSql(Formatter, filterParams, []);
 
                 return await JsRuntime.InvokeAsync<string>("querySql", sql);
             }

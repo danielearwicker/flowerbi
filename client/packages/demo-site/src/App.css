@@ -223,8 +223,10 @@ body,
     padding-top: 1em;
 }
 
-@keyframes fadeIn { 
-    from { opacity: 0; } 
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
 }
 
 .loading {
@@ -234,4 +236,76 @@ body,
     align-items: center;
     height: 100%;
     animation: fadeIn 0.5s infinite alternate;
+}
+
+.playground {
+    overflow: hidden;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    gap: 0.5em;
+    padding: 0.5em;
+    background-color: white;
+}
+
+.playground .row {
+    display: flex;
+    flex: 1 1;
+    flex-direction: row;
+    overflow: hidden;
+    gap: 0.5em;
+}
+
+.playground .panel {
+    flex: 1 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 100%;
+    background-color: #eee;
+}
+
+.playground .panel .title {
+    flex: 0 0 auto;
+    background-color: cadetblue;
+    color: white;
+    padding: 0.2em;
+}
+
+.playground .panel .content {
+    flex: 1 1 auto;
+    overflow: auto;
+    height: 100%;
+}
+
+.playground table {
+    border-collapse: collapse;
+}
+
+.playground th,
+.playground td {
+    text-align: left;
+    border: 1px solid silver;
+    padding: 0.2em;
+}
+
+.playground th {
+    background-color: rgb(32, 68, 118);
+    color: wheat;
+    font-weight: normal;
+    position: sticky;
+    top: 0px;
+    border-top: 0px transparent;
+}
+
+.playground .sort-header {
+    cursor: pointer;
+    line-height: 1.2em;
+}
+
+.playground .sort-header .arrow {
+    width: 1.2em;
+    display: inline-block;
+    padding-left: 0.1em;
 }
