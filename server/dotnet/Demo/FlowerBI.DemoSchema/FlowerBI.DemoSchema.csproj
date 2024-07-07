@@ -4,46 +4,12 @@
     <TargetFramework>$(NetTargetVersion)</TargetFramework>
   </PropertyGroup>
   
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>dotnet run --project ../../FlowerBI.Tools -- ts demoSchema.yaml ../../../../client/packages/demo-site/src/demoSchema-fromYaml.ts</command>
-          <workingdir></workingdir>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>dotnet run --project ../../FlowerBI.Tools -- cs demoSchema.yaml DemoSchema-fromYaml.cs FlowerBI.DemoSchema</command>
-          <workingdir></workingdir>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <CustomCommands>
-      <CustomCommands>
-        <Command>
-          <type>AfterBuild</type>
-          <command>dotnet run --project ../../FlowerBI.Tools -- ts demoSchema.yaml ../../../../client/packages/demo-site/src/demoSchema.ts</command>
-          <workingdir></workingdir>
-        </Command>
-        <Command>
-          <type>AfterBuild</type>
-          <command>dotnet run --project ../../FlowerBI.Tools -- cs demoSchema.yaml DemoSchema.cs FlowerBI.DemoSchema</command>
-          <workingdir></workingdir>
-        </Command>
-      </CustomCommands>
-    </CustomCommands>
-  </PropertyGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\FlowerBI.Engine\FlowerBI.Engine.csproj" />
   </ItemGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="dotnet run --project ../../FlowerBI.Tools -- ts demoSchema.yaml ../../../../client/packages/demo-site/src/demoSchema.ts" />
-    <Exec Command="dotnet run --project ../../FlowerBI.Tools -- cs demoSchema.yaml DemoSchema.cs FlowerBI.DemoSchema" />
+    <Exec Command="dotnet run --project ../../FlowerBI.Tools --framework net8.0 -- ts demoSchema.yaml ../../../../client/packages/demo-site/src/demoSchema.ts" />
+    <Exec Command="dotnet run --project ../../FlowerBI.Tools --framework net8.0 -- cs demoSchema.yaml DemoSchema.cs FlowerBI.DemoSchema" />
   </Target>
 </Project>

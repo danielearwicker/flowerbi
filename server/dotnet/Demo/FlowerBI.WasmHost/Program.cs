@@ -16,18 +16,33 @@ namespace FlowerBI.WasmHost
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("#app");
-            builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddTransient(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
+            builder.Services.AddTransient(sp => new HttpClient 
+            {
+                 BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) 
+            });
 
             var app = builder.Build();
 
             JsRuntime = app.Services.GetRequiredService<IJSRuntime>();
 
-            await JsRuntime.InvokeAsync<string>("notifyBlazorReady");
+            var task = NotifyAsync().ContinueWith(t => Console.WriteLine(t.Exception?.Message ?? "Ok"));    
 
             await app.RunAsync();
+        }
+
+        public static async Task NotifyAsync()
+        {
+            for (int i = 0; i < 10; i++) {
+                await Task.Delay(100);
+            
+                try 
+                {
+                    await JsRuntime.InvokeAsync<string>("notifyBlazorReady");
+                    return;
+                } 
+                catch (Exception) {}
+            }
         }
 
         private static IJSRuntime JsRuntime;

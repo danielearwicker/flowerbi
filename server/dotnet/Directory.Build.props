@@ -5,9 +5,6 @@
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
         <LangVersion>latest</LangVersion>
-    </PropertyGroup>
-
-    <PropertyGroup Label="SDK Versions">
-        <NetTargetVersion>net6.0</NetTargetVersion>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
     </PropertyGroup>
 </Project>

@@ -6,6 +6,8 @@ FlowerBI supports querying relational databases through a single POST route, so 
 
 It focuses on supporting very succinct query definitions at the client, and strong-typing via TypeScript inference.
 
+The [Playground](https://earwicker.com/flowerbi/demo/) lets you interactively build a query, see what the JS/TS code for that query would look like, and also the generated SQL, and the tabulated results.
+
 <sub>Logo designed by [@shep1987](https://github.com/shep1987)</sub>
 
 ## Use Case
