@@ -22,7 +22,7 @@ namespace FlowerBI
         {
             if (!Aliases.TryGetValue(table, out var alias))
             {
-                Aliases[table] = alias = $"tbl{Aliases.Count:00}";
+                Aliases[table] = alias = $"t{Aliases.Count}";
             }
 
             return alias;

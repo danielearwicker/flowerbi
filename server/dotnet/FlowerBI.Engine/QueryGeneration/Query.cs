@@ -40,31 +40,29 @@ public class Query(QueryJson json, Schema schema)
     private const string _templateMain = """
         select
             {{#each selects}}
-                {{this}}{{#unless @last}}, {{/unless}}
+            {{this}}{{#unless @last}}, {{/unless}}
             {{/each}}
         {{joins}}
         {{#if filters}}
         where
             {{#each filters}}
-                {{{FilterSql}}}
-                {{#unless @last}} and {{/unless}}
+            {{{FilterSql}}}{{#unless @last}} and {{/unless}}
             {{/each}}
         {{/if}}
         {{#if groupBy}}
-            group by
+        group by
             {{#each groupBy}}
-                {{Part}}
-                {{#unless @last}}, {{/unless}}
+            {{Part}}{{#unless @last}}, {{/unless}}
             {{/each}}
         {{/if}}
         """;
 
     private const string _templateFooter = """
         {{#if orderBy}}
-            order by {{orderBy}}
+        order by {{orderBy}}
         {{/if}}
         {{#if skipAndTake}}
-            {{skipAndTake}}
+        {{skipAndTake}}
         {{/if}}
         """;
 

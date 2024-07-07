@@ -1,7 +1,7 @@
 {
   "entryAssembly": "FlowerBI.WasmHost",
   "resources": {
-    "hash": "sha256-2AbaGzB4cYkEqDqS3hk4SPUwDLpFu9U2gSqvNp2OAd0=",
+    "hash": "sha256-y46S7SYAyEdOo+5AGcc/Ii87Iz/Sf/pNa1uxwL26PIc=",
     "runtime": {
       "dotnet.6.0.31.j8czgoeh6c.js": "sha256-k3r5KPTTMlxe9KmBUGXolEPkii6jv/+oC1SOmed3LVc=",
       "dotnet.timezones.blat": "sha256-noxiDysKmbcNb8gHnNG6cYvM6Ies6JlarpF1lK0YTtY=",
@@ -203,14 +203,14 @@
       "mscorlib.dll": "sha256-er6cLjOyu1s02HPaReJi0KkBwOSQyQ0/T8lVwYrQmwE=",
       "netstandard.dll": "sha256-UjAkjmlOWOKd1d6UaAYFH6rO8pqwuoCKrs8+TW10Xvk=",
       "System.Private.CoreLib.dll": "sha256-uAJxx8FtA3E57cEa87ZsxFWqQmHkAYyH5WNbmii0koQ=",
-      "FlowerBI.DemoSchema.dll": "sha256-9dr7eNoD57A1+CepIDUQjjzWBbHphC/0fX/9n08L5VM=",
-      "FlowerBI.Engine.dll": "sha256-A6466sL6m8fxR00Cy5MZgQO/97UiYPXsbJJQ3Mm84+k=",
-      "FlowerBI.WasmHost.dll": "sha256-E3PqqET1CxFTO2j+28uufVH3ag1fr6HHZEmlxOeZlQM="
+      "FlowerBI.DemoSchema.dll": "sha256-Yf8Bwo4hM8QCS36kxEQvaVawFuohfNFKYcIyxPc3MQk=",
+      "FlowerBI.Engine.dll": "sha256-GScpZRkgh+JzBXe/rOhH4kfhXcnbrfcgndpN51lFRXI=",
+      "FlowerBI.WasmHost.dll": "sha256-yL+uel0Msmh/4B2hjZsFGKtbSiALaBAaxrcyxi3wq6s="
     },
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-8McMXas3elk13EAk0NkmUVTyXtYzg24GkzTd8b0AEhw=",
-      "FlowerBI.Engine.pdb": "sha256-KI7G5vqwh6bun46nDko3umBB/WsMwYZ3PlfiDEBINc8=",
-      "FlowerBI.WasmHost.pdb": "sha256-bRNq4E+AjKqf57+WHaPfdAGFrEKuOoU5X9sH+5dCzUc="
+      "FlowerBI.DemoSchema.pdb": "sha256-NfPQi21u9EyDPfh2kHoKihnifda3Mwb9AnSONjSMm5g=",
+      "FlowerBI.Engine.pdb": "sha256-eTV8ew4KJY4Fcc3vcJfpwHOJV4PR1B5zfNVsbTnryxc=",
+      "FlowerBI.WasmHost.pdb": "sha256-ynzM8r++hTn8InPN2mc1Sh/gjvc5uhuX9V5Q/FXquMg="
     },
     "runtimeAssets": {
       "dotnet.wasm": {
