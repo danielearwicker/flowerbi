@@ -72,7 +72,8 @@ export function getTypedFilterValue(dataType: QueryColumnDataType, value: string
     }
     if (dataType === QueryColumnDataType.DateTime) {
         try {
-            return new Date(value);
+            const dt = new Date(value);
+            return isNaN(dt.getTime()) ? undefined : dt;
         } catch (x) {
             return undefined;
         }

@@ -6,6 +6,8 @@ export let latestSql = "";
 export let latestError = "";
 
 async function querySql(sql: string) {
+    latestSql = sql;
+
     const db = await getDb();
 
     const started = new Date();
@@ -15,8 +17,6 @@ async function querySql(sql: string) {
     if (sql.includes("allbugs")) {
         console.log(sql);
     }
-
-    latestSql = sql;
 
     return result;
 }

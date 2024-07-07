@@ -15,6 +15,7 @@ function generateFilters(builtFilters: BuiltFilter[]) {
         const dataType = getColumnDataType(f.table, f.column);
         const value = getTypedFilterValue(dataType, f.value);
         if (value !== undefined) {
+            console.log(value);
             filters.push({
                 column: `${f.table}.${f.column}`,
                 operator: f.operator as FilterOperator,

@@ -322,6 +322,12 @@ body,
     background-color: #d8c1c1;
 }
 
+.playground .expander {
+    cursor: pointer;
+    text-align: center;
+    width: 1.5em;
+}
+
 .playground .spacer {
     height: 0.5em;
 }

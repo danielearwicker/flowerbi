@@ -54,7 +54,9 @@ export function SelectionRow({
     return (
         <>
             <tr>
-                <td>{!!aggregation && <span onClick={toggleExpanded}>{expanded ? "🔽" : "▶️"}</span>}</td>
+                <td className={(!expanded && realFilters[0] ? "filter-cell " : "") + "expander"} onClick={toggleExpanded}>
+                    {!!aggregation && (expanded ? "🔽" : "▶️")}
+                </td>
                 <td>
                     <Select options={keysOf(BugSchema)} value={table} onChange={setTable} />
                 </td>
