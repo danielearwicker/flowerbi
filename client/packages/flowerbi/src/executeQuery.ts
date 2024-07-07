@@ -128,7 +128,7 @@ function jsonifyOrdering<S extends QuerySelect, C extends QueryCalculations<S>>(
  * @param query
  */
 export function jsonifyQuery<S extends QuerySelect, C extends QueryCalculations<S>>(query: Query<S, C>): QueryJson {
-    const { select, filters, calculations, orderBy, totals, take, skip, comment, allowDuplicates, fullJoins } = query;
+    const { select, filters, calculations, orderBy, totals, take, skip, comment, allowDuplicates } = query;
 
     const columnProps = getColumnPropsOnly(select);
     const aggregationProps = getAggregatePropsOnly(select);
@@ -145,7 +145,6 @@ export function jsonifyQuery<S extends QuerySelect, C extends QueryCalculations<
         take: take ?? 100,
         comment,
         allowDuplicates,
-        fullJoins,
     };
 }
 
@@ -246,7 +245,7 @@ export function expandQueryResult<S extends QuerySelect, C extends QueryCalculat
 
 /**
  * The complete statically typed query mechanism.
- * 
+ *
  * @param fetch Your API for performing FlowerBI queries in the JSON format
  * @param query The query in statically-typed form
  * @returns The query results in statically-typed form
