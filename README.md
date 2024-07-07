@@ -155,6 +155,7 @@ Gradually appearing:
 
 ## Contributors
 
+-   Maggie Duggan (simpler query generation for version 5)
 -   [@jmulcahy-fiscaltec](https://github.com/jmulcahy-fiscaltec)
 -   [@TWilkin](https://github.com/TWilkin)
 -   [@shep1987](https://github.com/shep1987)

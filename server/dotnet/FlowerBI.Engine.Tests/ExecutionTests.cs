@@ -32,11 +32,9 @@ public abstract class ExecutionTests
         };
 
     [Theory]
-    [InlineData(false, false)]
-    [InlineData(true, false)]
-    [InlineData(false, true)]
-    [InlineData(true, true)]
-    public void MinimalSelectOneColumn(bool allowDuplicates, bool fullJoins)
+    [InlineData(false)]
+    [InlineData(true)]
+    public void MinimalSelectOneColumn(bool allowDuplicates)
     {
         var results = ExecuteQuery(new()
         {
@@ -46,8 +44,7 @@ public abstract class ExecutionTests
             ],
             Skip = 0,
             Take = 1,
-            AllowDuplicates = allowDuplicates,
-            FullJoins = fullJoins,
+            AllowDuplicates = allowDuplicates,            
         });
 
         results.Records.Single().Aggregated.Single().Should().Be(14);
@@ -179,10 +176,8 @@ public abstract class ExecutionTests
         results.Totals.Should().BeNull();
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void SingleAggregationTotals(bool fullJoins)
+    [Fact]
+    public void SingleAggregationTotals()
     {
         var queryJson = new QueryJson
         {
@@ -197,7 +192,6 @@ public abstract class ExecutionTests
             ],
             Skip = 2,
             Take = 10,
-            FullJoins = fullJoins,
             Totals = true,
         };
 
@@ -380,9 +374,7 @@ public abstract class ExecutionTests
 
         var results = ExecuteQuery(queryJson);
 
-        // Current implementation puts NULL in aggregate 2 if it has no records matching its filter
-        // Want to switch in next major version to returning 0 for count in that situation, so hide it!
-        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1] ?? 0));
+        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
 
         records.Should().BeEquivalentTo(new[]
             {
@@ -843,7 +835,7 @@ public abstract class ExecutionTests
     }
 
     [Fact]
-    public void CalculationsFullJoinsAndMultiSelect()
+    public void CalculationsAndMultiSelect()
     {
         var queryJson = new QueryJson
         {
@@ -887,7 +879,6 @@ public abstract class ExecutionTests
             [
                 new OrderingJson { Type = OrderingType.Select, Index = 1 } 
             ],
-            FullJoins = true,
         };
 
         var results = ExecuteQuery(queryJson);
