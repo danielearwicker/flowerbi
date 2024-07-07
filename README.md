@@ -8,6 +8,8 @@ It focuses on supporting very succinct query definitions at the client, and stro
 
 The [Playground](https://earwicker.com/flowerbi/demo/) lets you interactively build a query, see what the JS/TS code for that query would look like, and also the generated SQL, and the tabulated results.
 
+![Playground animated GIF](playground.gif)
+
 <sub>Logo designed by [@shep1987](https://github.com/shep1987)</sub>
 
 ## Use Case
