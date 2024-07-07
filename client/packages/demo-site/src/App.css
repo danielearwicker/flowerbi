@@ -137,6 +137,7 @@ body,
     flex: 1 1 auto;
     display: flex;
     flex-direction: column;
+    width: 100%;
 }
 
 .reports-site .content .title-bar {
@@ -240,9 +241,9 @@ body,
 
 .playground {
     overflow: hidden;
+    position: absolute;
+    inset: 0;
     display: flex;
-    width: 100%;
-    height: 100%;
     flex-direction: column;
     gap: 0.5em;
     padding: 0.5em;
@@ -288,15 +289,21 @@ body,
     text-align: left;
     border: 1px solid silver;
     padding: 0.2em;
+    font-weight: normal;
 }
 
-.playground th {
+.playground .sticky th {
     background-color: rgb(32, 68, 118);
     color: wheat;
-    font-weight: normal;
+
     position: sticky;
     top: 0px;
     border-top: 0px transparent;
+}
+
+.playground .section th {
+    background-color: rgb(109, 62, 47);
+    color: #ddd;
 }
 
 .playground .sort-header {
@@ -308,4 +315,12 @@ body,
     width: 1.2em;
     display: inline-block;
     padding-left: 0.1em;
+}
+
+.playground .filter-cell {
+    background-color: #ddd;
+}
+
+.playground .spacer {
+    height: 0.5em;
 }

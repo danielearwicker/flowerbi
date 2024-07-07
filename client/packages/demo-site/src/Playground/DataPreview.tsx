@@ -1,31 +1,11 @@
 import React from "react";
-import { Selection, BuiltQuery, BuiltOrdering } from "./QueryBuilder";
 import { QueryResultJson } from "flowerbi";
+import { BuiltOrdering, BuiltQuery, getColumnsWithOffsets } from "./builtQueryModel";
 
 export interface DataPreviewProps {
     query: BuiltQuery;
     data: QueryResultJson;
     onHeaderClick(name: string): void;
-}
-
-function getOrderingIcon(orderings: BuiltOrdering[], name: string) {
-    const ordering = orderings.find((x) => x.name === name);
-    return !ordering ? "\u00A0" : ordering.desc ? "⬆️" : "⬇️";
-}
-
-export function getColumnsWithOffsets(query: BuiltQuery) {
-    const columns = query.select.filter((x) => x.name.trim() && x.table && x.column);
-    const result: { selection: Selection; offset: number }[] = [];
-    let nextSelected = 0,
-        nextAggregated = 0;
-    for (const selection of columns) {
-        if (selection.aggregation) {
-            result.push({ selection, offset: nextAggregated++ });
-        } else {
-            result.push({ selection, offset: nextSelected++ });
-        }
-    }
-    return result;
 }
 
 export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
@@ -34,9 +14,9 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
     return (
         <table>
             <thead>
-                <tr>
+                <tr className="sticky">
                     {columns.map((x) => (
-                        <th className="sort-header" onClick={(e) => onHeaderClick(x.selection.name)}>
+                        <th key={x.selection.name} className="sort-header" onClick={(e) => onHeaderClick(x.selection.name)}>
                             <span>{x.selection.name}</span>
                             <span className="arrow">{getOrderingIcon(query.ordering, x.selection.name)}</span>
                         </th>
@@ -44,14 +24,19 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
                 </tr>
             </thead>
             <tbody>
-                {data.records.map((record) => (
-                    <tr>
+                {data.records.map((record, index) => (
+                    <tr key={index}>
                         {columns.map((x) => (
-                            <td>{x.selection.aggregation ? record.aggregated[x.offset] : record.selected[x.offset]}</td>
+                            <td key={x.selection.name}>{x.selection.aggregation ? record.aggregated[x.offset] : record.selected[x.offset]}</td>
                         ))}
                     </tr>
                 ))}
             </tbody>
         </table>
     );
+}
+
+function getOrderingIcon(orderings: BuiltOrdering[], name: string) {
+    const ordering = orderings.find((x) => x.name === name);
+    return !ordering ? "\u00A0" : ordering.desc ? "⬆️" : "⬇️";
 }

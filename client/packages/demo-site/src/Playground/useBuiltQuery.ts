@@ -1,12 +1,28 @@
 import { useEffect, useState } from "react";
-import { BuiltQuery } from "./QueryBuilder";
-import { OrderingJson, QueryFetch, QueryJson, QueryResultJson } from "flowerbi";
-import { latestSql } from "../localFetch";
-import { getColumnsWithOffsets } from "./DataPreview";
+import { FilterJson, FilterOperator, OrderingJson, QueryFetch, QueryJson, QueryResultJson } from "flowerbi";
+import { latestError, latestSql } from "../localFetch";
+import { BuiltFilter, BuiltQuery, getColumnDataType, getColumnsWithOffsets, getTypedFilterValue } from "./builtQueryModel";
 
 export interface DataPreviewProps {
     query: BuiltQuery;
     fetch: QueryFetch;
+}
+
+function generateFilters(builtFilters: BuiltFilter[]) {
+    const filters: FilterJson[] = [];
+
+    for (const f of builtFilters) {
+        const dataType = getColumnDataType(f.table, f.column);
+        const value = getTypedFilterValue(dataType, f.value);
+        if (value !== undefined) {
+            filters.push({
+                column: `${f.table}.${f.column}`,
+                operator: f.operator as FilterOperator,
+                value,
+            });
+        }
+    }
+    return filters;
 }
 
 function jsonFromBuiltQuery(query: BuiltQuery): QueryJson {
@@ -32,7 +48,9 @@ function jsonFromBuiltQuery(query: BuiltQuery): QueryJson {
             .map((x) => ({
                 column: `${x.selection.table}.${x.selection.column}`,
                 function: x.selection.aggregation!,
+                filters: generateFilters(x.selection.filters),
             })),
+        filters: generateFilters(query.filters),
         orderBy,
     };
 }
@@ -52,5 +70,5 @@ export function useBuiltQuery(query: BuiltQuery, fetch: QueryFetch) {
         }
     }, [fetch, queryJsonString]);
 
-    return { ...data, sql: latestSql };
+    return { ...data, sql: latestSql, error: latestError };
 }

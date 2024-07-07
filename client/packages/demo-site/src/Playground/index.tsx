@@ -1,9 +1,11 @@
 import { FetchProps } from "../Reports/VisualProps";
 import React, { PropsWithChildren, useState } from "react";
-import { BuiltQuery, QueryBuilder } from "./QueryBuilder";
+import { QueryBuilder } from "./QueryBuilder";
 import { CodePreview } from "./CodePreview";
 import { DataPreview } from "./DataPreview";
 import { useBuiltQuery } from "./useBuiltQuery";
+import { BuiltQuery } from "./builtQueryModel";
+import { ChartPreview } from "./ChartPreview";
 
 function PlaygroundPanel({ title, children }: PropsWithChildren<{ title: string }>) {
     return (
@@ -17,11 +19,12 @@ function PlaygroundPanel({ title, children }: PropsWithChildren<{ title: string 
 export function Playground({ fetch }: FetchProps) {
     const [builtQuery, setBuiltQuery] = useState<BuiltQuery>({
         select: [
-            { name: "customer", table: "Customer", column: "CustomerName" },
-            { name: "assigned", table: "CoderAssigned", column: "FullName" },
-            { name: "bugCount", table: "Bug", column: "Id", aggregation: "Count" },
+            { name: "customer", table: "Customer", column: "CustomerName", filters: [] },
+            { name: "assigned", table: "CoderAssigned", column: "FullName", filters: [] },
+            { name: "bugCount", table: "Bug", column: "Id", aggregation: "Count", filters: [] },
         ],
         ordering: [],
+        filters: [],
     });
 
     const data = useBuiltQuery(builtQuery, fetch);
@@ -58,7 +61,9 @@ export function Playground({ fetch }: FetchProps) {
                 <PlaygroundPanel title="Data">
                     <DataPreview query={builtQuery} data={data} onHeaderClick={headerClicked} />
                 </PlaygroundPanel>
-                <PlaygroundPanel title="Chart"></PlaygroundPanel>
+                <PlaygroundPanel title="Chart">
+                    <ChartPreview query={builtQuery} data={data} error={data.error} />
+                </PlaygroundPanel>
             </div>
         </div>
     );

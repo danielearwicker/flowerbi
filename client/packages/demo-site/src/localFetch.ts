@@ -3,6 +3,7 @@ import { getDb } from "./database";
 import { QueryResultJson, QuerySelectValue, QueryJson } from "flowerbi";
 
 export let latestSql = "";
+export let latestError = "";
 
 async function querySql(sql: string) {
     const db = await getDb();
@@ -36,13 +37,17 @@ export async function localFetch(queryJson: QueryJson): Promise<QueryResultJson>
 
     if (parsed.stackTrace) {
         console.error(parsed);
+        latestError = json;
         return { records: [] };
     }
 
     if (!parsed[0]) {
         console.error(parsed);
+        latestError = json;
         return { records: [] };
     }
+
+    latestError = "";
 
     const columns = parsed[0].columns;
     const values = parsed[0].values as QuerySelectValue[][];

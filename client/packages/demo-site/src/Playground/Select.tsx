@@ -11,7 +11,7 @@ export function Select<T>({ options, value, onChange }: SelectProps<T>) {
         <select value={value + ""} onChange={(e) => onChange((e.target.value as unknown as T) ?? undefined)}>
             <option value="">(None)</option>
             {options.map((o) => (
-                <option>{o}</option>
+                <option key={`${o}`}>{o}</option>
             ))}
         </select>
     );
