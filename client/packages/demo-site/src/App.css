@@ -138,6 +138,7 @@ body,
     display: flex;
     flex-direction: column;
     width: 100%;
+    position: relative;
 }
 
 .reports-site .content .title-bar {
