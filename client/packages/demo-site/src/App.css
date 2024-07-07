@@ -302,8 +302,8 @@ body,
 }
 
 .playground .section th {
-    background-color: rgb(109, 62, 47);
-    color: #ddd;
+    background-color: rgb(238, 216, 209);
+    color: #2f2121;
 }
 
 .playground .sort-header {
@@ -318,7 +318,7 @@ body,
 }
 
 .playground .filter-cell {
-    background-color: #ddd;
+    background-color: #d8c1c1;
 }
 
 .playground .spacer {
