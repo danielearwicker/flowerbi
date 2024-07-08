@@ -285,12 +285,25 @@ body,
     border-collapse: collapse;
 }
 
+.playground select {
+    padding: 2px;
+    margin: 0;
+}
+
+.playground input {
+    position: relative;
+    top: -1px;
+    padding: 1px;
+    margin: 0;
+}
+
 .playground th,
 .playground td {
     text-align: left;
     border: 1px solid silver;
-    padding: 0.2em;
+    padding: 0.2em 0.5em;
     font-weight: normal;
+    vertical-align: unset;
 }
 
 .playground .sticky th {

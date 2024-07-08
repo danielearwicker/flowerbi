@@ -23,6 +23,6 @@
         "watch": "tsc -w",
         "test": "jest",
         "docs": "typedoc --excludePrivate --readme home.md --out ../../../docs/typedoc/flowerbi-dates src",
-        "prepare": "npm run test && npm run build && npm run docs"
+        "fbi-release": "npm run test && npm run build && npm run docs"
     }
 }

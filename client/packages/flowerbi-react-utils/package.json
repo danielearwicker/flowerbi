@@ -22,6 +22,6 @@
         "build": "tsc",
         "watch": "tsc -w",
         "docs": "typedoc --out ../../../docs/typedoc/flowerbi-react-utils src",
-        "prepare": "npm run build && npm run docs"
+        "fbi-release": "npm run build && npm run docs"
     }
 }

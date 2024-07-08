@@ -27,8 +27,8 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
-        "docs": "export PUBLIC_URL=/flowerbi/demo && yarn build && (rm -rf ../../../docs/demo ; cp -R build/ ../../../docs/demo/)",
-        "prepare": "npm run docs"
+        "docs": "export PUBLIC_URL=/flowerbi/demo && npm run build && (rm -rf ../../../docs/demo ; cp -R build/ ../../../docs/demo/)",
+        "fbi-release": "npm run docs"
     },
     "eslintConfig": {
         "extends": "react-app"

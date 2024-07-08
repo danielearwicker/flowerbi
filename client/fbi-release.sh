@@ -1,19 +1,19 @@
-node apply-version.js
-
-. ./fbi-release
-
 pushd packages/flowerbi
-npm publish
+npm run fbi-release
 popd
 
 pushd packages/flowerbi-react
-npm publish
+npm run fbi-release
 popd
 
 pushd packages/flowerbi-dates
-npm publish
+npm run fbi-release
 popd
 
 pushd packages/flowerbi-react-utils
-npm publish
+npm run fbi-release
+popd
+
+pushd packages/demo-site
+npm run fbi-release
 popd
