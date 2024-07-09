@@ -940,6 +940,62 @@ public abstract class ExecutionTests
     }
 
     [Fact]
+    public void DoubleAggregationWithBitFilters()
+    {
+        var queryJson = new QueryJson
+        {
+            Select = ["Vendor.VendorName"],
+            Aggregations =
+            [
+                new AggregationJson
+                {
+                    Column = "Invoice.Id",
+                    Function = AggregationType.Count
+                },
+
+                new AggregationJson
+                {
+                    Column = "Invoice.Id",
+                    Function = AggregationType.Count,
+                    Filters =
+                    [
+                        new()
+                        {
+                            Column = "Invoice.VendorId",
+                            Operator = "BITS IN",
+                            Constant = 1 | 2,
+                            Value = new[] { 0, 2 }
+                        },
+                    ]
+                }
+            ]
+        };
+
+        var results = ExecuteQuery(queryJson);
+
+        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
+
+        records.Should().BeEquivalentTo(new[]
+            {
+                ("[United Cheese]", 7, 7),
+                ("[Handbags-a-Plenty]", 4, 0),
+                ("[Manchesterford Supplies Inc]", 3, 3),
+                ("[Tiles Tiles Tiles]", 2, 0),
+                ("[Steve Makes Sandwiches]", 2, 2),
+                ("[Statues While You Wait]", 2, 2),
+                ("[Mats and More]", 2, 0),
+                ("[Disgusting Ltd]", 2, 0),
+                ("[Uranium 4 Less]", 1, 1),
+                ("[Stationary Stationery]", 1, 0),
+                ("[Pleasant Plc]", 1, 1),
+                ("[Party Hats 4 U]", 1, 0),
+                ("[Awnings-R-Us]", 1, 1),
+            });
+
+        records.Select(x => x.Item2).Should().BeInDescendingOrder();
+    }
+
+    [Fact]
     public void SqlAndDapperWithListFilter()
     {
         var queryJson = new QueryJson

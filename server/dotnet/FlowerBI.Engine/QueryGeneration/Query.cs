@@ -40,7 +40,7 @@ public class Query(QueryJson json, Schema schema)
     private const string _templateMain = """
         select
             {{#each selects}}
-            {{this}}{{#unless @last}}, {{/unless}}
+            {{{this}}}{{#unless @last}}, {{/unless}}
             {{/each}}
         {{joins}}
         {{#if filters}}
