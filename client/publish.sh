@@ -1,7 +1,3 @@
-node apply-version.js
-
-. ./fbi-release
-
 pushd packages/flowerbi
 npm publish
 popd

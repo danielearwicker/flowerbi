@@ -1,3 +1,5 @@
+node apply-version.js
+
 pushd packages/flowerbi
 npm run fbi-release
 popd

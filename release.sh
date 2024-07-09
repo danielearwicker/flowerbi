@@ -12,27 +12,7 @@ cp -R server/dotnet/Demo/FlowerBI.WasmHost/bin/Debug/net8.0/wwwroot/_framework c
 
 pushd client
 yarn
-
-pushd packages/flowerbi
-yarn prepare
-popd
-
-pushd packages/flowerbi-react
-yarn prepare
-popd
-
-pushd packages/flowerbi-dates
-yarn prepare
-popd
-
-pushd packages/flowerbi-react-utils
-yarn prepare
-popd
-
-pushd packages/demo-site
-yarn prepare
-popd
-
+. ./fbi-release.sh
 popd
 
 pushd server/dotnet
