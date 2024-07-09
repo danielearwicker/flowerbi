@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/flowerbi/demo/static/css/main.7a466e74.css",
+    "main.css": "/flowerbi/demo/static/css/main.4a2b5546.css",
     "main.js": "/flowerbi/demo/static/js/main.ff6b2410.js",
     "index.html": "/flowerbi/demo/index.html",
-    "main.7a466e74.css.map": "/flowerbi/demo/static/css/main.7a466e74.css.map",
+    "main.4a2b5546.css.map": "/flowerbi/demo/static/css/main.4a2b5546.css.map",
     "main.ff6b2410.js.map": "/flowerbi/demo/static/js/main.ff6b2410.js.map"
   },
   "entrypoints": [
-    "static/css/main.7a466e74.css",
+    "static/css/main.4a2b5546.css",
     "static/js/main.ff6b2410.js"
   ]
 }
