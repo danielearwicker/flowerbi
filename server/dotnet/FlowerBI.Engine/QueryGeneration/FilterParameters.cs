@@ -31,6 +31,13 @@ namespace FlowerBI
         }
     }
 
+    public class NullFilterParameters : IFilterParameters
+    {
+        public string this[Filter filter] => string.Empty;
+
+        public static readonly IFilterParameters Singleton = new NullFilterParameters();
+    }
+
     public class EmbeddedFilterParameters : IFilterParameters
     {
         public string this[Filter filter] =>
