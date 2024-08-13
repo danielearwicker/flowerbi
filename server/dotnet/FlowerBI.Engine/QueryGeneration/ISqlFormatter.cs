@@ -9,6 +9,17 @@
         string CastToFloat(string valueExpr);
     }
 
+    public class NullSqlFormatter : ISqlFormatter
+    {
+        public string CastToFloat(string valueExpr) => string.Empty;
+        public string Conditional(string predExpr, string thenExpr, string elseExpr) => string.Empty;
+        public string EscapedIdentifierPair(string id1, string id2) => string.Empty;
+        public string Identifier(string name) => string.Empty;
+        public string SkipAndTake(long skip, int take) => string.Empty;
+
+        public static readonly ISqlFormatter Singleton = new NullSqlFormatter();
+    }
+
     public static class SqlFormatterExtensions
     {
         public static string IdentifierPair(this ISqlFormatter sql, string id1, string id2)

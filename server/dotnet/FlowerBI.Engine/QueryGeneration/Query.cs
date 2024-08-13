@@ -122,6 +122,19 @@ public class Query(QueryJson json, Schema schema)
         ISqlFormatter sql,
         IFilterParameters filterParams,
         IEnumerable<Filter> outerFilters,
+        bool totals) => ToSqlAndTables(sql, filterParams, outerFilters, totals).Sql;
+
+    public IEnumerable<Table> GetRequiredTables(IEnumerable<Filter> outerFilters) 
+        => ToSqlAndTables(
+            NullSqlFormatter.Singleton,
+            NullFilterParameters.Singleton,
+            outerFilters,
+            false).Tables.Select(x => x.Value).Distinct().ToList();
+
+    public (string Sql, IEnumerable<LabelledTable> Tables) ToSqlAndTables(
+        ISqlFormatter sql,
+        IFilterParameters filterParams,
+        IEnumerable<Filter> outerFilters,
         bool totals)
     {
         var joins = new Joins();
@@ -167,16 +180,20 @@ public class Query(QueryJson json, Schema schema)
 
         var template = calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
 
-        return template(new
+        var (joinSql, joinedTables) = joins.ToSqlAndTables(sql);
+
+        var sqlFromTemplate = template(new
         {
             selects,
             filters,
             calculations,
-            joins = joins.ToSql(sql),
+            joins = joinSql,
             groupBy,
             orderBy,
             skipAndTake
         });
+
+        return (sqlFromTemplate, joinedTables);
     }
 
     public static string FindIndexedOrderingColumn(Ordering ordering)
