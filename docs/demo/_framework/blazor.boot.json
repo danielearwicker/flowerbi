@@ -1,12 +1,12 @@
 {
   "mainAssemblyName": "FlowerBI.WasmHost",
   "resources": {
-    "hash": "sha256-7ia463RlCcAJcBe1WekaTT8uVKlKtaeN6QcBcoHEMEo=",
+    "hash": "sha256-rGwA2pDfr4wE/zOercftbClCzlIDSjGkCkuWCUrNUJI=",
     "jsModuleNative": {
-      "dotnet.native.8.0.6.wz7wzmup65.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
+      "dotnet.native.8.0.6.ygqagtplaf.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
     },
     "jsModuleRuntime": {
-      "dotnet.runtime.8.0.6.y5i1dzriyy.js": "sha256-+E96dgYQl8OrHQb4yNZ7QwNr3SZzLSP8lwKRzwSiMsw="
+      "dotnet.runtime.8.0.6.43lbstgbri.js": "sha256-+E96dgYQl8OrHQb4yNZ7QwNr3SZzLSP8lwKRzwSiMsw="
     },
     "wasmNative": {
       "dotnet.native.wasm": "sha256-QvXWDxAxKcwrwr5J00t53OFtgShscemIYbvFu+ry5Ug="
@@ -211,14 +211,14 @@
       "mscorlib.wasm": "sha256-masKveCdoRSahF99doEQk7H3YN2wHLVIE4M/Zu8OoD8=",
       "netstandard.wasm": "sha256-z1EJOmgVhSpTopn7Tek/0P//MKGF1I3NUD/sh4oLnwY=",
       "System.Private.CoreLib.wasm": "sha256-tuIWpR30u0OoEVtv4pXZ47mEpI2AmFBIyYFPnqDZZfw=",
-      "FlowerBI.DemoSchema.wasm": "sha256-F6Z+p+ft4t9ABgN+XBX5lrwu026iok7fKBGt2iF+DyE=",
-      "FlowerBI.Engine.wasm": "sha256-33zh35M0nqJ/fjW1NEeK8EE2bf8rT3o1T/lFVHEPgK4=",
-      "FlowerBI.WasmHost.wasm": "sha256-9OnqFvEdgCTcTihfI3J2tFOYio3O3hWhemObLo0q8hY="
+      "FlowerBI.DemoSchema.wasm": "sha256-ehrNCpMhxiQ3bAMHLmLTRFiIwcIzF9NemSqw0rVmCjM=",
+      "FlowerBI.Engine.wasm": "sha256-EkUgCKK3iphcF7ir6daVl2unBqymh03DB0OKZhTuoC4=",
+      "FlowerBI.WasmHost.wasm": "sha256-6fXNvuh9ReuqlzLV3/gGizS91ciXlC+NySR0FyaJHU8="
     },
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-yd/8Ylw3sUbziiH4Bm/7XQzmn2lvSTdpCt8QHwE3p/k=",
-      "FlowerBI.Engine.pdb": "sha256-854zOvHw5GFqPs7o1MfUgT63JzGqToQTtuBb5m+wGu8=",
-      "FlowerBI.WasmHost.pdb": "sha256-gRry+4rjSjJjcITh/CbiVZLNcDyiQQK7QmWdtp9/XaQ="
+      "FlowerBI.DemoSchema.pdb": "sha256-iwDJ725vqRqdkaZuR/v47KSdu90wiyfvHkAh+5qPvOg=",
+      "FlowerBI.Engine.pdb": "sha256-//bgqet8CUpWA3a/KpdqX0TkpReZImCTPNIEAgMzU3k=",
+      "FlowerBI.WasmHost.pdb": "sha256-KvnHLyt1ycvR+cMuWQzH6uOhFCkdXp3H2rELmfBQuPU="
     }
   },
   "cacheBootResources": true,
