@@ -14,7 +14,7 @@ public sealed class SqlServerFixture : IDisposable
     public IDbConnection Db { get; }
 
     private const string _containerName = "FlowerBITestSqlServer";
-    private const string _databaseName = "FlowerBITest";
+    private static readonly string _databaseName = $"FlowerBITest{Environment.Version.ToString().Replace('.', '_')}";
     private const string _password = "Str0ngPa$$w0rd";
     private const int _port = 61316;
 
