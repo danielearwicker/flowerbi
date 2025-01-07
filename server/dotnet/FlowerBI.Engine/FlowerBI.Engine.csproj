@@ -7,6 +7,8 @@
     <Description>Server-side query generation engine for FlowerBI</Description>
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

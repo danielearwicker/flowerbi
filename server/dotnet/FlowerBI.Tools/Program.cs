@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Reflection;
 using FlowerBI.Conversion;
 
 namespace FlowerBI.Tools
@@ -8,6 +8,8 @@ namespace FlowerBI.Tools
     {
         private static int Main(string[] args)
         {
+            Console.WriteLine($"FlowerBI Tools {Assembly.GetEntryAssembly().GetName().Version} running on dotnet {Environment.Version}");
+
             if (args.Length == 4 && args[0] == "ts")
             {
                 TypeScript.FromReflection(args[1], args[2], args[3], Console.Out);                

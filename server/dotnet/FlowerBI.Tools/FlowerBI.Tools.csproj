@@ -11,6 +11,9 @@
     <ToolCommandName>flowerbi</ToolCommandName>
 
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+
+    <AssemblyVersion>$(PackageVersion)</AssemblyVersion>
+
   </PropertyGroup>
 
   <ItemGroup>
