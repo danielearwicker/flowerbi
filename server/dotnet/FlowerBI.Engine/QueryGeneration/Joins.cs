@@ -165,7 +165,9 @@ namespace FlowerBI
             }
         }
 
-        public string ToSql(ISqlFormatter sql)
+        public string ToSql(ISqlFormatter sql) => ToSqlAndTables(sql).Sql;
+
+        public (string Sql, IEnumerable<LabelledTable> Tables) ToSqlAndTables(ISqlFormatter sql)
         {
             var needed = Aliases.OrderBy(x => x.Value).Select(x => x.Key).ToList();
 
@@ -173,7 +175,7 @@ namespace FlowerBI
 
             var root = needed.First();
             var output = new List<string> { $"from {root.Value.ToSql(sql)} {GetAlias(root)}" };
-           
+
             bool CanReachAllNeeded(IEnumerable<LabelledTable> reached)
                 => needed.All(n => n == root || reached.Contains(n));
 
@@ -184,7 +186,7 @@ namespace FlowerBI
             {
                 throw new InvalidOperationException($"Could not connect tables: {string.Join(",", needed)}");
             }
-            
+
             for (var repeat = true; repeat;)
             {
                 repeat = false;
@@ -261,7 +263,7 @@ namespace FlowerBI
                 joinedSoFar.Add(table);
             }
 
-            return string.Join(Environment.NewLine, output);
+            return (string.Join(Environment.NewLine, output), joinedSoFar);
         }
     }
 }

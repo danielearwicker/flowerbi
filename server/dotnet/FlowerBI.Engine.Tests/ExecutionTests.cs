@@ -1031,4 +1031,35 @@ public abstract class ExecutionTests
                 (8, 6, 1),
             ]);
     }
+
+    [Fact]
+    public void SqlAndDapperWithEmptyListFilter()
+    {
+        var queryJson = new QueryJson
+        {
+            Select =
+            [
+                "Invoice.VendorId",
+                "Invoice.DepartmentId",
+            ],
+            Aggregations =
+            [
+                new() { Column = "Vendor.VendorName" }
+            ],
+            Filters =
+            [
+                new()
+                {
+                    Column = "Invoice.Id",
+                    Operator = "IN",
+                    Value = JsonSerializer.Deserialize<object>("[]"),
+                }
+            ]
+        };
+
+        Action a = () => { ExecuteQuery(queryJson); };
+
+        a.Should().Throw<InvalidOperationException>()
+                  .WithMessage("Filter JSON contains empty array");
+    }
 }

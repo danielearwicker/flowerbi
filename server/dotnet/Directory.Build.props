@@ -1,10 +1,10 @@
 <Project>
     <PropertyGroup>
-        <PackageVersion>5.0.1</PackageVersion>
+        <PackageVersion>5.1.2</PackageVersion>
         <Authors>Daniel Earwicker</Authors>
         <PackageOutputPath>./nupkg</PackageOutputPath>
         <license>MIT</license>
         <LangVersion>latest</LangVersion>
-        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
     </PropertyGroup>
 </Project>
