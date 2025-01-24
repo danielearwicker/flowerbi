@@ -18,12 +18,12 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
     {        
         if (string.IsNullOrWhiteSpace(yaml.schema))
         {
-            throw new InvalidOperationException("Schema must have non-empty schema property");
+            throw new FlowerBIException("Schema must have non-empty schema property");
         }
 
         if (yaml.tables == null || !yaml.tables.Any())
         {
-            throw new InvalidOperationException("Schema must have non-empty tables property");
+            throw new FlowerBIException("Schema must have non-empty tables property");
         }
 
         // Validate all columns are [name, type] array
@@ -31,7 +31,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
         {
             if (table.id != null && table.id.Count != 1)
             {
-                throw new InvalidOperationException($"Table {tableKey} id must have a single column");
+                throw new FlowerBIException($"Table {tableKey} id must have a single column");
             }
 
             if (table.columns != null)
@@ -40,7 +40,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 {
                     if (type.Length < 1 || type.Length > 2)
                     {
-                        throw new InvalidOperationException($"Table {tableKey} column {name} type must be an array of length 1 or 2");
+                        throw new FlowerBIException($"Table {tableKey} column {name} type must be an array of length 1 or 2");
                     }
                 }
             }
@@ -56,7 +56,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             if (!resolutionStack.Add(tableKey))
             {
                 var stackString = string.Join(", ", resolutionStack);
-                throw new InvalidOperationException($"Circular reference detected: {stackString}");
+                throw new FlowerBIException($"Circular reference detected: {stackString}");
             }
 
             var resolvedTable = resolvedTables.FirstOrDefault(x => x.Name == tableKey);
@@ -73,7 +73,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 {                    
                     if (!yaml.tables.TryGetValue(table.extends, out var extendsYaml))
                     {
-                        throw new InvalidOperationException($"No such table {table.extends}, referenced in {tableKey}");
+                        throw new FlowerBIException($"No such table {table.extends}, referenced in {tableKey}");
                     }
 
                     var extendsTable = ResolveTable(table.extends, extendsYaml);
@@ -96,7 +96,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
                 if (!resolvedTable.Columns.Any())
                 {
-                    throw new InvalidOperationException($"Table {tableKey} must have columns (or use 'extends')");
+                    throw new FlowerBIException($"Table {tableKey} must have columns (or use 'extends')");
                 }
 
                 resolvedTable.NameInDb ??= tableKey;
@@ -112,7 +112,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                         var resolvedAssoc = allColumns.FirstOrDefault(c => c.Name == assoc);
                         if (resolvedAssoc == null)
                         {
-                            throw new InvalidOperationException($"Table {tableKey} has an association {assoc} that is not a column");
+                            throw new FlowerBIException($"Table {tableKey} has an association {assoc} that is not a column");
                         }
                         resolvedTable.Associative.Add(resolvedAssoc);
                     }                    
@@ -128,12 +128,12 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
         {
             if (string.IsNullOrWhiteSpace(tableKey))
             {
-                throw new InvalidOperationException("Table must have non-empty key");
+                throw new FlowerBIException("Table must have non-empty key");
             }
 
             if (!usedNames.Add(tableKey))
             {
-                throw new InvalidOperationException($"More than one table is named '{tableKey}'");
+                throw new FlowerBIException($"More than one table is named '{tableKey}'");
             }
 
             ResolveTable(tableKey, table);            
@@ -145,7 +145,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             if (!resolutionStack.Add(stackKey))
             {
                 var stackString = string.Join(", ", resolutionStack);
-                throw new InvalidOperationException($"Circular reference detected: {stackString}");
+                throw new FlowerBIException($"Circular reference detected: {stackString}");
             }
 
             if (c.DataType == DataType.None)
@@ -160,7 +160,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                     var targetColumn = resolvedTables.FirstOrDefault(x => x.Name == typeName)?.IdColumn;
                     if (targetColumn == null)
                     {
-                        throw new InvalidOperationException($"{typeName} is neither a data type nor a table, in {c.Table.Name}.{c.Name}");
+                        throw new FlowerBIException($"{typeName} is neither a data type nor a table, in {c.Table.Name}.{c.Name}");
                     }
 
                     ResolveColumnType(targetColumn);

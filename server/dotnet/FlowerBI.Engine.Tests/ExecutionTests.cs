@@ -1059,7 +1059,7 @@ public abstract class ExecutionTests
 
         Action a = () => { ExecuteQuery(queryJson); };
 
-        a.Should().Throw<InvalidOperationException>()
+        a.Should().Throw<FlowerBIException>()
                   .WithMessage("Filter JSON contains empty array");
     }
 }

@@ -10,7 +10,7 @@ namespace FlowerBI
         {
             if (!column.Table.Conjoint)
             {
-                throw new InvalidOperationException($"Table {column.Table.RefName} is not conjoint");
+                throw new FlowerBIException($"Table {column.Table.RefName} is not conjoint");
             }
 
             return new LabelledColumn(joinLabel, column);
@@ -62,13 +62,13 @@ namespace FlowerBI
             var parts = name.Split(".");
             if (parts.Length != 2)
             {
-                throw new InvalidOperationException(
+                throw new FlowerBIException(
                     "Column names must be of the form Table.Column");
             }
 
             if (!_tables.TryGetValue(parts[0], out var table))
             {
-                throw new InvalidOperationException(
+                throw new FlowerBIException(
                     $"No such table {parts[0]}");
             }
 

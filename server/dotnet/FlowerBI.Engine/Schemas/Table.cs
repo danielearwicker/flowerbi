@@ -43,7 +43,7 @@ namespace FlowerBI
                 {
                     if (Id != null)
                     {
-                        throw new InvalidOperationException(
+                        throw new FlowerBIException(
                             $"Table {this} has two primary keys");
                     }
 
@@ -54,7 +54,7 @@ namespace FlowerBI
                 {
                     if (_keys.ContainsKey(key.To.Table))
                     {
-                        throw new InvalidOperationException(
+                        throw new FlowerBIException(
                             $"Table {this} already has foreign key to" +
                             $" {key.To.Table}, can't set {key}");
                     }
@@ -80,7 +80,7 @@ namespace FlowerBI
         {
             if (!_columns.TryGetValue(refName, out var column))
             {
-                throw new InvalidOperationException(
+                throw new FlowerBIException(
                     $"No such column {refName} in table {this}");
             }
 
@@ -90,7 +90,7 @@ namespace FlowerBI
         public IForeignKey GetForeignKeyTo(Table otherTable)
         {
             return _keys.TryGetValue(otherTable, out var foreignKey) ? foreignKey
-                : throw new InvalidOperationException($"Table {this} has no foreign key to {otherTable}");
+                : throw new FlowerBIException($"Table {this} has no foreign key to {otherTable}");
         }
 
         public string ToSql(ISqlFormatter sql) => sql.IdentifierPair(Schema.DbName, DbName);

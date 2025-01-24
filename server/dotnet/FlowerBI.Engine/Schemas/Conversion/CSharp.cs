@@ -21,7 +21,7 @@ public static class CSharp
             DataType.Decimal => "decimal",
             DataType.String => "string",
             DataType.DateTime => "DateTime",
-            _ => throw new InvalidOperationException($"Unsupported data type: {dataType}")
+            _ => throw new FlowerBIException($"Unsupported data type: {dataType}")
         };
 
         return nullable ? $"{csType}?" : csType;

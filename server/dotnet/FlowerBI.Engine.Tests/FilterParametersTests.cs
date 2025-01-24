@@ -127,7 +127,7 @@ public class FilterParametersTests
 
         Func<string> a = () => p[MakeFilter(Array.Empty<double>(), newtonSoft)];
 
-        a.Should().Throw<InvalidOperationException>()
+        a.Should().Throw<FlowerBIException>()
                   .WithMessage("Filter JSON contains empty array");
     }
 
@@ -140,7 +140,7 @@ public class FilterParametersTests
 
         Func<string> a = () => p[MakeFilter(new { x = Array.Empty<double>() }, newtonSoft)];
 
-        a.Should().Throw<InvalidOperationException>()
+        a.Should().Throw<FlowerBIException>()
                   .WithMessage("Unsupported filter value");
     }
 }

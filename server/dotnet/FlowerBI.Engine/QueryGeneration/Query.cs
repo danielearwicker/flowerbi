@@ -110,7 +110,7 @@ public class Query(QueryJson json, Schema schema)
             var mask = f.Constant is int i ? i :
                        f.Constant is long l ? l :
                        f.Constant is double d ? (int)d :
-                       throw new InvalidOperationException("BITS IN filter requires integer constant");
+                       throw new FlowerBIException("BITS IN filter requires integer constant");
 
             return $"({column} & {mask}) in {param}";
         }
@@ -151,7 +151,7 @@ public class Query(QueryJson json, Schema schema)
 
         if (selects.Count == 0)
         {
-            throw new InvalidOperationException("Must select something");
+            throw new FlowerBIException("Must select something");
         }
 
         var filters = outerFilters.Concat(Filters).Select(f => new
@@ -204,7 +204,7 @@ public class Query(QueryJson json, Schema schema)
         var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
         if (found.c == null)
         {
-            throw new InvalidOperationException(
+            throw new FlowerBIException(
                 $"Cannot order by {ordering.Column} as it has not been selected");
         }
 

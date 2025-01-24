@@ -3,9 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using FlowerBI.Engine.JsonModels;
-using Microsoft.Win32.SafeHandles;
 
 namespace FlowerBI
 {
@@ -53,7 +51,7 @@ namespace FlowerBI
             var type = value.GetType();
             if (!_basicValueTypes.Contains(type))
             {
-                throw new InvalidOperationException($"Unsupported filter value");
+                throw new FlowerBIException("Unsupported filter value");
             }
         }
 
@@ -80,7 +78,7 @@ namespace FlowerBI
                     //
                     // This has always been the case, but now it produces a descriptive error
                     // instead of a SQL syntax error.
-                    throw new InvalidOperationException("Filter JSON contains empty array");
+                    throw new FlowerBIException("Filter JSON contains empty array");
                 }
 
                 return unpacked;
@@ -167,7 +165,7 @@ namespace FlowerBI
         {
             if (!_allowedOperators.Contains(op))
             {
-                throw new InvalidOperationException($"{op} is not an allowed operator");
+                throw new FlowerBIException($"{op} is not an allowed operator");
             }
 
             return op;

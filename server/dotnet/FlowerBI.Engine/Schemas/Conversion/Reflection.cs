@@ -25,7 +25,7 @@ public static class Reflection
             clrType == typeof(decimal) ? DataType.Decimal :
             clrType == typeof(string) ? DataType.String :
             clrType == typeof(DateTime) ? DataType.DateTime :
-            throw new InvalidOperationException($"Unsupported data type: {clrType}");
+            throw new FlowerBIException($"Unsupported data type: {clrType}");
 
         return (dataType, nonNullable != null);
     }
@@ -107,7 +107,7 @@ public static class Reflection
         var schemaType = AssemblyLoadContext.Default.LoadFromAssemblyPath(path).GetType(schemaClass);
         if (schemaType == null)
         {
-            throw new InvalidOperationException($"No such type {schemaType} in assembly");                
+            throw new FlowerBIException($"No such type {schemaType} in assembly");                
         }
 
         console.WriteLine($"Reading type {schemaType.FullName}");
