@@ -25,7 +25,7 @@ anything: random
         Action a = () => ResolvedSchema.Resolve(@"
 schema:
 ");
-        a.Should().Throw<InvalidOperationException>("Schema must have non-empty schema property");
+        a.Should().Throw<FlowerBIException>("Schema must have non-empty schema property");
     }
 
     [Fact]
@@ -34,7 +34,7 @@ schema:
         Action a = () => ResolvedSchema.Resolve(@"
 schema: hats
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Schema must have non-empty tables property");
+        a.Should().Throw<FlowerBIException>().WithMessage("Schema must have non-empty tables property");
     }
 
     [Fact]
@@ -45,7 +45,7 @@ schema: hats
 tables:
   """": {}
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table must have non-empty key");
+        a.Should().Throw<FlowerBIException>().WithMessage("Table must have non-empty key");
     }
 
     [Fact]
@@ -59,7 +59,7 @@ tables:
       a: [int]
       b: [int]
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby id must have a single column");
+        a.Should().Throw<FlowerBIException>().WithMessage("Table trilby id must have a single column");
     }
 
     [Fact]
@@ -72,7 +72,7 @@ tables:
     id:
       id: [int]
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby must have columns (or use 'extends')");
+        a.Should().Throw<FlowerBIException>().WithMessage("Table trilby must have columns (or use 'extends')");
     }
 
     [Fact]
@@ -87,7 +87,7 @@ tables:
     columns:
       brim: []
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
+        a.Should().Throw<FlowerBIException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
     }
 
     [Fact]
@@ -102,7 +102,7 @@ tables:
     columns:
       brim: [short, extra, nonsense]
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
+        a.Should().Throw<FlowerBIException>().WithMessage("Table trilby column brim type must be an array of length 1 or 2");
     }
 
     [Fact]
@@ -117,7 +117,7 @@ tables:
     columns:
       brim: [string] 
 ");
-        a.Should().Throw<InvalidOperationException>().WithMessage("lemon is neither a data type nor a table, in trilby.id");
+        a.Should().Throw<FlowerBIException>().WithMessage("lemon is neither a data type nor a table, in trilby.id");
     }
 
     [Fact]

@@ -55,7 +55,7 @@ namespace FlowerBI
         {
             if (Table != null)
             {
-                throw new InvalidOperationException(
+                throw new FlowerBIException(
                     $"Field {reflectionName} belongs to table {Table}, " +
                     $"cannot also belong to table {table}");
             }

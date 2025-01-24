@@ -39,7 +39,7 @@ public class CalculationJson
 
             if (!_allowedOperators.Contains(Operator))
             {
-                throw new InvalidOperationException($"Operator '{Operator}' not supported");
+                throw new FlowerBIException($"Operator '{Operator}' not supported");
             }
 
             var firstExpr = First.ToSql(sql, fetchAggValue);
@@ -52,14 +52,14 @@ public class CalculationJson
                 : $"({firstExpr} {Operator} {secondExpr})";
         }
 
-        throw new InvalidOperationException("Calculation does not specify enough properties");
+        throw new FlowerBIException("Calculation does not specify enough properties");
     }
 
     public void RequireNulls(params object[] nulls)
     {
         if (nulls.Any(x => x != null))
         {
-            throw new InvalidOperationException("Calculation has too many properties in same object");
+            throw new FlowerBIException("Calculation has too many properties in same object");
         }
     }
 }

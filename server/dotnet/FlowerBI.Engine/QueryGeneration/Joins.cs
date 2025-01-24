@@ -184,7 +184,7 @@ namespace FlowerBI
 
             if (!CanReachAllNeeded(reachable))
             {
-                throw new InvalidOperationException($"Could not connect tables: {string.Join(",", needed)}");
+                throw new FlowerBIException($"Could not connect tables: {string.Join(",", needed)}");
             }
 
             for (var repeat = true; repeat;)
