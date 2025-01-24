@@ -130,4 +130,17 @@ public class FilterParametersTests
         a.Should().Throw<InvalidOperationException>()
                   .WithMessage("Filter JSON contains empty array");
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void DapperFilterParameters_ObjectWithEmptyArrayProperty_CaughtEarly(bool newtonSoft)
+    {   
+        var p = new DapperFilterParameters();
+
+        Func<string> a = () => p[MakeFilter(new { x = Array.Empty<double>() }, newtonSoft)];
+
+        a.Should().Throw<InvalidOperationException>()
+                  .WithMessage("Unsupported filter value");
+    }
 }
