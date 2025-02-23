@@ -269,23 +269,69 @@ public class Query(QueryJson json, Schema schema)
         IEnumerable<Filter> outerFilters
     )
     {
-        var result = ToSql(sql, filterParams, outerFilters, false);
-
-        if (Totals)
-        {
-            result += ";" + ToSql(sql, filterParams, outerFilters, true);
-        }
+        var result = string.Empty;
 
         if (!string.IsNullOrWhiteSpace(Comment))
         {
             var stripped = SanitiseCommentPattern.Replace(Comment, " ").Trim();
-            result = $"/* {stripped} */ \r\n{result}";
+            result += $"/* {stripped} */ \r\n";
         }
+
+        if (Totals)
+        {
+            result += ToSql(sql, filterParams, outerFilters, true) + ";";
+        }
+
+        result += ToSql(sql, filterParams, outerFilters, false);
 
         return result;
     }
 
     public QueryResultJson Run(
+        ISqlFormatter sql,
+        IDbConnection db,
+        Action<string> log,
+        params Filter[] outerFilters
+    )
+    {
+        var result = new QueryResultJson { Records = [] };
+
+        var stream = Stream(sql, db, log, outerFilters).GetEnumerator();
+
+        if (Totals)
+        {
+            if (!stream.MoveNext())
+            {
+                throw new FlowerBIException("Expected at least one record");
+            }
+
+            result.Totals = stream.Current;
+        }
+
+        while (stream.MoveNext())
+        {
+            result.Records.Add(stream.Current);
+        }
+
+        return result;
+    }
+
+    public IEnumerable<QueryRecordJson> Stream(
+        ISqlFormatter sql,
+        Func<IDbConnection> connect,
+        Action<string> log,
+        params Filter[] outerFilters
+    )
+    {
+        using var db = connect();
+
+        foreach (var record in Stream(sql, db, log, outerFilters))
+        {
+            yield return record;
+        }
+    }
+
+    private IEnumerable<QueryRecordJson> Stream(
         ISqlFormatter sql,
         IDbConnection db,
         Action<string> log,
@@ -304,23 +350,27 @@ public class Query(QueryJson json, Schema schema)
             commandTimeout: CommandTimeoutSeconds
         );
 
-        var result = new QueryResultJson
-        {
-            Records = ConvertRecords(reader.Read<dynamic>().Cast<IDictionary<string, object>>()),
-        };
-
         if (Totals)
         {
-            result.Totals = ConvertRecords(
-                    reader.Read<dynamic>().Cast<IDictionary<string, object>>()
+            yield return ConvertRecords(
+                    reader.Read<dynamic>(buffered: false).Cast<IDictionary<string, object>>()
                 )
                 .Single();
         }
 
-        return result;
+        foreach (
+            var record in ConvertRecords(
+                reader.Read<dynamic>(buffered: false).Cast<IDictionary<string, object>>()
+            )
+        )
+        {
+            yield return record;
+        }
     }
 
-    private IList<QueryRecordJson> ConvertRecords(IEnumerable<IDictionary<string, object>> list)
+    private IEnumerable<QueryRecordJson> ConvertRecords(
+        IEnumerable<IDictionary<string, object>> list
+    )
     {
         var nullConvert = new Func<object, object>(x => x);
 
@@ -334,11 +384,10 @@ public class Query(QueryJson json, Schema schema)
             .ToList();
 
         return list.Select(x => new QueryRecordJson
-            {
-                Selected = GetList(x, "Select", selColumns),
-                Aggregated = GetList(x, "Value", aggColumns),
-            })
-            .ToList();
+        {
+            Selected = GetList(x, "Select", selColumns),
+            Aggregated = GetList(x, "Value", aggColumns),
+        });
     }
 
     private static IList<object> GetList(

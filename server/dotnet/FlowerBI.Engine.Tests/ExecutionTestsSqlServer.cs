@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using Xunit;
 
@@ -7,7 +8,7 @@ public class ExecutionTestsSqlServer(SqlServerFixture Fixture)
     : ExecutionTests,
         IClassFixture<SqlServerFixture>
 {
-    protected override IDbConnection Db => Fixture.Db;
+    protected override Func<IDbConnection> Db => Fixture.Db;
 
     protected override ISqlFormatter Formatter => new SqlServerFormatter();
 }
