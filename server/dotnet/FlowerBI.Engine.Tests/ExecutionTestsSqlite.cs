@@ -3,7 +3,9 @@ using Xunit;
 
 namespace FlowerBI.Engine.Tests;
 
-public class ExecutionTestsSqlite(SqliteFixture Fixture) : ExecutionTests, IClassFixture<SqliteFixture>
+public class ExecutionTestsSqlite(SqliteFixture Fixture)
+    : ExecutionTests,
+        IClassFixture<SqliteFixture>
 {
     protected override IDbConnection Db => Fixture.Db;
 

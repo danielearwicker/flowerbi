@@ -15,23 +15,23 @@ public static class Reflection
         clrType = nonNullable ?? clrType;
 
         var dataType =
-            clrType == typeof(bool) ? DataType.Bool :
-            clrType == typeof(byte) ? DataType.Byte :
-            clrType == typeof(short) ? DataType.Short :
-            clrType == typeof(int) ? DataType.Int :
-            clrType == typeof(long) ? DataType.Long :
-            clrType == typeof(float) ? DataType.Float :
-            clrType == typeof(double) ? DataType.Double :
-            clrType == typeof(decimal) ? DataType.Decimal :
-            clrType == typeof(string) ? DataType.String :
-            clrType == typeof(DateTime) ? DataType.DateTime :
-            throw new FlowerBIException($"Unsupported data type: {clrType}");
+            clrType == typeof(bool) ? DataType.Bool
+            : clrType == typeof(byte) ? DataType.Byte
+            : clrType == typeof(short) ? DataType.Short
+            : clrType == typeof(int) ? DataType.Int
+            : clrType == typeof(long) ? DataType.Long
+            : clrType == typeof(float) ? DataType.Float
+            : clrType == typeof(double) ? DataType.Double
+            : clrType == typeof(decimal) ? DataType.Decimal
+            : clrType == typeof(string) ? DataType.String
+            : clrType == typeof(DateTime) ? DataType.DateTime
+            : throw new FlowerBIException($"Unsupported data type: {clrType}");
 
         return (dataType, nonNullable != null);
     }
 
-    public static ResolvedSchema ToSchema(string path, string schemaClass, TextWriter console)
-        => ResolvedSchema.Resolve(ToYaml(path, schemaClass, console));
+    public static ResolvedSchema ToSchema(string path, string schemaClass, TextWriter console) =>
+        ResolvedSchema.Resolve(ToYaml(path, schemaClass, console));
 
     public static void ToYaml(string path, string schemaClass, string yamlFile, TextWriter console)
     {
@@ -43,7 +43,7 @@ public static class Reflection
     }
 
     public static void Serialize(YamlSchema yaml, TextWriter yamlWriter)
-    {            
+    {
         yamlWriter.WriteLine($"schema: {yaml.schema}");
 
         if (yaml.name != yaml.schema)
@@ -104,45 +104,55 @@ public static class Reflection
 
         console.WriteLine($"Reading assembly {path}");
 
-        var schemaType = AssemblyLoadContext.Default.LoadFromAssemblyPath(path).GetType(schemaClass);
+        var schemaType = AssemblyLoadContext
+            .Default.LoadFromAssemblyPath(path)
+            .GetType(schemaClass);
         if (schemaType == null)
         {
-            throw new FlowerBIException($"No such type {schemaType} in assembly");                
+            throw new FlowerBIException($"No such type {schemaType} in assembly");
         }
 
         console.WriteLine($"Reading type {schemaType.FullName}");
         return ToYaml(schemaType);
     }
 
-    public static YamlSchema ToYaml(Type schemaType)
-        => ToYaml(new Schema(schemaType));
+    public static YamlSchema ToYaml(Type schemaType) => ToYaml(new Schema(schemaType));
 
     public static YamlSchema ToYaml(Schema schema)
     {
-        Dictionary<string, string[]> GetColumns(IEnumerable<IColumn> columns) => columns.ToDictionary(
-            column => column.RefName, 
-            column => 
-            {                
-                var (dt, nullable) = DataTypeFromClr(column.ClrType);
-                var typeOrTable = (column is IForeignKey fk ? fk.To.Table.RefName : dt.ToString().ToLowerInvariant())
-                                    + (nullable ? "?" : string.Empty);
-                return column.DbName == column.RefName
-                    ? new[] { typeOrTable }
-                    : new[] { typeOrTable, column.DbName };
-            });
+        Dictionary<string, string[]> GetColumns(IEnumerable<IColumn> columns) =>
+            columns.ToDictionary(
+                column => column.RefName,
+                column =>
+                {
+                    var (dt, nullable) = DataTypeFromClr(column.ClrType);
+                    var typeOrTable =
+                        (
+                            column is IForeignKey fk
+                                ? fk.To.Table.RefName
+                                : dt.ToString().ToLowerInvariant()
+                        ) + (nullable ? "?" : string.Empty);
+                    return column.DbName == column.RefName
+                        ? new[] { typeOrTable }
+                        : new[] { typeOrTable, column.DbName };
+                }
+            );
 
         return new YamlSchema
         {
             schema = schema.RefName,
             name = schema.DbName,
-            tables = schema.Tables.ToDictionary(t => t.RefName, t => new YamlTable
-            {
-                name = t.DbName,
-                conjoint = t.Conjoint,
-                id = t.Id != null ? GetColumns(new[] { t.Id }) : null,
-                columns = GetColumns(t.Columns.Where(x => x != t.Id)),
-                associative = t.Associative.Select(x => x.RefName).ToArray()
-            })
+            tables = schema.Tables.ToDictionary(
+                t => t.RefName,
+                t => new YamlTable
+                {
+                    name = t.DbName,
+                    conjoint = t.Conjoint,
+                    id = t.Id != null ? GetColumns(new[] { t.Id }) : null,
+                    columns = GetColumns(t.Columns.Where(x => x != t.Id)),
+                    associative = t.Associative.Select(x => x.RefName).ToArray(),
+                }
+            ),
         };
     }
 }

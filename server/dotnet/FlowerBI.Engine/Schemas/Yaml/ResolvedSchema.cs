@@ -15,7 +15,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
     }
 
     public static ResolvedSchema Resolve(YamlSchema yaml)
-    {        
+    {
         if (string.IsNullOrWhiteSpace(yaml.schema))
         {
             throw new FlowerBIException("Schema must have non-empty schema property");
@@ -36,19 +36,27 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
             if (table.columns != null)
             {
-                foreach (var (name, type) in table.columns.Concat(table.id ?? new Dictionary<string, string[]>()))
+                foreach (
+                    var (name, type) in table.columns.Concat(
+                        table.id ?? new Dictionary<string, string[]>()
+                    )
+                )
                 {
                     if (type.Length < 1 || type.Length > 2)
                     {
-                        throw new FlowerBIException($"Table {tableKey} column {name} type must be an array of length 1 or 2");
+                        throw new FlowerBIException(
+                            $"Table {tableKey} column {name} type must be an array of length 1 or 2"
+                        );
                     }
                 }
             }
         }
 
-        var resolvedTables = yaml.tables.Select(t => new ResolvedTable(t.Key, t.Value.conjoint)).ToList();
+        var resolvedTables = yaml
+            .tables.Select(t => new ResolvedTable(t.Key, t.Value.conjoint))
+            .ToList();
         var usedNames = new HashSet<string>();
-        
+
         var resolutionStack = new HashSet<string>();
 
         ResolvedTable ResolveTable(string tableKey, YamlTable table)
@@ -62,32 +70,53 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             var resolvedTable = resolvedTables.FirstOrDefault(x => x.Name == tableKey);
             if (resolvedTable.NameInDb == null)
             {
-                resolvedTable.IdColumn = table.id != null ? new ResolvedColumn(resolvedTable, table.id.First().Key, table.id.First().Value) : null;
+                resolvedTable.IdColumn =
+                    table.id != null
+                        ? new ResolvedColumn(
+                            resolvedTable,
+                            table.id.First().Key,
+                            table.id.First().Value
+                        )
+                        : null;
                 if (table.columns != null)
                 {
-                    resolvedTable.Columns.AddRange(table.columns.Select(x => new ResolvedColumn(resolvedTable, x.Key, x.Value)));
+                    resolvedTable.Columns.AddRange(
+                        table.columns.Select(x => new ResolvedColumn(resolvedTable, x.Key, x.Value))
+                    );
                 }
                 resolvedTable.NameInDb = table.name;
 
                 if (table.extends != null)
-                {                    
+                {
                     if (!yaml.tables.TryGetValue(table.extends, out var extendsYaml))
                     {
-                        throw new FlowerBIException($"No such table {table.extends}, referenced in {tableKey}");
+                        throw new FlowerBIException(
+                            $"No such table {table.extends}, referenced in {tableKey}"
+                        );
                     }
 
                     var extendsTable = ResolveTable(table.extends, extendsYaml);
 
-                    resolvedTable.Columns.AddRange(extendsTable.Columns.Select(x => new ResolvedColumn(resolvedTable, x.Name, x.YamlType)
-                    {
-                        Extends = x
-                    }));
+                    resolvedTable.Columns.AddRange(
+                        extendsTable.Columns.Select(x => new ResolvedColumn(
+                            resolvedTable,
+                            x.Name,
+                            x.YamlType
+                        )
+                        {
+                            Extends = x,
+                        })
+                    );
 
                     if (extendsTable.IdColumn != null)
                     {
-                        resolvedTable.IdColumn ??= new ResolvedColumn(resolvedTable, extendsTable.IdColumn.Name, extendsTable.IdColumn.YamlType)
+                        resolvedTable.IdColumn ??= new ResolvedColumn(
+                            resolvedTable,
+                            extendsTable.IdColumn.Name,
+                            extendsTable.IdColumn.YamlType
+                        )
                         {
-                            Extends = extendsTable.IdColumn
+                            Extends = extendsTable.IdColumn,
                         };
                     }
 
@@ -96,26 +125,31 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
                 if (!resolvedTable.Columns.Any())
                 {
-                    throw new FlowerBIException($"Table {tableKey} must have columns (or use 'extends')");
+                    throw new FlowerBIException(
+                        $"Table {tableKey} must have columns (or use 'extends')"
+                    );
                 }
 
                 resolvedTable.NameInDb ??= tableKey;
 
                 if (table.associative != null)
                 {
-                    var allColumns = resolvedTable.IdColumn == null 
-                        ? resolvedTable.Columns
-                        : resolvedTable.Columns.Append(resolvedTable.IdColumn);
+                    var allColumns =
+                        resolvedTable.IdColumn == null
+                            ? resolvedTable.Columns
+                            : resolvedTable.Columns.Append(resolvedTable.IdColumn);
 
                     foreach (var assoc in table.associative)
                     {
                         var resolvedAssoc = allColumns.FirstOrDefault(c => c.Name == assoc);
                         if (resolvedAssoc == null)
                         {
-                            throw new FlowerBIException($"Table {tableKey} has an association {assoc} that is not a column");
+                            throw new FlowerBIException(
+                                $"Table {tableKey} has an association {assoc} that is not a column"
+                            );
                         }
                         resolvedTable.Associative.Add(resolvedAssoc);
-                    }                    
+                    }
                 }
             }
 
@@ -136,7 +170,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 throw new FlowerBIException($"More than one table is named '{tableKey}'");
             }
 
-            ResolveTable(tableKey, table);            
+            ResolveTable(tableKey, table);
         }
 
         void ResolveColumnType(ResolvedColumn c)
@@ -150,24 +184,31 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
             if (c.DataType == DataType.None)
             {
-                var (typeName, nullable) = c.YamlType[0].Last() == '?' ? (c.YamlType[0][0..^1], true) : (c.YamlType[0], false);
+                var (typeName, nullable) =
+                    c.YamlType[0].Last() == '?'
+                        ? (c.YamlType[0][0..^1], true)
+                        : (c.YamlType[0], false);
                 if (Enum.TryParse<DataType>(typeName, true, out var dataType))
                 {
                     c.DataType = dataType;
                 }
                 else
                 {
-                    var targetColumn = resolvedTables.FirstOrDefault(x => x.Name == typeName)?.IdColumn;
+                    var targetColumn = resolvedTables
+                        .FirstOrDefault(x => x.Name == typeName)
+                        ?.IdColumn;
                     if (targetColumn == null)
                     {
-                        throw new FlowerBIException($"{typeName} is neither a data type nor a table, in {c.Table.Name}.{c.Name}");
+                        throw new FlowerBIException(
+                            $"{typeName} is neither a data type nor a table, in {c.Table.Name}.{c.Name}"
+                        );
                     }
 
                     ResolveColumnType(targetColumn);
                     c.Target = targetColumn;
                     c.DataType = targetColumn.DataType;
                 }
-                c.NameInDb = c.YamlType.Length == 2 ? c.YamlType[1] : c.Name; 
+                c.NameInDb = c.YamlType.Length == 2 ? c.YamlType[1] : c.Name;
                 c.Nullable = nullable;
             }
 
@@ -183,7 +224,7 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
             foreach (var column in table.Columns)
             {
-                ResolveColumnType(column);                    
+                ResolveColumnType(column);
             }
         }
 

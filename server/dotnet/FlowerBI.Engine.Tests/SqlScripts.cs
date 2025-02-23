@@ -2,8 +2,7 @@ namespace FlowerBI.Engine.Tests;
 
 public static class SqlScripts
 {
-    public const string SetupTestingDb =
-        """
+    public const string SetupTestingDb = """
         CREATE TABLE Testing.Department (
             Id BIGINT NOT NULL,
             DepartmentName NVARCHAR(50) NOT NULL,
@@ -17,7 +16,7 @@ public static class SqlScripts
             (4, 'Cheese'),
             (5, 'Yoga'),
             (6, 'Sales');
-        
+
         CREATE TABLE Testing.Supplier (
             Id BIGINT NOT NULL,
             VendorName NVARCHAR(50) NOT NULL,
@@ -80,7 +79,7 @@ public static class SqlScripts
             (27, 2,  1, 18.12, 1),
             (28, 6,  1, 88.12, NULL),
             (29, 4,  4, 68.12, NULL);
-        
+
         CREATE TABLE Testing.Tag (
             Id BIGINT NOT NULL,
             TagName NVARCHAR(50) NOT NULL,

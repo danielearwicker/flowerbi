@@ -1,6 +1,6 @@
+using System;
 using System.IO;
 using System.Text;
-using System;
 
 namespace FlowerBI.Conversion;
 
@@ -17,7 +17,7 @@ internal class WriteIfDifferent : IDisposable
         _fileName = fileName;
         _console = console;
     }
-    
+
     public void Dispose()
     {
         Output.Flush();

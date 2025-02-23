@@ -1,56 +1,62 @@
-﻿namespace FlowerBI
+﻿namespace FlowerBI;
+
+public interface ISqlFormatter
 {
-    public interface ISqlFormatter
-    {
-        string Identifier(string name);
-        string EscapedIdentifierPair(string id1, string id2);
-        string SkipAndTake(long skip, int take);
-        string Conditional(string predExpr, string thenExpr, string elseExpr);
-        string CastToFloat(string valueExpr);
-    }
+    string Identifier(string name);
+    string EscapedIdentifierPair(string id1, string id2);
+    string SkipAndTake(long skip, int take);
+    string Conditional(string predExpr, string thenExpr, string elseExpr);
+    string CastToFloat(string valueExpr);
+}
 
-    public class NullSqlFormatter : ISqlFormatter
-    {
-        public string CastToFloat(string valueExpr) => string.Empty;
-        public string Conditional(string predExpr, string thenExpr, string elseExpr) => string.Empty;
-        public string EscapedIdentifierPair(string id1, string id2) => string.Empty;
-        public string Identifier(string name) => string.Empty;
-        public string SkipAndTake(long skip, int take) => string.Empty;
+public class NullSqlFormatter : ISqlFormatter
+{
+    public string CastToFloat(string valueExpr) => string.Empty;
 
-        public static readonly ISqlFormatter Singleton = new NullSqlFormatter();
-    }
+    public string Conditional(string predExpr, string thenExpr, string elseExpr) => string.Empty;
 
-    public static class SqlFormatterExtensions
-    {
-        public static string IdentifierPair(this ISqlFormatter sql, string id1, string id2)
-            => sql.EscapedIdentifierPair(sql.Identifier(id1), sql.Identifier(id2));
-    }
+    public string EscapedIdentifierPair(string id1, string id2) => string.Empty;
 
-    public class SqlServerFormatter : ISqlFormatter
-    {
-        public string Identifier(string name) => $"[{name}]";
-        public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
+    public string Identifier(string name) => string.Empty;
 
-        public string SkipAndTake(long skip, int take) => @$"
+    public string SkipAndTake(long skip, int take) => string.Empty;
+
+    public static readonly ISqlFormatter Singleton = new NullSqlFormatter();
+}
+
+public static class SqlFormatterExtensions
+{
+    public static string IdentifierPair(this ISqlFormatter sql, string id1, string id2) =>
+        sql.EscapedIdentifierPair(sql.Identifier(id1), sql.Identifier(id2));
+}
+
+public class SqlServerFormatter : ISqlFormatter
+{
+    public string Identifier(string name) => $"[{name}]";
+
+    public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
+
+    public string SkipAndTake(long skip, int take) =>
+        @$"
             offset {skip} rows
             fetch next {take} rows only";
 
-        public string Conditional(string predExpr, string thenExpr, string elseExpr)
-            => $"iif({predExpr}, {thenExpr}, {elseExpr})";
+    public string Conditional(string predExpr, string thenExpr, string elseExpr) =>
+        $"iif({predExpr}, {thenExpr}, {elseExpr})";
 
-        public string CastToFloat(string valueExpr)
-            => $"cast({valueExpr} as float)";
-    }
+    public string CastToFloat(string valueExpr) => $"cast({valueExpr} as float)";
+}
 
-    public class SqlLiteFormatter : ISqlFormatter
-    {
-        public string Identifier(string name) => $"[{name}]";
-        public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
-        public string SkipAndTake(long skip, int take) => $"limit {take} offset {skip}";
-        public string Conditional(string predExpr, string thenExpr, string elseExpr)
-            => $"iif({predExpr}, {thenExpr}, {elseExpr})";
+public class SqlLiteFormatter : ISqlFormatter
+{
+    public string Identifier(string name) => $"[{name}]";
 
-        public string CastToFloat(string valueExpr)
-            => $"cast({valueExpr} as real)";
-    }
+    public string EscapedIdentifierPair(string id1, string id2) => $"{id1}.{id2}";
+
+    public string SkipAndTake(long skip, int take) => $"limit {take} offset {skip}";
+
+    public string Conditional(string predExpr, string thenExpr, string elseExpr) =>
+        $"iif({predExpr}, {thenExpr}, {elseExpr})";
+
+    public string CastToFloat(string valueExpr) => $"cast({valueExpr} as real)";
 }
