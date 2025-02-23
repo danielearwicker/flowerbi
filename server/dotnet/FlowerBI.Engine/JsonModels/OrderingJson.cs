@@ -13,8 +13,8 @@
 
         public string Column { get; set; }
 
-        public OrderingType? Type { get;set; }
-        
+        public OrderingType? Type { get; set; }
+
         public int? Index { get; set; }
     }
 }

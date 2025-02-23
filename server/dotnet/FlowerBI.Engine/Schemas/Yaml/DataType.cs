@@ -1,6 +1,6 @@
 namespace FlowerBI.Yaml;
 
-public enum DataType 
+public enum DataType
 {
     None,
     Bool,
@@ -12,5 +12,5 @@ public enum DataType
     Double,
     Decimal,
     String,
-    DateTime
+    DateTime,
 }

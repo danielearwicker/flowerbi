@@ -2,10 +2,10 @@
 
 using System;
 using System.Data;
-using Microsoft.Data.SqlClient;
-using Dapper;
 using System.Diagnostics;
 using System.Threading;
+using Dapper;
+using Microsoft.Data.SqlClient;
 
 namespace FlowerBI.Engine.Tests;
 
@@ -14,20 +14,31 @@ public sealed class SqlServerFixture : IDisposable
     public IDbConnection Db { get; }
 
     private const string _containerName = "FlowerBITestSqlServer";
-    private static readonly string _databaseName = $"FlowerBITest{Environment.Version.ToString().Replace('.', '_')}";
+    private static readonly string _databaseName =
+        $"FlowerBITest{Environment.Version.ToString().Replace('.', '_')}";
     private const string _password = "Str0ngPa$$w0rd";
     private const int _port = 61316;
 
     public SqlServerFixture()
     {
-        Docker(string.Join(" ", [
-            "run",
-            "--name", _containerName,
-            "-e", "\"ACCEPT_EULA=Y\"",
-            "-e", $"\"MSSQL_SA_PASSWORD={_password}\"",
-            "-p", $"{_port}:1433",
-            "-d", "mcr.microsoft.com/mssql/server:2022-latest"
-        ]));
+        Docker(
+            string.Join(
+                " ",
+                [
+                    "run",
+                    "--name",
+                    _containerName,
+                    "-e",
+                    "\"ACCEPT_EULA=Y\"",
+                    "-e",
+                    $"\"MSSQL_SA_PASSWORD={_password}\"",
+                    "-p",
+                    $"{_port}:1433",
+                    "-d",
+                    "mcr.microsoft.com/mssql/server:2022-latest",
+                ]
+            )
+        );
 
         CreateDb();
 
@@ -46,19 +57,21 @@ public sealed class SqlServerFixture : IDisposable
 #if STOP_DOCKER_SQL
         Docker($"kill {_container}");
         Docker($"rm {_container}");
-#endif      
+#endif
     }
 
     private static void Docker(string cmd)
     {
-        using var proc = Process.Start(new ProcessStartInfo
-        {
-            FileName = "docker",
-            Arguments = cmd,
-            UseShellExecute = false,
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-        });
+        using var proc = Process.Start(
+            new ProcessStartInfo
+            {
+                FileName = "docker",
+                Arguments = cmd,
+                UseShellExecute = false,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            }
+        );
 
         var stdout = proc.StandardOutput.ReadToEnd();
         var stderr = proc.StandardError.ReadToEnd();
@@ -83,7 +96,7 @@ public sealed class SqlServerFixture : IDisposable
     {
         const int attempts = 100;
 
-        for (var i = 1; i <= attempts; i++) 
+        for (var i = 1; i <= attempts; i++)
         {
             using var db = new SqlConnection(_cs.ConnectionString);
 

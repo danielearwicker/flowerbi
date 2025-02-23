@@ -14,33 +14,42 @@ public static class TypeScript
             DataType.Bool => "boolean",
             DataType.String => "string",
             DataType.DateTime => "Date",
-            _ => "number"
+            _ => "number",
         };
         if (nullable)
         {
             jsType = $"{jsType} | null";
         }
 
-        return jsType == "string" ? ($"StringQueryColumn<{jsType}>", "StringQueryColumn") :
-                jsType != "number" ? ($"QueryColumn<{jsType}>", "QueryColumn") :
-               dataType is DataType.Decimal or DataType.Float or DataType.Double ? ($"NumericQueryColumn<{jsType}>", "NumericQueryColumn") : 
-               ($"IntegerQueryColumn<{jsType}>", "IntegerQueryColumn");
+        return jsType == "string" ? ($"StringQueryColumn<{jsType}>", "StringQueryColumn")
+            : jsType != "number" ? ($"QueryColumn<{jsType}>", "QueryColumn")
+            : dataType is DataType.Decimal or DataType.Float or DataType.Double
+                ? ($"NumericQueryColumn<{jsType}>", "NumericQueryColumn")
+            : ($"IntegerQueryColumn<{jsType}>", "IntegerQueryColumn");
     }
 
-    public static void FromYaml(string yamlFile, string tsFile, TextWriter console)
-        => FromSchema(ResolvedSchema.Resolve(File.ReadAllText(yamlFile)), tsFile, console);
-    
-    public static void FromReflection(string path, string schemaClass, string tsFile, TextWriter console)
-        => FromSchema(Reflection.ToSchema(path, schemaClass, console), tsFile, console);
-    
+    public static void FromYaml(string yamlFile, string tsFile, TextWriter console) =>
+        FromSchema(ResolvedSchema.Resolve(File.ReadAllText(yamlFile)), tsFile, console);
+
+    public static void FromReflection(
+        string path,
+        string schemaClass,
+        string tsFile,
+        TextWriter console
+    ) => FromSchema(Reflection.ToSchema(path, schemaClass, console), tsFile, console);
+
     static void FromSchema(ResolvedSchema schema, string tsFile, TextWriter console)
     {
         using var writer = new WriteIfDifferent(tsFile, console);
-        
+
         FromSchema(schema, writer.Output, writer.Console);
     }
 
-    public static void FromSchema(ResolvedSchema schema, TextWriter outputWriter, TextWriter console)
+    public static void FromSchema(
+        ResolvedSchema schema,
+        TextWriter outputWriter,
+        TextWriter console
+    )
     {
         var imports = new HashSet<string>(["QueryColumnRuntimeType", "QueryColumnDataType"]);
 
@@ -56,29 +65,35 @@ public static class TypeScript
             console.WriteLine($"Exporting table {table.Name}");
             writer.WriteLine($"export const {table.Name} = {{");
 
-            var idColumn = table.IdColumn != null ? new[] { table.IdColumn } : Enumerable.Empty<ResolvedColumn>();
+            var idColumn =
+                table.IdColumn != null
+                    ? new[] { table.IdColumn }
+                    : Enumerable.Empty<ResolvedColumn>();
 
-            string GetTargetString(ResolvedColumn column) => column == null ? "" : $"{column.Table.Name}.{column.Name}";
-            
+            string GetTargetString(ResolvedColumn column) =>
+                column == null ? "" : $"{column.Table.Name}.{column.Name}";
+
             foreach (var column in idColumn.Concat(table.Columns))
             {
                 var (tsType, importType) = TSColumnType(column.DataType, column.Nullable);
                 imports.Add(importType);
 
-                tableWriter.WriteLine($"""
+                tableWriter.WriteLine(
+                    $"""
                     {column.Name}: new {tsType}("{table.Name}.{column.Name}",
                         new QueryColumnRuntimeType(
                             QueryColumnDataType.{column.DataType},
                             "{GetTargetString(column.Target)}"
                         )
                     ), 
-                    """);
+                    """
+                );
             }
 
             writer.WriteLine("};");
             writer.WriteLine();
         }
-        
+
         writer.WriteLine($"export const {schema.Name} = {{");
         foreach (var table in schema.Tables)
         {
@@ -90,7 +105,9 @@ public static class TypeScript
 
         if (imports.Count != 0)
         {
-            outputWriter.WriteLine(@$"import {{ {string.Join(", ", imports.OrderBy(x => x))} }} from ""flowerbi"";");
+            outputWriter.WriteLine(
+                @$"import {{ {string.Join(", ", imports.OrderBy(x => x))} }} from ""flowerbi"";"
+            );
             outputWriter.WriteLine();
         }
 

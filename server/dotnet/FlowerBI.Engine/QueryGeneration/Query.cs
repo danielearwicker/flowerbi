@@ -2,26 +2,29 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using FlowerBI.Engine.JsonModels;
-using Dapper;
-using HandlebarsDotNet;
 using System.Text.RegularExpressions;
+using Dapper;
+using FlowerBI.Engine.JsonModels;
+using HandlebarsDotNet;
 
 namespace FlowerBI;
 
 public class Query(QueryJson json, Schema schema)
 {
     public IList<LabelledColumn> Select { get; } = schema.Load(json.Select);
-    
+
     public IList<Aggregation> Aggregations { get; } = Aggregation.Load(json.Aggregations, schema);
 
     public IList<Filter> Filters { get; } = Filter.Load(json.Filters, schema);
 
-    public IList<Ordering> OrderBy { get; } = Ordering.Load(
-        json.OrderBy, schema, 
-        json.Select?.Count ?? 0, 
-        json.Aggregations?.Count ?? 0, 
-        json.Calculations?.Count ?? 0);
+    public IList<Ordering> OrderBy { get; } =
+        Ordering.Load(
+            json.OrderBy,
+            schema,
+            json.Select?.Count ?? 0,
+            json.Aggregations?.Count ?? 0,
+            json.Calculations?.Count ?? 0
+        );
 
     public IList<CalculationJson> Calculations { get; } = json.Calculations ?? [];
 
@@ -66,31 +69,45 @@ public class Query(QueryJson json, Schema schema)
         {{/if}}
         """;
 
-    private static readonly HandlebarsTemplate<object, string> _templateWithoutCalculations = Handlebars.Compile(
-        $"""
-        {_templateMain}
-        {_templateFooter}
-        """);
+    private static readonly HandlebarsTemplate<object, string> _templateWithoutCalculations =
+        Handlebars.Compile(
+            $"""
+            {_templateMain}
+            {_templateFooter}
+            """
+        );
 
-    private static readonly HandlebarsTemplate<object, string> _templateWithCalculations = Handlebars.Compile(
-        $$$"""
-        with calculation_source as (
-            {{{_templateMain}}}
-        )
-        select calculation_source.*
-            {{#each calculations}}
-                ,{{this}}
-            {{/each}}
-        from calculation_source
-        {{{_templateFooter}}}
-        """);
+    private static readonly HandlebarsTemplate<object, string> _templateWithCalculations =
+        Handlebars.Compile(
+            $$$"""
+            with calculation_source as (
+                {{{_templateMain}}}
+            )
+            select calculation_source.*
+                {{#each calculations}}
+                    ,{{this}}
+                {{/each}}
+            from calculation_source
+            {{{_templateFooter}}}
+            """
+        );
 
     // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
-    private static string FormatAggFunction(AggregationType func, string expr, IEnumerable<Filter> filters, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+    private static string FormatAggFunction(
+        AggregationType func,
+        string expr,
+        IEnumerable<Filter> filters,
+        Joins joins,
+        ISqlFormatter sql,
+        IFilterParameters filterParams
+    )
     {
         if (filters.Any())
         {
-            var when = string.Join(" and ", filters.Select(f => FormatFilter(f, joins, sql, filterParams)));
+            var when = string.Join(
+                " and ",
+                filters.Select(f => FormatFilter(f, joins, sql, filterParams))
+            );
             expr = $"case when {when} then {expr} end";
         }
 
@@ -99,7 +116,12 @@ public class Query(QueryJson json, Schema schema)
             : $"{func}({expr})";
     }
 
-    private static string FormatFilter(Filter f, Joins joins, ISqlFormatter sql, IFilterParameters filterParams)
+    private static string FormatFilter(
+        Filter f,
+        Joins joins,
+        ISqlFormatter sql,
+        IFilterParameters filterParams
+    )
     {
         var column = joins.Aliased(f.Column, sql);
         var param = filterParams[f];
@@ -107,10 +129,11 @@ public class Query(QueryJson json, Schema schema)
         if (f.Operator == "BITS IN")
         {
             // constant must be provided and is treated as an integer bit mask
-            var mask = f.Constant is int i ? i :
-                       f.Constant is long l ? l :
-                       f.Constant is double d ? (int)d :
-                       throw new FlowerBIException("BITS IN filter requires integer constant");
+            var mask =
+                f.Constant is int i ? i
+                : f.Constant is long l ? l
+                : f.Constant is double d ? (int)d
+                : throw new FlowerBIException("BITS IN filter requires integer constant");
 
             return $"({column} & {mask}) in {param}";
         }
@@ -122,30 +145,44 @@ public class Query(QueryJson json, Schema schema)
         ISqlFormatter sql,
         IFilterParameters filterParams,
         IEnumerable<Filter> outerFilters,
-        bool totals) => ToSqlAndTables(sql, filterParams, outerFilters, totals).Sql;
+        bool totals
+    ) => ToSqlAndTables(sql, filterParams, outerFilters, totals).Sql;
 
-    public IEnumerable<Table> GetRequiredTables(IEnumerable<Filter> outerFilters) 
-        => ToSqlAndTables(
+    public IEnumerable<Table> GetRequiredTables(IEnumerable<Filter> outerFilters) =>
+        ToSqlAndTables(
             NullSqlFormatter.Singleton,
             NullFilterParameters.Singleton,
             outerFilters,
-            false).Tables.Select(x => x.Value).Distinct().ToList();
+            false
+        )
+            .Tables.Select(x => x.Value)
+            .Distinct()
+            .ToList();
 
     public (string Sql, IEnumerable<LabelledTable> Tables) ToSqlAndTables(
         ISqlFormatter sql,
         IFilterParameters filterParams,
         IEnumerable<Filter> outerFilters,
-        bool totals)
+        bool totals
+    )
     {
         var joins = new Joins();
 
-        var selects = (totals ? null : Select)?.Select((c, i) =>
-            $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}").ToList()
-            ?? [];
+        var selects =
+            (totals ? null : Select)
+                ?.Select(
+                    (c, i) =>
+                        $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}"
+                )
+                .ToList() ?? [];
 
-        var aggs = Aggregations?.Select((a, i) =>
-            $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}").ToList()
-            ?? [];
+        var aggs =
+            Aggregations
+                ?.Select(
+                    (a, i) =>
+                        $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}"
+                )
+                .ToList() ?? [];
 
         selects.AddRange(aggs);
 
@@ -154,58 +191,71 @@ public class Query(QueryJson json, Schema schema)
             throw new FlowerBIException("Must select something");
         }
 
-        var filters = outerFilters.Concat(Filters).Select(f => new
-        {
-            FilterSql = FormatFilter(f, joins, sql, filterParams),
-        })
-        .ToList();
+        var filters = outerFilters
+            .Concat(Filters)
+            .Select(f => new { FilterSql = FormatFilter(f, joins, sql, filterParams) })
+            .ToList();
 
-        var groupBy = totals || (AllowDuplicates && (Aggregations?.Count ?? 0) == 0) ? null : Select?.Select(x => new
-        {
-            Part = joins.Aliased(x, sql)
-        })
-        .ToList();
+        var groupBy =
+            totals || (AllowDuplicates && (Aggregations?.Count ?? 0) == 0)
+                ? null
+                : Select?.Select(x => new { Part = joins.Aliased(x, sql) }).ToList();
 
-        var skipAndTake = !totals
-                ? sql.SkipAndTake(Skip, Take)
-                : null;
+        var skipAndTake = !totals ? sql.SkipAndTake(Skip, Take) : null;
 
-        var orderBy = skipAndTake == null ? null :
-            OrderBy.Any() ? string.Join(", ", OrderBy.Select(x => FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select))) :
-            aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc" :
-            "1 asc";
+        var orderBy =
+            skipAndTake == null ? null
+            : OrderBy.Any()
+                ? string.Join(
+                    ", ",
+                    OrderBy.Select(x =>
+                        FindIndexedOrderingColumn(x) ?? FindNamedSelectOrderingColumn(x, Select)
+                    )
+                )
+            : aggs.Count > 0 ? $"{(Select?.Count ?? 0) + 1} desc"
+            : "1 asc";
 
-        var calculations = Calculations?.Select(x => x.ToSql(sql, i => $"Value{i}"))
-                .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}").ToList() ?? [];
+        var calculations =
+            Calculations
+                ?.Select(x => x.ToSql(sql, i => $"Value{i}"))
+                .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}")
+                .ToList() ?? [];
 
-        var template = calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
+        var template =
+            calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
 
         var (joinSql, joinedTables) = joins.ToSqlAndTables(sql);
 
-        var sqlFromTemplate = template(new
-        {
-            selects,
-            filters,
-            calculations,
-            joins = joinSql,
-            groupBy,
-            orderBy,
-            skipAndTake
-        });
+        var sqlFromTemplate = template(
+            new
+            {
+                selects,
+                filters,
+                calculations,
+                joins = joinSql,
+                groupBy,
+                orderBy,
+                skipAndTake,
+            }
+        );
 
         return (sqlFromTemplate, joinedTables);
     }
 
-    public static string FindIndexedOrderingColumn(Ordering ordering)
-        => ordering.Column == null ? $"{ordering.Index + 1} {ordering.Direction}" : null;
+    public static string FindIndexedOrderingColumn(Ordering ordering) =>
+        ordering.Column == null ? $"{ordering.Index + 1} {ordering.Direction}" : null;
 
-    public static string FindNamedSelectOrderingColumn(Ordering ordering, IEnumerable<LabelledColumn> selects)
+    public static string FindNamedSelectOrderingColumn(
+        Ordering ordering,
+        IEnumerable<LabelledColumn> selects
+    )
     {
         var found = selects.Select((c, n) => (c, n)).FirstOrDefault(x => x.c == ordering.Column);
         if (found.c == null)
         {
             throw new FlowerBIException(
-                $"Cannot order by {ordering.Column} as it has not been selected");
+                $"Cannot order by {ordering.Column} as it has not been selected"
+            );
         }
 
         return $"{found.n + 1} {ordering.Direction}";
@@ -213,9 +263,11 @@ public class Query(QueryJson json, Schema schema)
 
     private static readonly Regex SanitiseCommentPattern = new("[^\\w\\d\\r\\n]+");
 
-    public string ToSql(ISqlFormatter sql,
-                        IFilterParameters filterParams,
-                        IEnumerable<Filter> outerFilters)
+    public string ToSql(
+        ISqlFormatter sql,
+        IFilterParameters filterParams,
+        IEnumerable<Filter> outerFilters
+    )
     {
         var result = ToSql(sql, filterParams, outerFilters, false);
 
@@ -233,7 +285,12 @@ public class Query(QueryJson json, Schema schema)
         return result;
     }
 
-    public QueryResultJson Run(ISqlFormatter sql, IDbConnection db, Action<string> log, params Filter[] outerFilters)
+    public QueryResultJson Run(
+        ISqlFormatter sql,
+        IDbConnection db,
+        Action<string> log,
+        params Filter[] outerFilters
+    )
     {
         var filterParams = new DapperFilterParameters();
 
@@ -241,19 +298,23 @@ public class Query(QueryJson json, Schema schema)
 
         log?.Invoke($"{querySql} with parameters: {filterParams}");
 
-        var reader = db.QueryMultiple(querySql, filterParams.DapperParams, commandTimeout: CommandTimeoutSeconds);
+        var reader = db.QueryMultiple(
+            querySql,
+            filterParams.DapperParams,
+            commandTimeout: CommandTimeoutSeconds
+        );
 
         var result = new QueryResultJson
         {
-            Records = ConvertRecords(reader.Read<dynamic>()
-                            .Cast<IDictionary<string, object>>())
+            Records = ConvertRecords(reader.Read<dynamic>().Cast<IDictionary<string, object>>()),
         };
-        
+
         if (Totals)
         {
-            result.Totals = ConvertRecords(reader.Read<dynamic>()
-                            .Cast<IDictionary<string, object>>())
-                            .Single();
+            result.Totals = ConvertRecords(
+                    reader.Read<dynamic>().Cast<IDictionary<string, object>>()
+                )
+                .Single();
         }
 
         return result;
@@ -263,27 +324,35 @@ public class Query(QueryJson json, Schema schema)
     {
         var nullConvert = new Func<object, object>(x => x);
 
-        var aggColumns = Aggregations.Select(x => new Func<object, object>(x.Convert))
-                    .Concat(Calculations.Select(x => nullConvert)).ToList();
+        var aggColumns = Aggregations
+            .Select(x => new Func<object, object>(x.Convert))
+            .Concat(Calculations.Select(x => nullConvert))
+            .ToList();
 
-        var selColumns = Select.Select(x => new Func<object, object>(x.Value.ConvertValue)).ToList();
+        var selColumns = Select
+            .Select(x => new Func<object, object>(x.Value.ConvertValue))
+            .ToList();
 
-        return list.Select(
-            x => new QueryRecordJson
+        return list.Select(x => new QueryRecordJson
             {
                 Selected = GetList(x, "Select", selColumns),
                 Aggregated = GetList(x, "Value", aggColumns),
-            }
-        ).ToList();
+            })
+            .ToList();
     }
 
-    private static IList<object> GetList(IDictionary<string, object> raw, string prefix, IReadOnlyList<Func<object, object>> converters)
+    private static IList<object> GetList(
+        IDictionary<string, object> raw,
+        string prefix,
+        IReadOnlyList<Func<object, object>> converters
+    )
     {
         IList<object> result = null;
 
         for (var n = 0; n < 100; n++)
         {
-            if (!raw.TryGetValue($"{prefix}{n}", out var value)) break;
+            if (!raw.TryGetValue($"{prefix}{n}", out var value))
+                break;
 
             result ??= [];
             result.Add(converters[n](value));

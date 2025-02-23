@@ -14,7 +14,7 @@ internal class IndentedWriter : TextWriter
         Inner = inner;
         _indent = new string(' ', size);
     }
-    
+
     public override Encoding Encoding => Inner.Encoding;
 
     public override void Write(char value) => Inner.Write(value);

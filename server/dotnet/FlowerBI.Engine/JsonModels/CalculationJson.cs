@@ -16,8 +16,14 @@ public class CalculationJson
 
     public string Operator { get; set; }
 
-    private static readonly ISet<string> _allowedOperators 
-        = new[] { "+", "-", "*", "/", "??" }.ToHashSet();
+    private static readonly ISet<string> _allowedOperators = new[]
+    {
+        "+",
+        "-",
+        "*",
+        "/",
+        "??",
+    }.ToHashSet();
 
     public string ToSql(ISqlFormatter sql, Func<int, string> fetchAggValue)
     {
@@ -46,9 +52,12 @@ public class CalculationJson
             var secondExpr = Second.ToSql(sql, fetchAggValue);
 
             return Operator == "/"
-                ? sql.Conditional($"{secondExpr} = 0", "0", $"{firstExpr} / {sql.CastToFloat(secondExpr)}")
-                : Operator == "??"
-                ? sql.Conditional($"{firstExpr} is null", secondExpr, firstExpr)
+                    ? sql.Conditional(
+                        $"{secondExpr} = 0",
+                        "0",
+                        $"{firstExpr} / {sql.CastToFloat(secondExpr)}"
+                    )
+                : Operator == "??" ? sql.Conditional($"{firstExpr} is null", secondExpr, firstExpr)
                 : $"({firstExpr} {Operator} {secondExpr})";
         }
 

@@ -12,8 +12,7 @@ public class FilterParametersTests
     {
         var valAsJson = JsonConvert.SerializeObject(val);
 
-        var filterJson = 
-            $$"""
+        var filterJson = $$"""
             {
                 "Column": "Vendor.VendorName",
                 "Operator": "=",
@@ -21,7 +20,7 @@ public class FilterParametersTests
             }
             """;
 
-        var parsedFilter = newtonsoft 
+        var parsedFilter = newtonsoft
             ? JsonConvert.DeserializeObject<FilterJson>(filterJson)
             : System.Text.Json.JsonSerializer.Deserialize<FilterJson>(filterJson);
 
@@ -32,7 +31,7 @@ public class FilterParametersTests
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_String_GeneratesActualParam(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
         var result = p[MakeFilter("hi", newtonSoft)];
         result.Should().Be("@filter0");
@@ -43,7 +42,7 @@ public class FilterParametersTests
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_ListWithString_GeneratesActualParam(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
         var result = p[MakeFilter("hi", newtonSoft)];
         result.Should().Be("@filter0");
@@ -65,8 +64,12 @@ public class FilterParametersTests
     [InlineData((float)3.14, "3.14", true)]
     [InlineData(true, "1", true)]
     [InlineData(false, "0", true)]
-    public void DapperFilterParameters_SimpleNumber_GeneratesLiteral(object val, string expected, bool newtonSoft)
-    {   
+    public void DapperFilterParameters_SimpleNumber_GeneratesLiteral(
+        object val,
+        string expected,
+        bool newtonSoft
+    )
+    {
         var p = new DapperFilterParameters();
         var result = p[MakeFilter(val, newtonSoft)];
         result.Should().Be(expected);
@@ -77,7 +80,7 @@ public class FilterParametersTests
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_Decimal_GeneratesLiteral(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
         var result = p[MakeFilter(3.14m, newtonSoft)];
         result.Should().Be("3.14");
@@ -99,10 +102,14 @@ public class FilterParametersTests
     [InlineData((float)3.14, "(3.14, 3.14)", true)]
     [InlineData(true, "(1, 1)", true)]
     [InlineData(false, "(0, 0)", true)]
-    public void DapperFilterParameters_SimpleNumberList_GeneratesLiteral(object val, string expected, bool newtonSoft)
-    {   
+    public void DapperFilterParameters_SimpleNumberList_GeneratesLiteral(
+        object val,
+        string expected,
+        bool newtonSoft
+    )
+    {
         var p = new DapperFilterParameters();
-        var result = p[MakeFilter(new[] {val, val}, newtonSoft)];
+        var result = p[MakeFilter(new[] { val, val }, newtonSoft)];
         result.Should().Be(expected);
         p.DapperParams.ParameterNames.Should().BeEmpty();
     }
@@ -111,9 +118,9 @@ public class FilterParametersTests
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_DecimalList_GeneratesLiteral(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
-        var result = p[MakeFilter(new object[] {3.14, 8, (short)3}, newtonSoft)];
+        var result = p[MakeFilter(new object[] { 3.14, 8, (short)3 }, newtonSoft)];
         result.Should().Be("(3.14, 8, 3)");
         p.DapperParams.ParameterNames.Should().BeEmpty();
     }
@@ -122,25 +129,23 @@ public class FilterParametersTests
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_EmptyList_CaughtEarly(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
 
         Func<string> a = () => p[MakeFilter(Array.Empty<double>(), newtonSoft)];
 
-        a.Should().Throw<FlowerBIException>()
-                  .WithMessage("Filter JSON contains empty array");
+        a.Should().Throw<FlowerBIException>().WithMessage("Filter JSON contains empty array");
     }
 
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public void DapperFilterParameters_ObjectWithEmptyArrayProperty_CaughtEarly(bool newtonSoft)
-    {   
+    {
         var p = new DapperFilterParameters();
 
         Func<string> a = () => p[MakeFilter(new { x = Array.Empty<double>() }, newtonSoft)];
 
-        a.Should().Throw<FlowerBIException>()
-                  .WithMessage("Unsupported filter value");
+        a.Should().Throw<FlowerBIException>().WithMessage("Unsupported filter value");
     }
 }
