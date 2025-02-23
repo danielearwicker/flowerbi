@@ -8,15 +8,16 @@ namespace FlowerBI.Engine.Tests;
 
 public sealed class SqliteFixture : IDisposable
 {
-    public IDbConnection Db { get; }
+    public Func<IDbConnection> Db { get; }
 
     private readonly string[] _filenames = [Path.GetTempFileName(), Path.GetTempFileName()];
 
     public SqliteFixture()
     {
-        Db = new SqliteConnection($"Data Source={_filenames[0]}");
+        Db = () => new SqliteConnection($"Data Source={_filenames[0]}");
 
-        Db.Execute(
+        using var db = Db();
+        db.Execute(
             $"""
             ATTACH '{_filenames[1]}' AS Testing;
 
@@ -27,8 +28,6 @@ public sealed class SqliteFixture : IDisposable
 
     public void Dispose()
     {
-        Db?.Dispose();
-
         foreach (var filename in _filenames)
         {
             if (File.Exists(filename))

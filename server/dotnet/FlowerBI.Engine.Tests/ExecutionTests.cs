@@ -15,7 +15,7 @@ public abstract class ExecutionTests
 
     public static readonly Schema ComplicatedSchema = new(typeof(ComplicatedTestSchema));
 
-    protected abstract IDbConnection Db { get; }
+    protected abstract Func<IDbConnection> Db { get; }
 
     protected abstract ISqlFormatter Formatter { get; }
 
@@ -25,7 +25,11 @@ public abstract class ExecutionTests
         QueryJson json,
         Schema schema = null,
         params Filter[] outerFilters
-    ) => new Query(json, schema ?? Schema).Run(Formatter, Db, _log.Add, outerFilters);
+    )
+    {
+        using var db = Db();
+        return new Query(json, schema ?? Schema).Run(Formatter, db, _log.Add, outerFilters);
+    }
 
     private static object Round(object o) =>
         o switch
@@ -1076,5 +1080,56 @@ public abstract class ExecutionTests
         };
 
         a.Should().Throw<FlowerBIException>().WithMessage("Filter JSON contains empty array");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Stream(bool totals)
+    {
+        var queryJson = new QueryJson
+        {
+            Select = ["Vendor.VendorName"],
+            Aggregations =
+            [
+                new() { Column = "Invoice.Amount", Function = AggregationType.Sum },
+                new() { Column = "Invoice.Id", Function = AggregationType.Count },
+            ],
+            Totals = totals,
+        };
+
+        var results = new Query(queryJson, Schema).Stream(Formatter, Db, _log.Add).ToList();
+
+        if (totals)
+        {
+            results.First().Aggregated.Select(Round).Should().BeEquivalentTo([1845.38m, 29]);
+
+            results = [.. results.Skip(1)];
+        }
+
+        var records = results.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
+
+        records
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    ("[United Cheese]", 406.84m, 7m),
+                    ("[Handbags-a-Plenty]", 252.48m, 4m),
+                    ("[Steve Makes Sandwiches]", 176.24m, 2m),
+                    ("[Manchesterford Supplies Inc]", 164.36m, 3m),
+                    ("[Disgusting Ltd]", 156.14m, 2m),
+                    ("[Statues While You Wait]", 156.24m, 2m),
+                    ("[Tiles Tiles Tiles]", 106.24m, 2m),
+                    ("[Uranium 4 Less]", 88.12m, 1m),
+                    ("[Awnings-R-Us]", 88.12m, 1m),
+                    ("[Pleasant Plc]", 88.12m, 1m),
+                    ("[Mats and More]", 76.24m, 2m),
+                    ("[Party Hats 4 U]", 58.12m, 1m),
+                    ("[Stationary Stationery]", 28.12m, 1m),
+                }
+            );
+
+        records.Select(x => x.Item2).Should().BeInDescendingOrder();
     }
 }

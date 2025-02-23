@@ -1,3 +1,4 @@
+using System;
 using System.Data;
 using Xunit;
 
@@ -7,7 +8,7 @@ public class ExecutionTestsSqlite(SqliteFixture Fixture)
     : ExecutionTests,
         IClassFixture<SqliteFixture>
 {
-    protected override IDbConnection Db => Fixture.Db;
+    protected override Func<IDbConnection> Db => Fixture.Db;
 
     protected override ISqlFormatter Formatter => new SqlLiteFormatter();
 }
