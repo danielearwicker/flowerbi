@@ -1,11 +1,18 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Dapper;
 using FlowerBI.Engine.JsonModels;
 using HandlebarsDotNet;
+using Parquet;
+using DataColumn = Parquet.Data.DataColumn;
 
 namespace FlowerBI;
 
@@ -408,5 +415,256 @@ public class Query(QueryJson json, Schema schema)
         }
 
         return result;
+    }
+
+#if NET8_0_OR_GREATER
+    public async Task<QueryResultJson> QueryParquet(Stream parquetStream)
+    {
+        using var reader = await ParquetReader.CreateAsync(parquetStream);
+        var parquetSchema = reader.Schema;
+
+        // Get all referenced columns so we can try to map them to the schema
+        var columns = Select
+            .Select(s => s.Value)
+            .Concat(Aggregations.Select(a => a.Column.Value))
+            .Concat(Aggregations.SelectMany(a => a.Filters.Select(f => f.Column.Value)))
+            .Concat(Filters.Select(f => f.Column.Value))
+            .Concat(OrderBy.Select(x => x.Column?.Value).Where(t => t != null))
+            .Distinct()
+            .ToList();
+
+        // Validate that all columns refer to the same table
+        var tables = columns.Select(c => c.Table).Distinct().ToList();
+        if (tables.Count > 1)
+        {
+            throw new FlowerBIException(
+                "All columns must be from the same table - tables referenced: "
+                    + string.Join(", ", tables.Select(t => t.RefName))
+            );
+        }
+
+        // Map the columns to the parquet schema
+        var columnFields = columns.ToDictionary(
+            c => c,
+            c => parquetSchema.DataFields.FirstOrDefault(f => f.Name == c.DbName)
+        );
+
+        // Validate that all columns are present in the parquet schema
+        var missingColumns = columnFields
+            .Where(kv => kv.Value == null)
+            .Select(kv => kv.Key)
+            .ToList();
+        if (missingColumns.Count != 0)
+        {
+            throw new FlowerBIException(
+                "Columns not found in parquet schema: "
+                    + string.Join(", ", missingColumns.Select(c => c.DbName))
+            );
+        }
+
+        var groupings = new Dictionary<object[], IAggregator[]>(ArrayComparer.Instance);
+
+        var totals = new IAggregator[Aggregations.Count];
+
+        foreach (var rowGroup in reader.RowGroups)
+        {
+            var columnData = new Dictionary<IColumn, DataColumn>();
+
+            foreach (var column in columns)
+            {
+                columnData[column] = await rowGroup.ReadColumnAsync(columnFields[column]);
+            }
+
+            for (var r = 0; r < rowGroup.RowCount; r++)
+            {
+                var passedFilters = true;
+
+                foreach (var filter in Filters)
+                {
+                    if (!filter.Evaluate(columnData[filter.Column.Value].Data.GetValue(r)))
+                    {
+                        passedFilters = false;
+                        break;
+                    }
+                }
+
+                if (!passedFilters)
+                {
+                    continue;
+                }
+
+                // Build grouping key
+                var groupingKey = new object[Select.Count];
+                for (var i = 0; i < Select.Count; i++)
+                {
+                    var column = Select[i].Value;
+                    var value = columnData[column].Data.GetValue(r);
+                    groupingKey[i] = value;
+                }
+
+                if (!groupings.TryGetValue(groupingKey, out var grouping))
+                {
+                    grouping = groupings[groupingKey] = new IAggregator[Aggregations.Count];
+
+                    for (var a = 0; a < Aggregations.Count; a++)
+                    {
+                        var clrType = columnData[Aggregations[a].Column.Value].Field.ClrType;
+                        grouping[a] = Aggregations[a].Function switch
+                        {
+                            AggregationType.Count => new Count(),
+                            AggregationType.Sum => MakeTypedAggregator(typeof(Sum<>), clrType),
+                            AggregationType.Avg => MakeTypedAggregator(typeof(Average<>), clrType),
+                            AggregationType.Min => MakeTypedAggregator(typeof(Min<>), clrType),
+                            AggregationType.Max => MakeTypedAggregator(typeof(Max<>), clrType),
+                            _ => throw new FlowerBIException("Unsupported aggregation type"),
+                        };
+                    }
+                }
+
+                for (var a = 0; a < Aggregations.Count; a++)
+                {
+                    var aggregation = Aggregations[a];
+                    var value = columnData[aggregation.Column.Value].Data.GetValue(r);
+
+                    passedFilters = true;
+
+                    foreach (var filter in aggregation.Filters)
+                    {
+                        if (!filter.Evaluate(columnData[filter.Column.Value].Data.GetValue(r)))
+                        {
+                            passedFilters = false;
+                            break;
+                        }
+                    }
+
+                    if (passedFilters)
+                    {
+                        grouping[a].Add(value);
+                        totals[a].Add(value);
+                    }
+                }
+            }
+        }
+
+        return new QueryResultJson
+        {
+            Records =
+            [
+                .. groupings.Select(grouping => new QueryRecordJson
+                {
+                    Selected = [.. grouping.Key.Select((v, i) => Select[i].Value.ConvertValue(v))],
+                    Aggregated = [.. grouping.Value.Select((a, i) => a.Result)],
+                }),
+            ],
+
+            Totals = new QueryRecordJson
+            {
+                Selected = new object[Select.Count],
+                Aggregated = [.. totals.Select(a => a.Result)],
+            },
+        };
+    }
+
+    private static IAggregator MakeTypedAggregator(Type genericType, Type valueType) =>
+        (IAggregator)Activator.CreateInstance(genericType.MakeGenericType(valueType));
+
+#endif
+}
+
+public interface IAggregator
+{
+    void Add(object value);
+
+    object Result { get; }
+}
+
+public abstract class Aggregator<T> : IAggregator
+{
+    protected abstract void AddTyped(T value);
+
+    public void Add(object value) => AddTyped((T)value);
+
+    public abstract object Result { get; }
+}
+
+public class Count : IAggregator
+{
+    private int _count;
+
+    public void Add(object value) => _count++;
+
+    public object Result => _count;
+}
+
+public class Sum<T> : Aggregator<T>
+    where T : INumber<T>
+{
+    private T _sum;
+
+    protected override void AddTyped(T value) => _sum += value;
+
+    public override object Result => _sum;
+}
+
+public class Min<T> : Aggregator<T>
+    where T : INumber<T>
+{
+    private T _min;
+
+    protected override void AddTyped(T value) => _min = T.Min(_min, value);
+
+    public override object Result => _min;
+}
+
+public class Max<T> : Aggregator<T>
+    where T : INumber<T>
+{
+    private T _min;
+
+    protected override void AddTyped(T value) => _min = T.Max(_min, value);
+
+    public override object Result => _min;
+}
+
+public class Average<T> : Aggregator<T>
+    where T : INumber<T>
+{
+    private T _sum;
+    private int _count;
+
+    protected override void AddTyped(T value)
+    {
+        _sum += value;
+        _count++;
+    }
+
+    public override object Result => _sum / (T)Convert.ChangeType(_count, typeof(T));
+}
+
+public class ArrayComparer : IEqualityComparer<object[]>
+{
+    public static readonly ArrayComparer Instance = new();
+
+    public bool Equals(object[] x, object[] y)
+    {
+        for (var i = 0; i < x.Length; i++)
+        {
+            var comparison = Comparer.Default.Compare(x[i], y[i]);
+            if (comparison != 0)
+                return false;
+        }
+
+        return false;
+    }
+
+    public int GetHashCode([DisallowNull] object[] obj)
+    {
+        var hash = new HashCode();
+        foreach (var item in obj)
+        {
+            hash.Add(item);
+        }
+
+        return hash.ToHashCode();
     }
 }

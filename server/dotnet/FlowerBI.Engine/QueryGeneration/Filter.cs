@@ -169,4 +169,59 @@ public class Filter(LabelledColumn column, string op, object val, object constan
 
         return op;
     }
+
+    public bool Evaluate(object value)
+    {
+        if (Operator == "=")
+        {
+            return Value.Equals(value);
+        }
+
+        if (Operator == "<>" || Operator == "!=")
+        {
+            return !Value.Equals(value);
+        }
+
+        if (Operator == ">")
+        {
+            return Comparer.Default.Compare(value, Value) > 0;
+        }
+
+        if (Operator == "<")
+        {
+            return Comparer.Default.Compare(value, Value) < 0;
+        }
+
+        if (Operator == ">=")
+        {
+            return Comparer.Default.Compare(value, Value) >= 0;
+        }
+
+        if (Operator == "<=")
+        {
+            return Comparer.Default.Compare(value, Value) <= 0;
+        }
+
+        if (Operator == "IN")
+        {
+            return ((IEnumerable)Value).Cast<object>().Contains(value);
+        }
+
+        if (Operator == "NOT IN")
+        {
+            return !((IEnumerable)Value).Cast<object>().Contains(value);
+        }
+
+        if (Operator == "BITS IN")
+        {
+            return (Convert.ToInt64(value) & Convert.ToInt64(Value)) == Convert.ToInt64(Value);
+        }
+
+        if (Operator == "LIKE")
+        {
+            return value.ToString().Contains(Value.ToString());
+        }
+
+        throw new FlowerBIException($"Unsupported operator: {Operator}");
+    }
 }

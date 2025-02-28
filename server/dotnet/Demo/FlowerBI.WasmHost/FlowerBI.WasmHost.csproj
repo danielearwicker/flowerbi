@@ -14,9 +14,19 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.6" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.6" PrivateAssets="all" />
-        <PackageReference Include="System.Net.Http.Json" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net6.0' ">
         <PackageReference Include="System.Text.Json" Version="8.0.5" />
-     </ItemGroup>
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net8.0' ">
+        <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net9.0' ">
+        <PackageReference Include="System.Text.Json" Version="9.0.1" />
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\FlowerBI.DemoSchema\FlowerBI.DemoSchema.csproj">
