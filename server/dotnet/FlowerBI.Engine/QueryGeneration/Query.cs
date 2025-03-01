@@ -11,8 +11,10 @@ using System.Threading.Tasks;
 using Dapper;
 using FlowerBI.Engine.JsonModels;
 using HandlebarsDotNet;
+#if NET8_0_OR_GREATER
 using Parquet;
 using DataColumn = Parquet.Data.DataColumn;
+#endif
 
 namespace FlowerBI;
 
@@ -418,6 +420,15 @@ public class Query(QueryJson json, Schema schema)
     }
 
 #if NET8_0_OR_GREATER
+
+    public record FilterWithColumn(Func<object, bool> Eval, IColumn Column)
+    {
+        public FilterWithColumn(Filter filter)
+            : this(filter.Compile(), filter.Column.Value) { }
+    }
+
+    public record AggregatorWithFilters(IAggregator Aggregator, FilterWithColumn[] Filters);
+
     public async Task<QueryResultJson> QueryParquet(Stream parquetStream)
     {
         using var reader = await ParquetReader.CreateAsync(parquetStream);
@@ -462,9 +473,26 @@ public class Query(QueryJson json, Schema schema)
             );
         }
 
-        var groupings = new Dictionary<object[], IAggregator[]>(ArrayComparer.Instance);
+        var groupings = new Dictionary<object[], AggregatorWithFilters[]>(ArrayComparer.Instance);
 
-        var totals = new IAggregator[Aggregations.Count];
+        var totals = new AggregatorWithFilters[Aggregations.Count];
+
+        var filters = Filters.Select(f => new FilterWithColumn(f)).ToArray();
+
+        static AggregatorWithFilters MakeAggregator(Aggregation aggregation, Type clrType)
+        {
+            var filters = aggregation.Filters.Select(f => new FilterWithColumn(f)).ToArray();
+            var aggImpl = aggregation.Function switch
+            {
+                AggregationType.Count => new Count(),
+                AggregationType.Sum => MakeTypedAggregator(typeof(Sum<>), clrType),
+                AggregationType.Avg => MakeTypedAggregator(typeof(Average<>), clrType),
+                AggregationType.Min => MakeTypedAggregator(typeof(Min<>), clrType),
+                AggregationType.Max => MakeTypedAggregator(typeof(Max<>), clrType),
+                _ => throw new FlowerBIException("Unsupported aggregation type"),
+            };
+            return new(aggImpl, filters);
+        }
 
         foreach (var rowGroup in reader.RowGroups)
         {
@@ -475,20 +503,11 @@ public class Query(QueryJson json, Schema schema)
                 columnData[column] = await rowGroup.ReadColumnAsync(columnFields[column]);
             }
 
+            var boundFilters = filters.Select(f => (f.Eval, columnData[f.Column].Data)).ToList();
+
             for (var r = 0; r < rowGroup.RowCount; r++)
             {
-                var passedFilters = true;
-
-                foreach (var filter in Filters)
-                {
-                    if (!filter.Evaluate(columnData[filter.Column.Value].Data.GetValue(r)))
-                    {
-                        passedFilters = false;
-                        break;
-                    }
-                }
-
-                if (!passedFilters)
+                if (!boundFilters.All(f => f.Eval(f.Data.GetValue(r))))
                 {
                     continue;
                 }
@@ -504,20 +523,15 @@ public class Query(QueryJson json, Schema schema)
 
                 if (!groupings.TryGetValue(groupingKey, out var grouping))
                 {
-                    grouping = groupings[groupingKey] = new IAggregator[Aggregations.Count];
+                    grouping = groupings[groupingKey] = new AggregatorWithFilters[
+                        Aggregations.Count
+                    ];
 
                     for (var a = 0; a < Aggregations.Count; a++)
                     {
                         var clrType = columnData[Aggregations[a].Column.Value].Field.ClrType;
-                        grouping[a] = Aggregations[a].Function switch
-                        {
-                            AggregationType.Count => new Count(),
-                            AggregationType.Sum => MakeTypedAggregator(typeof(Sum<>), clrType),
-                            AggregationType.Avg => MakeTypedAggregator(typeof(Average<>), clrType),
-                            AggregationType.Min => MakeTypedAggregator(typeof(Min<>), clrType),
-                            AggregationType.Max => MakeTypedAggregator(typeof(Max<>), clrType),
-                            _ => throw new FlowerBIException("Unsupported aggregation type"),
-                        };
+                        grouping[a] = MakeAggregator(Aggregations[a], clrType);
+                        totals[a] ??= MakeAggregator(Aggregations[a], clrType);
                     }
                 }
 
@@ -526,21 +540,16 @@ public class Query(QueryJson json, Schema schema)
                     var aggregation = Aggregations[a];
                     var value = columnData[aggregation.Column.Value].Data.GetValue(r);
 
-                    passedFilters = true;
+                    var (aggImpl, aggFilters) = grouping[a];
 
-                    foreach (var filter in aggregation.Filters)
+                    if (
+                        aggFilters.All(filter =>
+                            filter.Eval(columnData[filter.Column].Data.GetValue(r))
+                        )
+                    )
                     {
-                        if (!filter.Evaluate(columnData[filter.Column.Value].Data.GetValue(r)))
-                        {
-                            passedFilters = false;
-                            break;
-                        }
-                    }
-
-                    if (passedFilters)
-                    {
-                        grouping[a].Add(value);
-                        totals[a].Add(value);
+                        grouping[a].Aggregator.Add(value);
+                        totals[a].Aggregator.Add(value);
                     }
                 }
             }
@@ -553,14 +562,14 @@ public class Query(QueryJson json, Schema schema)
                 .. groupings.Select(grouping => new QueryRecordJson
                 {
                     Selected = [.. grouping.Key.Select((v, i) => Select[i].Value.ConvertValue(v))],
-                    Aggregated = [.. grouping.Value.Select((a, i) => a.Result)],
+                    Aggregated = [.. grouping.Value.Select((a, i) => a.Aggregator.Result)],
                 }),
             ],
 
             Totals = new QueryRecordJson
             {
                 Selected = new object[Select.Count],
-                Aggregated = [.. totals.Select(a => a.Result)],
+                Aggregated = [.. totals.Select(a => a?.Aggregator.Result)],
             },
         };
     }
@@ -570,6 +579,8 @@ public class Query(QueryJson json, Schema schema)
 
 #endif
 }
+
+#if NET8_0_OR_GREATER
 
 public interface IAggregator
 {
@@ -597,33 +608,35 @@ public class Count : IAggregator
 }
 
 public class Sum<T> : Aggregator<T>
-    where T : INumber<T>
+    where T : struct, INumber<T>
 {
-    private T _sum;
+    private T? _sum;
 
-    protected override void AddTyped(T value) => _sum += value;
+    protected override void AddTyped(T value) => _sum = _sum == null ? value : _sum + value;
 
     public override object Result => _sum;
 }
 
 public class Min<T> : Aggregator<T>
-    where T : INumber<T>
+    where T : struct, INumber<T>
 {
-    private T _min;
+    private T? _min;
 
-    protected override void AddTyped(T value) => _min = T.Min(_min, value);
+    protected override void AddTyped(T value) =>
+        _min = _min == null ? value : T.Min(_min.Value, value);
 
     public override object Result => _min;
 }
 
 public class Max<T> : Aggregator<T>
-    where T : INumber<T>
+    where T : struct, INumber<T>
 {
-    private T _min;
+    private T? _max;
 
-    protected override void AddTyped(T value) => _min = T.Max(_min, value);
+    protected override void AddTyped(T value) =>
+        _max = _max == null ? value : T.Max(_max.Value, value);
 
-    public override object Result => _min;
+    public override object Result => _max;
 }
 
 public class Average<T> : Aggregator<T>
@@ -638,7 +651,8 @@ public class Average<T> : Aggregator<T>
         _count++;
     }
 
-    public override object Result => _sum / (T)Convert.ChangeType(_count, typeof(T));
+    public override object Result =>
+        _count == 0 ? null : _sum / (T)Convert.ChangeType(_count, typeof(T));
 }
 
 public class ArrayComparer : IEqualityComparer<object[]>
@@ -654,7 +668,7 @@ public class ArrayComparer : IEqualityComparer<object[]>
                 return false;
         }
 
-        return false;
+        return true;
     }
 
     public int GetHashCode([DisallowNull] object[] obj)
@@ -668,3 +682,5 @@ public class ArrayComparer : IEqualityComparer<object[]>
         return hash.ToHashCode();
     }
 }
+
+#endif

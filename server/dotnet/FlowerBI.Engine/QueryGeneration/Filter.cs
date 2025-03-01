@@ -170,56 +170,61 @@ public class Filter(LabelledColumn column, string op, object val, object constan
         return op;
     }
 
-    public bool Evaluate(object value)
+    public Func<object, bool> Compile()
     {
         if (Operator == "=")
         {
-            return Value.Equals(value);
+            return Value.Equals;
         }
 
         if (Operator == "<>" || Operator == "!=")
         {
-            return !Value.Equals(value);
+            return value => !Value.Equals(value);
         }
 
         if (Operator == ">")
         {
-            return Comparer.Default.Compare(value, Value) > 0;
+            return value => Comparer.Default.Compare(value, Value) > 0;
         }
 
         if (Operator == "<")
         {
-            return Comparer.Default.Compare(value, Value) < 0;
+            return value => Comparer.Default.Compare(value, Value) < 0;
         }
 
         if (Operator == ">=")
         {
-            return Comparer.Default.Compare(value, Value) >= 0;
+            return value => Comparer.Default.Compare(value, Value) >= 0;
         }
 
         if (Operator == "<=")
         {
-            return Comparer.Default.Compare(value, Value) <= 0;
+            return value => Comparer.Default.Compare(value, Value) <= 0;
         }
 
         if (Operator == "IN")
         {
-            return ((IEnumerable)Value).Cast<object>().Contains(value);
+            var values = ((IEnumerable)Value).Cast<object>();
+            return value => values.Contains(value);
         }
 
         if (Operator == "NOT IN")
         {
-            return !((IEnumerable)Value).Cast<object>().Contains(value);
+            var values = ((IEnumerable)Value).Cast<object>();
+            return value => !values.Contains(value);
         }
 
         if (Operator == "BITS IN")
         {
-            return (Convert.ToInt64(value) & Convert.ToInt64(Value)) == Convert.ToInt64(Value);
+            var mask = Convert.ToInt64(Constant);
+            var target = Convert.ToInt64(Value);
+            return value => (Convert.ToInt64(value) & mask) == target;
         }
 
         if (Operator == "LIKE")
         {
-            return value.ToString().Contains(Value.ToString());
+            var str = Value.ToString();
+            return value => value.ToString().Contains(str);
         }
 
         throw new FlowerBIException($"Unsupported operator: {Operator}");
