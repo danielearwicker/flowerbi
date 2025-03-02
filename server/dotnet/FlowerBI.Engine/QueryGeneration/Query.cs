@@ -40,6 +40,8 @@ public class Query(QueryJson json, Schema schema)
 
     public int CommandTimeoutSeconds { get; } = 30;
 
+    public bool FullJoins { get; } = json.FullJoins ?? false;
+
     private const string _templateMain = """
         select
             {{#each selects}}
@@ -224,7 +226,7 @@ public class Query(QueryJson json, Schema schema)
         var template =
             calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
 
-        var (joinSql, joinedTables) = joins.ToSqlAndTables(sql);
+        var (joinSql, joinedTables) = joins.ToSqlAndTables(sql, FullJoins);
 
         var sqlFromTemplate = template(
             new

@@ -1132,4 +1132,43 @@ public abstract class ExecutionTests
 
         records.Select(x => x.Item2).Should().BeInDescendingOrder();
     }
+
+    [Fact]
+    public void FullJoins()
+    {
+        var queryJson = new QueryJson
+        {
+            FullJoins = true,
+            Select = ["Vendor.VendorName"],
+            Aggregations = [new() { Column = "Invoice.Amount", Function = AggregationType.Sum }],
+        };
+
+        var results = ExecuteQuery(queryJson);
+        var records = results.Records.Select(x => (x.Selected[0], Round(x.Aggregated[0])));
+
+        records
+            .Should()
+            .BeEquivalentTo(
+                [
+                    ("[United Cheese]", 406.84m),
+                    ("[Handbags-a-Plenty]", 252.48m),
+                    ("[Steve Makes Sandwiches]", 176.24m),
+                    ("[Manchesterford Supplies Inc]", 164.36m),
+                    ("[Disgusting Ltd]", 156.14m),
+                    ("[Statues While You Wait]", 156.24m),
+                    ("[Tiles Tiles Tiles]", 106.24m),
+                    ("[Uranium 4 Less]", 88.12m),
+                    ("[Awnings-R-Us]", 88.12m),
+                    ("[Pleasant Plc]", 88.12m),
+                    ("[Mats and More]", 76.24m),
+                    ("[Party Hats 4 U]", 58.12m),
+                    ("[Stationary Stationery]", 28.12m),
+                    ("[Acme Ltd]", default(decimal?)), // Included due to full join
+                ]
+            );
+
+        records.Select(x => x.Item2).Should().BeInDescendingOrder();
+
+        results.Totals.Should().BeNull();
+    }
 }

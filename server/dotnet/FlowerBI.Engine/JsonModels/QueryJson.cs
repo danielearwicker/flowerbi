@@ -23,6 +23,8 @@ public class QueryJson
     public string Comment { get; set; }
 
     public bool? AllowDuplicates { get; set; }
+
+    public bool? FullJoins { get; set; }
 }
 
 public class QueryRecordJson
