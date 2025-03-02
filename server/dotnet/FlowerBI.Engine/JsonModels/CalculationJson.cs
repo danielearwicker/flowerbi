@@ -64,11 +64,47 @@ public class CalculationJson
         throw new FlowerBIException("Calculation does not specify enough properties");
     }
 
-    public void RequireNulls(params object[] nulls)
+    public static void RequireNulls(params object[] nulls)
     {
         if (nulls.Any(x => x != null))
         {
             throw new FlowerBIException("Calculation has too many properties in same object");
         }
+    }
+
+    public Func<decimal?> Compile(Func<int, Func<decimal?>> aggregations)
+    {
+        if (Value != null)
+        {
+            RequireNulls(Aggregation, First, Second, Operator);
+            var constant = Value.Value;
+            return () => constant;
+        }
+
+        if (Aggregation != null)
+        {
+            RequireNulls(Value, First, Second, Operator);
+            return aggregations(Aggregation.Value);
+        }
+
+        if (First != null && Second != null && Operator != null)
+        {
+            RequireNulls(Aggregation, Value);
+
+            var firstExpr = First.Compile(aggregations);
+            var secondExpr = Second.Compile(aggregations);
+
+            return Operator switch
+            {
+                "+" => () => firstExpr() + secondExpr(),
+                "-" => () => firstExpr() - secondExpr(),
+                "*" => () => firstExpr() * secondExpr(),
+                "/" => () => firstExpr() / secondExpr(),
+                "??" => () => firstExpr() is null ? secondExpr() : firstExpr(),
+                _ => throw new FlowerBIException($"Operator '{Operator}' not supported"),
+            };
+        }
+
+        throw new FlowerBIException("Calculation does not specify enough properties");
     }
 }

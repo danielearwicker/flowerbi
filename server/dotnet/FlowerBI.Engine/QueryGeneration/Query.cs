@@ -549,16 +549,16 @@ public class Query(QueryJson json, Schema schema)
 
         foreach (var rowGroup in reader.RowGroups)
         {
-            foreach (var column in factColumnSlots)
+            foreach (var (slot, field) in factColumnSlots)
             {
-                rowGroupData[column.Slot] = await rowGroup.ReadColumnAsync(column.Field);
+                rowGroupData[slot] = await rowGroup.ReadColumnAsync(field);
             }
 
             for (var r = 0; r < rowGroup.RowCount; r++)
             {
-                foreach (var column in factColumnSlots)
+                foreach (var (slot, field) in factColumnSlots)
                 {
-                    row[column.Slot] = rowGroupData[column.Slot].Data.GetValue(r);
+                    row[slot] = rowGroupData[slot].Data.GetValue(r);
                 }
 
                 foreach (var (sourceSlot, targets) in foreignKeysSlots)
@@ -608,22 +608,57 @@ public class Query(QueryJson json, Schema schema)
             }
         }
 
+        var aggregationValues = new decimal?[Aggregations.Count];
+
+        Func<decimal?> fetchAggValue(int i) => () => aggregationValues[i];
+
+        var compiledCalculations = Calculations.Select(c => c.Compile(fetchAggValue)).ToArray();
+
+        QueryRecordJson AddCalculations(QueryRecordJson record)
+        {
+            if (compiledCalculations.Length == 0)
+            {
+                return record;
+            }
+
+            for (var i = 0; i < aggregationValues.Length; i++)
+            {
+                aggregationValues[i] = Convert.ToDecimal(record.Aggregated[i]);
+            }
+
+            record.Aggregated =
+            [
+                .. record.Aggregated,
+                .. compiledCalculations.Select(c => c() as object),
+            ];
+            return record;
+        }
+
         return new QueryResultJson
         {
             Records =
             [
-                .. groupings.Select(grouping => new QueryRecordJson
-                {
-                    Selected = [.. grouping.Key.Select((v, i) => Select[i].Value.ConvertValue(v))],
-                    Aggregated = [.. grouping.Value.Select((a, i) => a.Aggregator.Result)],
-                }),
+                .. groupings.Select(grouping =>
+                    AddCalculations(
+                        new QueryRecordJson
+                        {
+                            Selected =
+                            [
+                                .. grouping.Key.Select((v, i) => Select[i].Value.ConvertValue(v)),
+                            ],
+                            Aggregated = [.. grouping.Value.Select((a, i) => a.Aggregator.Result)],
+                        }
+                    )
+                ),
             ],
 
-            Totals = new QueryRecordJson
-            {
-                Selected = new object[Select.Count],
-                Aggregated = [.. totals.Select(a => a?.Aggregator.Result)],
-            },
+            Totals = AddCalculations(
+                new QueryRecordJson
+                {
+                    Selected = new object[Select.Count],
+                    Aggregated = [.. totals.Select(a => a?.Aggregator.Result)],
+                }
+            ),
         };
     }
 

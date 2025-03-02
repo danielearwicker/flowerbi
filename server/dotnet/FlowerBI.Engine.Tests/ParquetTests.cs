@@ -867,5 +867,57 @@ public class ParquetTests
                 }
             );
     }
+
+    [Fact]
+    public async Task Calculations()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Business.Product"],
+                Aggregations =
+                [
+                    new() { Column = "Business.Amount", Function = AggregationType.Sum },
+                ],
+                Calculations =
+                [
+                    new() { Value = 2 },
+                    new() { Aggregation = 0 },
+                    new()
+                    {
+                        First = new CalculationJson { Aggregation = 0 },
+                        Operator = "+",
+                        Second = new CalculationJson { Value = 2 },
+                    },
+                    new()
+                    {
+                        First = new CalculationJson
+                        {
+                            First = new CalculationJson { Aggregation = 0 },
+                            Operator = "+",
+                            Second = new CalculationJson { Value = 2 },
+                        },
+                        Operator = "*",
+                        Second = new CalculationJson { Value = 3 },
+                    },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null], Aggregated = [15, 2, 15, 17, 51] },
+                    Records =
+                    [
+                        new() { Selected = ["A"], Aggregated = [1, 2, 1, 3, 9] },
+                        new() { Selected = ["B"], Aggregated = [6, 2, 6, 8, 24] },
+                        new() { Selected = ["C"], Aggregated = [8, 2, 8, 10, 30] },
+                    ],
+                }
+            );
+    }
 }
 #endif
