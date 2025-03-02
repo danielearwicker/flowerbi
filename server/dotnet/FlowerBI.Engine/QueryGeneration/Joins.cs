@@ -172,9 +172,12 @@ public class Joins
         }
     }
 
-    public string ToSql(ISqlFormatter sql) => ToSqlAndTables(sql).Sql;
+    public string ToSql(ISqlFormatter sql, bool fullJoins) => ToSqlAndTables(sql, fullJoins).Sql;
 
-    public (string Sql, IEnumerable<LabelledTable> Tables) ToSqlAndTables(ISqlFormatter sql)
+    public (string Sql, IEnumerable<LabelledTable> Tables) ToSqlAndTables(
+        ISqlFormatter sql,
+        bool fullJoins
+    )
     {
         var needed = Aliases.OrderBy(x => x.Value).Select(x => x.Key).ToList();
 
@@ -257,6 +260,8 @@ public class Joins
 
         var joinedSoFar = new HashSet<LabelledTable> { root };
 
+        var joinType = fullJoins ? "full join" : "join";
+
         foreach (var table in reachable.Where(x => x != root))
         {
             var availableArrows = tables.GetLabelledArrows(table);
@@ -282,7 +287,7 @@ public class Joins
             }
 
             output.Add(
-                $"join {table.Value.ToSql(sql)} {GetAlias(table)} on {string.Join(" and ", criteria)}"
+                $"{joinType} {table.Value.ToSql(sql)} {GetAlias(table)} on {string.Join(" and ", criteria)}"
             );
 
             joinedSoFar.Add(table);
