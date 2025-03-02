@@ -1,42 +1,84 @@
+#if NET8_0_OR_GREATER
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using FlowerBI.Engine.JsonModels;
 using FluentAssertions;
 using Parquet.Serialization;
 using Xunit;
 
-#if NET8_0_OR_GREATER
 namespace FlowerBI.Engine.Tests;
 
 public class ParquetTests
 {
     public static readonly Schema Schema = new(typeof(ParquetTestSchema));
 
-    private readonly List<string> _log = [];
-
     public class TestRecord
     {
         public double Amount { get; set; }
         public string Product { get; set; }
+        public DateTime Purchased { get; set; }
     }
 
     private static readonly TestRecord[] _testRec =
     [
-        new TestRecord { Amount = 1, Product = "A" },
-        new TestRecord { Amount = 2, Product = "B" },
-        new TestRecord { Amount = 3, Product = "C" },
-        new TestRecord { Amount = 4, Product = "B" },
-        new TestRecord { Amount = 5, Product = "C" },
+        new TestRecord
+        {
+            Amount = 1,
+            Product = "A",
+            Purchased = new(2024, 10, 8),
+        },
+        new TestRecord
+        {
+            Amount = 2,
+            Product = "B",
+            Purchased = new(2025, 01, 8),
+        },
+        new TestRecord
+        {
+            Amount = 3,
+            Product = "C",
+            Purchased = new(2025, 04, 17),
+        },
+        new TestRecord
+        {
+            Amount = 4,
+            Product = "B",
+            Purchased = new(2025, 04, 2),
+        },
+        new TestRecord
+        {
+            Amount = 5,
+            Product = "C",
+            Purchased = new(2025, 10, 16),
+        },
     ];
 
-    private async Task<QueryResultJson> TestQuery(QueryJson query)
+    private static readonly Dictionary<IColumn, Func<object, object>> _dimensions = new (
+        IColumn Column,
+        Func<DateTime, object> Get
+    )[]
+    {
+        (ParquetTestSchema.Date.DayOfMonth, x => x.Day),
+        (ParquetTestSchema.Date.Month, x => x.Month),
+        (ParquetTestSchema.Date.Year, x => x.Year),
+        (ParquetTestSchema.Date.MonthName, x => x.ToString("MMMM")),
+        (ParquetTestSchema.Date.StartOfMonth, x => new DateTime(x.Year, x.Month, 1)),
+    }.ToDictionary(x => x.Column, x => new Func<object, object>(v => x.Get((DateTime)v)));
+
+    private static async Task<QueryResultJson> TestQuery(QueryJson query)
     {
         var parquet = new MemoryStream();
         await ParquetSerializer.SerializeAsync(_testRec, parquet);
         parquet.Position = 0;
 
-        return await new Query(query, Schema).QueryParquet(parquet);
+        return await new Query(query, Schema).QueryParquet(
+            ParquetTestSchema.Business.Product.Table,
+            parquet,
+            _dimensions
+        );
     }
 
     [Fact]
@@ -659,6 +701,168 @@ public class ParquetTests
                         new() { Selected = ["A"], Aggregated = [1, null, null, null, 1] },
                         new() { Selected = ["B"], Aggregated = [2, 2, 4, 4, null] },
                         new() { Selected = ["C"], Aggregated = [null, 3, 3, 5, 5] },
+                    ],
+                }
+            );
+    }
+
+    [Fact]
+    public async Task DimensionGroupingCount_Year()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Date.Year"],
+                Aggregations =
+                [
+                    new() { Column = "Business.Amount", Function = AggregationType.Count },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null], Aggregated = [5] },
+                    Records =
+                    [
+                        new() { Selected = [2024], Aggregated = [1] },
+                        new() { Selected = [2025], Aggregated = [4] },
+                    ],
+                }
+            );
+    }
+
+    [Fact]
+    public async Task DimensionGroupingCount_MonthName()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Date.MonthName"],
+                Aggregations =
+                [
+                    new() { Column = "Business.Amount", Function = AggregationType.Count },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null], Aggregated = [5] },
+                    Records =
+                    [
+                        new() { Selected = ["January"], Aggregated = [1] },
+                        new() { Selected = ["April"], Aggregated = [2] },
+                        new() { Selected = ["October"], Aggregated = [2] },
+                    ],
+                }
+            );
+    }
+
+    [Fact]
+    public async Task DimensionAggregations()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Business.Product"],
+                Aggregations =
+                [
+                    new() { Column = "Date.DayOfMonth", Function = AggregationType.Sum },
+                    new() { Column = "Date.Month", Function = AggregationType.Sum },
+                    new() { Column = "Date.Year", Function = AggregationType.Sum },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null], Aggregated = [51, 29, 10124] },
+                    Records =
+                    [
+                        new() { Selected = ["A"], Aggregated = [8, 10, 2024] },
+                        new() { Selected = ["B"], Aggregated = [10, 5, 4050] },
+                        new() { Selected = ["C"], Aggregated = [33, 14, 4050] },
+                    ],
+                }
+            );
+    }
+
+    [Fact]
+    public async Task DimensionFilters()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Business.Product"],
+                Aggregations =
+                [
+                    new()
+                    {
+                        Column = "Business.Amount",
+                        Function = AggregationType.Sum,
+                        Filters =
+                        [
+                            new()
+                            {
+                                Column = "Date.Year",
+                                Operator = "=",
+                                Value = 2025,
+                            },
+                        ],
+                    },
+                    new()
+                    {
+                        Column = "Business.Amount",
+                        Function = AggregationType.Sum,
+                        Filters =
+                        [
+                            new()
+                            {
+                                Column = "Date.Month",
+                                Operator = "=",
+                                Value = 10,
+                            },
+                        ],
+                    },
+                    new()
+                    {
+                        Column = "Business.Amount",
+                        Function = AggregationType.Sum,
+                        Filters =
+                        [
+                            new()
+                            {
+                                Column = "Date.DayOfMonth",
+                                Operator = ">",
+                                Value = 15,
+                            },
+                        ],
+                    },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null], Aggregated = [14.0, 6.0, 8.0] },
+                    Records =
+                    [
+                        new() { Selected = ["A"], Aggregated = [null, 1.0, null] },
+                        new() { Selected = ["B"], Aggregated = [6.0, null, null] },
+                        new() { Selected = ["C"], Aggregated = [8.0, 5.0, 8.0] },
                     ],
                 }
             );

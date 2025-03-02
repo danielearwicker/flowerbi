@@ -421,21 +421,48 @@ public class Query(QueryJson json, Schema schema)
 
 #if NET8_0_OR_GREATER
 
-    public record FilterWithColumn(Func<object, bool> Eval, IColumn Column)
+    public record FilterWithColumn(Func<object, bool> Eval, object[] Row, int Slot)
     {
-        public FilterWithColumn(Filter filter)
-            : this(filter.Compile(), filter.Column.Value) { }
+        public FilterWithColumn(
+            Filter filter,
+            object[] row,
+            Dictionary<IColumn, int> columnPositions
+        )
+            : this(filter.Compile(), row, columnPositions[filter.Column.Value]) { }
+
+        public bool Pass => Eval(Row[Slot]);
     }
 
-    public record AggregatorWithFilters(IAggregator Aggregator, FilterWithColumn[] Filters);
+    public record AggregatorWithFilters(
+        IAggregator Aggregator,
+        object[] Row,
+        int Slot,
+        FilterWithColumn[] Filters
+    )
+    {
+        public AggregatorWithFilters(
+            IAggregator aggregator,
+            IColumn column,
+            object[] row,
+            Dictionary<IColumn, int> columnPositions,
+            FilterWithColumn[] filters
+        )
+            : this(aggregator, row, columnPositions[column], filters) { }
 
-    public async Task<QueryResultJson> QueryParquet(Stream parquetStream)
+        public void Load() => Aggregator.Add(Row[Slot]);
+    }
+
+    public async Task<QueryResultJson> QueryParquet(
+        Table factTable,
+        Stream parquetStream,
+        Dictionary<IColumn, Func<object, object>> dimensionColumns
+    )
     {
         using var reader = await ParquetReader.CreateAsync(parquetStream);
         var parquetSchema = reader.Schema;
 
         // Get all referenced columns so we can try to map them to the schema
-        var columns = Select
+        var referencedColumns = Select
             .Select(s => s.Value)
             .Concat(Aggregations.Select(a => a.Column.Value))
             .Concat(Aggregations.SelectMany(a => a.Filters.Select(f => f.Column.Value)))
@@ -444,44 +471,68 @@ public class Query(QueryJson json, Schema schema)
             .Distinct()
             .ToList();
 
-        // Validate that all columns refer to the same table
-        var tables = columns.Select(c => c.Table).Distinct().ToList();
-        if (tables.Count > 1)
-        {
-            throw new FlowerBIException(
-                "All columns must be from the same table - tables referenced: "
-                    + string.Join(", ", tables.Select(t => t.RefName))
-            );
-        }
-
-        // Map the columns to the parquet schema
-        var columnFields = columns.ToDictionary(
-            c => c,
-            c => parquetSchema.DataFields.FirstOrDefault(f => f.Name == c.DbName)
-        );
-
-        // Validate that all columns are present in the parquet schema
-        var missingColumns = columnFields
-            .Where(kv => kv.Value == null)
-            .Select(kv => kv.Key)
+        // Get the foreign keys to the referenced dimension columns (any columns not in the fact table)
+        var fks = referencedColumns
+            .Where(c => c.Table != factTable)
+            .Select(c => factTable.GetForeignKeyTo(c.Table))
+            .Distinct()
             .ToList();
-        if (missingColumns.Count != 0)
-        {
-            throw new FlowerBIException(
-                "Columns not found in parquet schema: "
-                    + string.Join(", ", missingColumns.Select(c => c.DbName))
-            );
-        }
+
+        var allColumns = referencedColumns.Concat(fks).Distinct().ToList();
+
+        // Map the columns to their slots in an array of values for one row
+        var slots = allColumns.Select((c, i) => (c, i)).ToDictionary(kv => kv.c, kv => kv.i);
+
+        // Build a list of slots for parquet schema columns
+        var factColumnSlots = allColumns
+            .Where(c => c.Table == factTable)
+            .Select(c =>
+                (
+                    Slot: slots[c],
+                    Field: parquetSchema.DataFields.FirstOrDefault(f => f.Name == c.DbName)
+                        ?? throw new FlowerBIException(
+                            "Column not found in parquet schema: " + c.DbName
+                        )
+                )
+            )
+            .ToList();
+
+        // For each FK, get its slot (to read from) and all the referenced columns
+        // from the table it refers to
+        var foreignKeysSlots = fks.Select(fk =>
+                (
+                    SourceSlot: slots[fk],
+                    Targets: referencedColumns
+                        .Where(c => c.Table == fk.To.Table)
+                        .Select(c =>
+                            (
+                                TargetSlot: slots[c],
+                                Lookup: dimensionColumns.TryGetValue(c, out var l)
+                                    ? l
+                                    : throw new FlowerBIException(
+                                        $"Column {c.RefName} not found in ${nameof(dimensionColumns)}"
+                                    )
+                            )
+                        )
+                        .ToList()
+                )
+            )
+            .ToList();
 
         var groupings = new Dictionary<object[], AggregatorWithFilters[]>(ArrayComparer.Instance);
 
         var totals = new AggregatorWithFilters[Aggregations.Count];
 
-        var filters = Filters.Select(f => new FilterWithColumn(f)).ToArray();
+        var row = new object[allColumns.Count];
+        var rowGroupData = new DataColumn[allColumns.Count];
 
-        static AggregatorWithFilters MakeAggregator(Aggregation aggregation, Type clrType)
+        var filters = Filters.Select(f => new FilterWithColumn(f, row, slots)).ToArray();
+
+        AggregatorWithFilters MakeAggregator(Aggregation aggregation, Type clrType)
         {
-            var filters = aggregation.Filters.Select(f => new FilterWithColumn(f)).ToArray();
+            var filters = aggregation
+                .Filters.Select(f => new FilterWithColumn(f, row, slots))
+                .ToArray();
             var aggImpl = aggregation.Function switch
             {
                 AggregationType.Count => new Count(),
@@ -491,34 +542,44 @@ public class Query(QueryJson json, Schema schema)
                 AggregationType.Max => MakeTypedAggregator(typeof(Max<>), clrType),
                 _ => throw new FlowerBIException("Unsupported aggregation type"),
             };
-            return new(aggImpl, filters);
+            return new(aggImpl, aggregation.Column.Value, row, slots, filters);
         }
+
+        var groupingKeySlots = Select.Select(s => slots[s.Value]).ToArray();
 
         foreach (var rowGroup in reader.RowGroups)
         {
-            var columnData = new Dictionary<IColumn, DataColumn>();
-
-            foreach (var column in columns)
+            foreach (var column in factColumnSlots)
             {
-                columnData[column] = await rowGroup.ReadColumnAsync(columnFields[column]);
+                rowGroupData[column.Slot] = await rowGroup.ReadColumnAsync(column.Field);
             }
-
-            var boundFilters = filters.Select(f => (f.Eval, columnData[f.Column].Data)).ToList();
 
             for (var r = 0; r < rowGroup.RowCount; r++)
             {
-                if (!boundFilters.All(f => f.Eval(f.Data.GetValue(r))))
+                foreach (var column in factColumnSlots)
+                {
+                    row[column.Slot] = rowGroupData[column.Slot].Data.GetValue(r);
+                }
+
+                foreach (var (sourceSlot, targets) in foreignKeysSlots)
+                {
+                    var sourceValue = row[sourceSlot];
+                    foreach (var target in targets)
+                    {
+                        row[target.TargetSlot] = target.Lookup(sourceValue);
+                    }
+                }
+
+                if (!filters.All(f => f.Pass))
                 {
                     continue;
                 }
 
                 // Build grouping key
-                var groupingKey = new object[Select.Count];
-                for (var i = 0; i < Select.Count; i++)
+                var groupingKey = new object[groupingKeySlots.Length];
+                for (var i = 0; i < groupingKeySlots.Length; i++)
                 {
-                    var column = Select[i].Value;
-                    var value = columnData[column].Data.GetValue(r);
-                    groupingKey[i] = value;
+                    groupingKey[i] = row[groupingKeySlots[i]];
                 }
 
                 if (!groupings.TryGetValue(groupingKey, out var grouping))
@@ -529,7 +590,7 @@ public class Query(QueryJson json, Schema schema)
 
                     for (var a = 0; a < Aggregations.Count; a++)
                     {
-                        var clrType = columnData[Aggregations[a].Column.Value].Field.ClrType;
+                        var clrType = Aggregations[a].Column.Value.ClrType;
                         grouping[a] = MakeAggregator(Aggregations[a], clrType);
                         totals[a] ??= MakeAggregator(Aggregations[a], clrType);
                     }
@@ -537,19 +598,11 @@ public class Query(QueryJson json, Schema schema)
 
                 for (var a = 0; a < Aggregations.Count; a++)
                 {
-                    var aggregation = Aggregations[a];
-                    var value = columnData[aggregation.Column.Value].Data.GetValue(r);
-
-                    var (aggImpl, aggFilters) = grouping[a];
-
-                    if (
-                        aggFilters.All(filter =>
-                            filter.Eval(columnData[filter.Column].Data.GetValue(r))
-                        )
-                    )
+                    var aggregation = grouping[a];
+                    if (aggregation.Filters.All(f => f.Pass))
                     {
-                        grouping[a].Aggregator.Add(value);
-                        totals[a].Aggregator.Add(value);
+                        grouping[a].Load();
+                        totals[a].Load();
                     }
                 }
             }
