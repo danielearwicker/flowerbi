@@ -636,7 +636,7 @@ public class Query(QueryJson json, Schema schema)
             return record;
         }
 
-        return new QueryResultJson
+        var result = new QueryResultJson
         {
             Records =
             [
@@ -662,6 +662,46 @@ public class Query(QueryJson json, Schema schema)
                 }
             ),
         };
+
+        var orderings = OrderBy?.Count > 0 ? OrderBy : [new()];
+
+        var orderingFuncs = orderings.Select(ordering =>
+        {
+            if (ordering.AggregatedIndex != null)
+            {
+                var index = ordering.AggregatedIndex.Value;
+                return (
+                    ordering.Descending,
+                    new Func<QueryRecordJson, object>(x => x.Aggregated[index])
+                );
+            }
+
+            if (ordering.SelectedIndex != null)
+            {
+                var index = ordering.SelectedIndex.Value;
+                return (
+                    ordering.Descending,
+                    new Func<QueryRecordJson, object>(x => x.Selected[index])
+                );
+            }
+            else
+            {
+                throw new FlowerBIException("Parquet query can only order by positional index");
+            }
+        });
+
+        IOrderedEnumerable<QueryRecordJson> ordered = orderingFuncs.First().Descending
+            ? result.Records.OrderByDescending(orderingFuncs.First().Item2)
+            : result.Records.OrderBy(orderingFuncs.First().Item2);
+
+        foreach (var (descending, selector) in orderingFuncs.Skip(1))
+        {
+            ordered = descending ? ordered.ThenByDescending(selector) : ordered.ThenBy(selector);
+        }
+
+        result.Records = [.. ordered];
+
+        return result;
     }
 
     private static IAggregator MakeTypedAggregator(Type genericType, Type valueType) =>

@@ -13,7 +13,7 @@ namespace FlowerBI.Engine.Tests;
 
 public class ParquetTests
 {
-    public static readonly Schema Schema = new(typeof(ParquetTestSchema));
+    public static readonly Schema Schema = ExecutionTests.FindSchema("parquetTestSchema");
 
     public class TestRecord
     {
@@ -61,11 +61,11 @@ public class ParquetTests
         Func<DateTime, object> Get
     )[]
     {
-        (ParquetTestSchema.Date.DayOfMonth, x => x.Day),
-        (ParquetTestSchema.Date.Month, x => x.Month),
-        (ParquetTestSchema.Date.Year, x => x.Year),
-        (ParquetTestSchema.Date.MonthName, x => x.ToString("MMMM")),
-        (ParquetTestSchema.Date.StartOfMonth, x => new DateTime(x.Year, x.Month, 1)),
+        (Schema.GetColumn("Date.DayOfMonth").Value, x => x.Day),
+        (Schema.GetColumn("Date.Month").Value, x => x.Month),
+        (Schema.GetColumn("Date.Year").Value, x => x.Year),
+        (Schema.GetColumn("Date.MonthName").Value, x => x.ToString("MMMM")),
+        (Schema.GetColumn("Date.StartOfMonth").Value, x => new DateTime(x.Year, x.Month, 1)),
     }.ToDictionary(x => x.Column, x => new Func<object, object>(v => x.Get((DateTime)v)));
 
     private static async Task<QueryResultJson> TestQuery(QueryJson query)
@@ -75,7 +75,7 @@ public class ParquetTests
         parquet.Position = 0;
 
         return await new Query(query, Schema).QueryParquet(
-            ParquetTestSchema.Business.Product.Table,
+            Schema.GetTable("Business"),
             parquet,
             _dimensions
         );
@@ -103,11 +103,12 @@ public class ParquetTests
                     Totals = new() { Selected = [null], Aggregated = [5] },
                     Records =
                     [
-                        new() { Selected = ["A"], Aggregated = [1] },
                         new() { Selected = ["B"], Aggregated = [2] },
                         new() { Selected = ["C"], Aggregated = [2] },
+                        new() { Selected = ["A"], Aggregated = [1] },
                     ],
-                }
+                },
+                o => o.WithStrictOrdering()
             );
     }
 
@@ -133,11 +134,12 @@ public class ParquetTests
                     Totals = new() { Selected = [null], Aggregated = [15] },
                     Records =
                     [
-                        new() { Selected = ["A"], Aggregated = [1] },
-                        new() { Selected = ["B"], Aggregated = [6] },
                         new() { Selected = ["C"], Aggregated = [8] },
+                        new() { Selected = ["B"], Aggregated = [6] },
+                        new() { Selected = ["A"], Aggregated = [1] },
                     ],
-                }
+                },
+                o => o.WithStrictOrdering()
             );
     }
 
@@ -915,6 +917,55 @@ public class ParquetTests
                         new() { Selected = ["A"], Aggregated = [1, 2, 1, 3, 9] },
                         new() { Selected = ["B"], Aggregated = [6, 2, 6, 8, 24] },
                         new() { Selected = ["C"], Aggregated = [8, 2, 8, 10, 30] },
+                    ],
+                }
+            );
+    }
+
+    [Fact]
+    public async Task OrderByMixed()
+    {
+        var results = await TestQuery(
+            new QueryJson
+            {
+                Select = ["Business.Product", "Date.MonthName"],
+
+                Aggregations =
+                [
+                    new() { Column = "Business.Amount", Function = AggregationType.Sum },
+                ],
+
+                OrderBy =
+                [
+                    new()
+                    {
+                        Type = OrderingType.Select,
+                        Descending = false,
+                        Index = 1,
+                    },
+                    new()
+                    {
+                        Type = OrderingType.Value,
+                        Descending = false,
+                        Index = 0,
+                    },
+                ],
+            }
+        );
+
+        results
+            .Should()
+            .BeEquivalentTo(
+                new QueryResultJson
+                {
+                    Totals = new() { Selected = [null, null], Aggregated = [15] },
+                    Records =
+                    [
+                        new() { Selected = ["C", "April"], Aggregated = [3.0] },
+                        new() { Selected = ["B", "April"], Aggregated = [4.0] },
+                        new() { Selected = ["B", "January"], Aggregated = [2.0] },
+                        new() { Selected = ["A", "October"], Aggregated = [1.0] },
+                        new() { Selected = ["C", "October"], Aggregated = [5.0] },
                     ],
                 }
             );

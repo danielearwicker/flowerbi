@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using FlowerBI.Engine.JsonModels;
+using FlowerBI.Yaml;
 using FluentAssertions;
 using Xunit;
 
@@ -11,9 +13,33 @@ namespace FlowerBI.Engine.Tests;
 
 public abstract class ExecutionTests
 {
-    public static readonly Schema Schema = new(typeof(TestSchema));
+    public static string FindSchemaText(string name)
+    {
+        var dir = Directory.GetCurrentDirectory();
+        while (dir != null)
+        {
+            var schemaFile = Path.Combine(dir, "YamlSchemas", name + ".yaml");
+            if (File.Exists(schemaFile))
+            {
+                return File.ReadAllText(schemaFile);
+            }
 
-    public static readonly Schema ComplicatedSchema = new(typeof(ComplicatedTestSchema));
+            dir = Directory.GetParent(dir)?.FullName;
+        }
+
+        throw new DirectoryNotFoundException("Could not find YamlSchemas directory");
+    }
+
+    public static Schema FindSchema(string name) =>
+        new(ResolvedSchema.Resolve(FindSchemaText(name)));
+
+    public static readonly Schema Schema = FindSchema("testSchema");
+
+    // new(typeof(TestSchema));
+
+    public static readonly Schema ComplicatedSchema = FindSchema("complicatedTestSchema");
+
+    // new(typeof(ComplicatedTestSchema));
 
     protected abstract Func<IDbConnection> Db { get; }
 
@@ -106,16 +132,16 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Steve Makes Sandwiches]", 176.24m),
-                    ("[Manchesterford Supplies Inc]", 164.36m),
-                    ("[Disgusting Ltd]", 156.14m),
-                    ("[Statues While You Wait]", 156.24m),
-                    ("[Tiles Tiles Tiles]", 106.24m),
-                    ("[Uranium 4 Less]", 88.12m),
-                    ("[Awnings-R-Us]", 88.12m),
-                    ("[Pleasant Plc]", 88.12m),
-                    ("[Mats and More]", 76.24m),
-                    ("[Party Hats 4 U]", 58.12m),
+                    ("Steve Makes Sandwiches", 176.24m),
+                    ("Manchesterford Supplies Inc", 164.36m),
+                    ("Disgusting Ltd", 156.14m),
+                    ("Statues While You Wait", 156.24m),
+                    ("Tiles Tiles Tiles", 106.24m),
+                    ("Uranium 4 Less", 88.12m),
+                    ("Awnings-R-Us", 88.12m),
+                    ("Pleasant Plc", 88.12m),
+                    ("Mats and More", 76.24m),
+                    ("Party Hats 4 U", 58.12m),
                 }
             );
 
@@ -149,29 +175,29 @@ public abstract class ExecutionTests
                 descending
                     ?
                     [
-                        ("[Tiles Tiles Tiles]", 106.24m),
-                        ("[Steve Makes Sandwiches]", 176.24m),
-                        ("[Statues While You Wait]", 156.24m),
-                        ("[Stationary Stationery]", 28.12m),
-                        ("[Pleasant Plc]", 88.12m),
-                        ("[Party Hats 4 U]", 58.12m),
-                        ("[Mats and More]", 76.24m),
-                        ("[Manchesterford Supplies Inc]", 164.36m),
-                        ("[Handbags-a-Plenty]", 252.48m),
-                        ("[Disgusting Ltd]", 156.14m),
+                        ("Tiles Tiles Tiles", 106.24m),
+                        ("Steve Makes Sandwiches", 176.24m),
+                        ("Statues While You Wait", 156.24m),
+                        ("Stationary Stationery", 28.12m),
+                        ("Pleasant Plc", 88.12m),
+                        ("Party Hats 4 U", 58.12m),
+                        ("Mats and More", 76.24m),
+                        ("Manchesterford Supplies Inc", 164.36m),
+                        ("Handbags-a-Plenty", 252.48m),
+                        ("Disgusting Ltd", 156.14m),
                     ]
                     : new[]
                     {
-                        ("[Handbags-a-Plenty]", 252.48m),
-                        ("[Manchesterford Supplies Inc]", 164.36m),
-                        ("[Mats and More]", 76.24m),
-                        ("[Party Hats 4 U]", 58.12m),
-                        ("[Pleasant Plc]", 88.12m),
-                        ("[Stationary Stationery]", 28.12m),
-                        ("[Statues While You Wait]", 156.24m),
-                        ("[Steve Makes Sandwiches]", 176.24m),
-                        ("[Tiles Tiles Tiles]", 106.24m),
-                        ("[United Cheese]", 406.84m),
+                        ("Handbags-a-Plenty", 252.48m),
+                        ("Manchesterford Supplies Inc", 164.36m),
+                        ("Mats and More", 76.24m),
+                        ("Party Hats 4 U", 58.12m),
+                        ("Pleasant Plc", 88.12m),
+                        ("Stationary Stationery", 28.12m),
+                        ("Statues While You Wait", 156.24m),
+                        ("Steve Makes Sandwiches", 176.24m),
+                        ("Tiles Tiles Tiles", 106.24m),
+                        ("United Cheese", 406.84m),
                     }
             );
 
@@ -200,16 +226,16 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Steve Makes Sandwiches]", 176.24m),
-                    ("[Manchesterford Supplies Inc]", 164.36m),
-                    ("[Disgusting Ltd]", 156.14m),
-                    ("[Statues While You Wait]", 156.24m),
-                    ("[Tiles Tiles Tiles]", 106.24m),
-                    ("[Uranium 4 Less]", 88.12m),
-                    ("[Awnings-R-Us]", 88.12m),
-                    ("[Pleasant Plc]", 88.12m),
-                    ("[Mats and More]", 76.24m),
-                    ("[Party Hats 4 U]", 58.12m),
+                    ("Steve Makes Sandwiches", 176.24m),
+                    ("Manchesterford Supplies Inc", 164.36m),
+                    ("Disgusting Ltd", 156.14m),
+                    ("Statues While You Wait", 156.24m),
+                    ("Tiles Tiles Tiles", 106.24m),
+                    ("Uranium 4 Less", 88.12m),
+                    ("Awnings-R-Us", 88.12m),
+                    ("Pleasant Plc", 88.12m),
+                    ("Mats and More", 76.24m),
+                    ("Party Hats 4 U", 58.12m),
                 }
             );
 
@@ -237,19 +263,19 @@ public abstract class ExecutionTests
 
         var expected = new[]
         {
-            ("[Awnings-R-Us]", 88.12, 88.12),
-            ("[Disgusting Ltd]", 68.12, 88.02),
-            ("[Handbags-a-Plenty]", 28.12, 98.12),
-            ("[Manchesterford Supplies Inc]", 18.12, 88.12),
-            ("[Mats and More]", 18.12, 58.12),
-            ("[Party Hats 4 U]", 58.12, 58.12),
-            ("[Pleasant Plc]", 88.12, 88.12),
-            ("[Stationary Stationery]", 28.12, 28.12),
-            ("[Statues While You Wait]", 78.12, 78.12),
-            ("[Steve Makes Sandwiches]", 88.12, 88.12),
-            ("[Tiles Tiles Tiles]", 38.12, 68.12),
-            ("[United Cheese]", 18.12, 98.12),
-            ("[Uranium 4 Less]", 88.12, 88.12),
+            ("Awnings-R-Us", 88.12, 88.12),
+            ("Disgusting Ltd", 68.12, 88.02),
+            ("Handbags-a-Plenty", 28.12, 98.12),
+            ("Manchesterford Supplies Inc", 18.12, 88.12),
+            ("Mats and More", 18.12, 58.12),
+            ("Party Hats 4 U", 58.12, 58.12),
+            ("Pleasant Plc", 88.12, 88.12),
+            ("Stationary Stationery", 28.12, 28.12),
+            ("Statues While You Wait", 78.12, 78.12),
+            ("Steve Makes Sandwiches", 88.12, 88.12),
+            ("Tiles Tiles Tiles", 38.12, 68.12),
+            ("United Cheese", 18.12, 98.12),
+            ("Uranium 4 Less", 88.12, 88.12),
         };
 
         var expectedForType = expected.Select(x =>
@@ -309,19 +335,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", 406.84m, 7m),
-                    ("[Handbags-a-Plenty]", 252.48m, 4m),
-                    ("[Steve Makes Sandwiches]", 176.24m, 2m),
-                    ("[Manchesterford Supplies Inc]", 164.36m, 3m),
-                    ("[Disgusting Ltd]", 156.14m, 2m),
-                    ("[Statues While You Wait]", 156.24m, 2m),
-                    ("[Tiles Tiles Tiles]", 106.24m, 2m),
-                    ("[Uranium 4 Less]", 88.12m, 1m),
-                    ("[Awnings-R-Us]", 88.12m, 1m),
-                    ("[Pleasant Plc]", 88.12m, 1m),
-                    ("[Mats and More]", 76.24m, 2m),
-                    ("[Party Hats 4 U]", 58.12m, 1m),
-                    ("[Stationary Stationery]", 28.12m, 1m),
+                    ("United Cheese", 406.84m, 7m),
+                    ("Handbags-a-Plenty", 252.48m, 4m),
+                    ("Steve Makes Sandwiches", 176.24m, 2m),
+                    ("Manchesterford Supplies Inc", 164.36m, 3m),
+                    ("Disgusting Ltd", 156.14m, 2m),
+                    ("Statues While You Wait", 156.24m, 2m),
+                    ("Tiles Tiles Tiles", 106.24m, 2m),
+                    ("Uranium 4 Less", 88.12m, 1m),
+                    ("Awnings-R-Us", 88.12m, 1m),
+                    ("Pleasant Plc", 88.12m, 1m),
+                    ("Mats and More", 76.24m, 2m),
+                    ("Party Hats 4 U", 58.12m, 1m),
+                    ("Stationary Stationery", 28.12m, 1m),
                 }
             );
 
@@ -374,19 +400,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", 406.84m, 2),
-                    ("[Handbags-a-Plenty]", 252.48m, 0),
-                    ("[Steve Makes Sandwiches]", 176.24m, 2),
-                    ("[Manchesterford Supplies Inc]", 164.36m, 2),
-                    ("[Disgusting Ltd]", 156.14m, 0),
-                    ("[Statues While You Wait]", 156.24m, 1),
-                    ("[Tiles Tiles Tiles]", 106.24m, 1),
-                    ("[Uranium 4 Less]", 88.12m, 0),
-                    ("[Awnings-R-Us]", 88.12m, 1),
-                    ("[Pleasant Plc]", 88.12m, 0),
-                    ("[Mats and More]", 76.24m, 0),
-                    ("[Party Hats 4 U]", 58.12m, 0),
-                    ("[Stationary Stationery]", 28.12m, 0),
+                    ("United Cheese", 406.84m, 2),
+                    ("Handbags-a-Plenty", 252.48m, 0),
+                    ("Steve Makes Sandwiches", 176.24m, 2),
+                    ("Manchesterford Supplies Inc", 164.36m, 2),
+                    ("Disgusting Ltd", 156.14m, 0),
+                    ("Statues While You Wait", 156.24m, 1),
+                    ("Tiles Tiles Tiles", 106.24m, 1),
+                    ("Uranium 4 Less", 88.12m, 0),
+                    ("Awnings-R-Us", 88.12m, 1),
+                    ("Pleasant Plc", 88.12m, 0),
+                    ("Mats and More", 76.24m, 0),
+                    ("Party Hats 4 U", 58.12m, 0),
+                    ("Stationary Stationery", 28.12m, 0),
                 }
             );
 
@@ -418,11 +444,11 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Handbags-a-Plenty]", "Missiles", 186.24m, 2),
-                    ("[United Cheese]", "Cheese", 166.24m, 2),
-                    ("[Disgusting Ltd]", "Yoga", 88.02m, 1),
-                    ("[Statues While You Wait]", "Cheese", 78.12m, 1),
-                    ("[Party Hats 4 U]", "Marketing", 58.12m, 1),
+                    ("Handbags-a-Plenty", "Missiles", 186.24m, 2),
+                    ("United Cheese", "Cheese", 166.24m, 2),
+                    ("Disgusting Ltd", "Yoga", 88.02m, 1),
+                    ("Statues While You Wait", "Cheese", 78.12m, 1),
+                    ("Party Hats 4 U", "Marketing", 58.12m, 1),
                 }
             );
 
@@ -448,14 +474,14 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Handbags-a-Plenty]", "Boring", 126.24m),
-                    ("[Handbags-a-Plenty]", "Interesting", 98.12m),
-                    ("[Handbags-a-Plenty]", "Lethal", 98.12m),
-                    ("[Steve Makes Sandwiches]", "Interesting", 88.12m),
-                    ("[Statues While You Wait]", "Boring", 78.12m),
-                    ("[United Cheese]", "Lethal", 58.12m),
-                    ("[United Cheese]", "Interesting", 58.12m),
-                    ("[Party Hats 4 U]", "Boring", 58.12m),
+                    ("Handbags-a-Plenty", "Boring", 126.24m),
+                    ("Handbags-a-Plenty", "Interesting", 98.12m),
+                    ("Handbags-a-Plenty", "Lethal", 98.12m),
+                    ("Steve Makes Sandwiches", "Interesting", 88.12m),
+                    ("Statues While You Wait", "Boring", 78.12m),
+                    ("United Cheese", "Lethal", 58.12m),
+                    ("United Cheese", "Interesting", 58.12m),
+                    ("Party Hats 4 U", "Boring", 58.12m),
                 }
             );
 
@@ -488,8 +514,8 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Statues While You Wait]", "Boring", 78.12m),
-                    ("[Handbags-a-Plenty]", "Boring", 28.12m),
+                    ("Statues While You Wait", "Boring", 78.12m),
+                    ("Handbags-a-Plenty", "Boring", 28.12m),
                 }
             );
 
@@ -530,10 +556,10 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Pleasant Plc]", "Jill", "Pay quickly", 88.12m),
-                    ("[Pleasant Plc]", "Jill", "Brown envelope job", 88.12m),
-                    ("[Statues While You Wait]", "Snarvu", "Cash only", 78.12m),
-                    ("[United Cheese]", "Gupta", "Cash only", 18.12m),
+                    ("Pleasant Plc", "Jill", "Pay quickly", 88.12m),
+                    ("Pleasant Plc", "Jill", "Brown envelope job", 88.12m),
+                    ("Statues While You Wait", "Snarvu", "Cash only", 78.12m),
+                    ("United Cheese", "Gupta", "Cash only", 18.12m),
                 }
             );
 
@@ -556,14 +582,14 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", "Interesting"),
-                    ("[United Cheese]", "Lethal"),
-                    ("[Party Hats 4 U]", "Boring"),
-                    ("[Statues While You Wait]", "Boring"),
-                    ("[Steve Makes Sandwiches]", "Interesting"),
-                    ("[Handbags-a-Plenty]", "Interesting"),
-                    ("[Handbags-a-Plenty]", "Lethal"),
-                    ("[Handbags-a-Plenty]", "Boring"),
+                    ("United Cheese", "Interesting"),
+                    ("United Cheese", "Lethal"),
+                    ("Party Hats 4 U", "Boring"),
+                    ("Statues While You Wait", "Boring"),
+                    ("Steve Makes Sandwiches", "Interesting"),
+                    ("Handbags-a-Plenty", "Interesting"),
+                    ("Handbags-a-Plenty", "Lethal"),
+                    ("Handbags-a-Plenty", "Boring"),
                 }
             );
     }
@@ -588,15 +614,15 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", "Interesting"),
-                    ("[United Cheese]", "Lethal"),
-                    ("[Party Hats 4 U]", "Boring"),
-                    ("[Statues While You Wait]", "Boring"),
-                    ("[Steve Makes Sandwiches]", "Interesting"),
-                    ("[Handbags-a-Plenty]", "Interesting"),
-                    ("[Handbags-a-Plenty]", "Lethal"),
-                    ("[Handbags-a-Plenty]", "Boring"),
-                    ("[Handbags-a-Plenty]", "Boring"),
+                    ("United Cheese", "Interesting"),
+                    ("United Cheese", "Lethal"),
+                    ("Party Hats 4 U", "Boring"),
+                    ("Statues While You Wait", "Boring"),
+                    ("Steve Makes Sandwiches", "Interesting"),
+                    ("Handbags-a-Plenty", "Interesting"),
+                    ("Handbags-a-Plenty", "Lethal"),
+                    ("Handbags-a-Plenty", "Boring"),
+                    ("Handbags-a-Plenty", "Boring"),
                 }
             );
     }
@@ -637,19 +663,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Awnings-R-Us]", 1, 1),
-                    ("[Disgusting Ltd]", 2, 0),
-                    ("[Handbags-a-Plenty]", 4, 0),
-                    ("[Manchesterford Supplies Inc]", 3, 2),
-                    ("[Mats and More]", 2, 0),
-                    ("[Party Hats 4 U]", 1, 0),
-                    ("[Pleasant Plc]", 1, 0),
-                    ("[Stationary Stationery]", 1, 0),
-                    ("[Statues While You Wait]", 1, 1),
-                    ("[Steve Makes Sandwiches]", 1, 1),
-                    ("[Tiles Tiles Tiles]", 2, 1),
-                    ("[United Cheese]", 6, 2),
-                    ("[Uranium 4 Less]", 1, 0),
+                    ("Awnings-R-Us", 1, 1),
+                    ("Disgusting Ltd", 2, 0),
+                    ("Handbags-a-Plenty", 4, 0),
+                    ("Manchesterford Supplies Inc", 3, 2),
+                    ("Mats and More", 2, 0),
+                    ("Party Hats 4 U", 1, 0),
+                    ("Pleasant Plc", 1, 0),
+                    ("Stationary Stationery", 1, 0),
+                    ("Statues While You Wait", 1, 1),
+                    ("Steve Makes Sandwiches", 1, 1),
+                    ("Tiles Tiles Tiles", 2, 1),
+                    ("United Cheese", 6, 2),
+                    ("Uranium 4 Less", 1, 0),
                 }
             );
 
@@ -693,7 +719,7 @@ public abstract class ExecutionTests
 
         records
             .Should()
-            .BeEquivalentTo(new[] { ("[Statues While You Wait]", "Snarvu", "Cash only", 78.12m) });
+            .BeEquivalentTo(new[] { ("Statues While You Wait", "Snarvu", "Cash only", 78.12m) });
     }
 
     [Fact]
@@ -847,19 +873,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[Uranium 4 Less]", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("[Stationary Stationery]", 28.12m, 1, 1, 31.12m, 14.06m, 21.88),
-                    ("[Pleasant Plc]", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("[Party Hats 4 U]", 58.12m, 1, 1, 61.12m, 29.06m, -8.12),
-                    ("[Awnings-R-Us]", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("[Tiles Tiles Tiles]", 106.24m, 2, 2, 109.24m, 53.12m, -56.24),
-                    ("[Steve Makes Sandwiches]", 176.24m, 2, 2, 179.24m, 88.12m, -126.24),
-                    ("[Statues While You Wait]", 156.24m, 2, 2, 159.24m, 78.12m, -106.24),
-                    ("[Disgusting Ltd]", 156.14m, 2, 2, 159.14m, 78.07m, -106.14),
-                    ("[Mats and More]", 76.24m, 2, 2, 79.24m, 38.12m, -26.24),
-                    ("[Manchesterford Supplies Inc]", 164.36m, 3, 3, 167.36m, 82.18m, -114.36),
-                    ("[Handbags-a-Plenty]", 252.48m, 4, 4, 255.48m, 126.24m, -202.48),
-                    ("[United Cheese]", 406.84m, 7, 7, 409.84m, 203.42m, -356.84),
+                    ("Uranium 4 Less", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Stationary Stationery", 28.12m, 1, 1, 31.12m, 14.06m, 21.88),
+                    ("Pleasant Plc", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Party Hats 4 U", 58.12m, 1, 1, 61.12m, 29.06m, -8.12),
+                    ("Awnings-R-Us", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Tiles Tiles Tiles", 106.24m, 2, 2, 109.24m, 53.12m, -56.24),
+                    ("Steve Makes Sandwiches", 176.24m, 2, 2, 179.24m, 88.12m, -126.24),
+                    ("Statues While You Wait", 156.24m, 2, 2, 159.24m, 78.12m, -106.24),
+                    ("Disgusting Ltd", 156.14m, 2, 2, 159.14m, 78.07m, -106.14),
+                    ("Mats and More", 76.24m, 2, 2, 79.24m, 38.12m, -26.24),
+                    ("Manchesterford Supplies Inc", 164.36m, 3, 3, 167.36m, 82.18m, -114.36),
+                    ("Handbags-a-Plenty", 252.48m, 4, 4, 255.48m, 126.24m, -202.48),
+                    ("United Cheese", 406.84m, 7, 7, 409.84m, 203.42m, -356.84),
                 }
             );
 
@@ -923,19 +949,19 @@ public abstract class ExecutionTests
             .Should()
             .BeEquivalentTo(
                 [
-                    ("[Stationary Stationery]", 1, 28.12m, 1, 1, 31.12m, 28.12m),
-                    ("[Party Hats 4 U]", 2, 58.12m, 1, 1, 61.12m, 58.12m),
-                    ("[Tiles Tiles Tiles]", 2, 106.24m, 2, 2, 109.24m, 53.12m),
-                    ("[Handbags-a-Plenty]", 3, 252.48m, 4, 4, 255.48m, 63.12m),
-                    ("[Pleasant Plc]", 3, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("[Uranium 4 Less]", 3, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("[Awnings-R-Us]", 4, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("[Manchesterford Supplies Inc]", 4, 164.36m, 3, 3, 167.36m, 54.7867m),
-                    ("[Statues While You Wait]", 4, 156.24m, 2, 2, 159.24m, 78.12m),
-                    ("[Steve Makes Sandwiches]", 4, 176.24m, 2, 2, 179.24m, 88.12m),
-                    ("[United Cheese]", 4, 406.84m, 7, 7, 409.84m, 58.12m),
-                    ("[Disgusting Ltd]", 5, 156.14m, 2, 2, 159.14m, 78.07m),
-                    ("[Mats and More]", 5, 76.24m, 2, 2, 79.24m, 38.12m),
+                    ("Stationary Stationery", 1, 28.12m, 1, 1, 31.12m, 28.12m),
+                    ("Party Hats 4 U", 2, 58.12m, 1, 1, 61.12m, 58.12m),
+                    ("Tiles Tiles Tiles", 2, 106.24m, 2, 2, 109.24m, 53.12m),
+                    ("Handbags-a-Plenty", 3, 252.48m, 4, 4, 255.48m, 63.12m),
+                    ("Pleasant Plc", 3, 88.12m, 1, 1, 91.12m, 88.12m),
+                    ("Uranium 4 Less", 3, 88.12m, 1, 1, 91.12m, 88.12m),
+                    ("Awnings-R-Us", 4, 88.12m, 1, 1, 91.12m, 88.12m),
+                    ("Manchesterford Supplies Inc", 4, 164.36m, 3, 3, 167.36m, 54.7867m),
+                    ("Statues While You Wait", 4, 156.24m, 2, 2, 159.24m, 78.12m),
+                    ("Steve Makes Sandwiches", 4, 176.24m, 2, 2, 179.24m, 88.12m),
+                    ("United Cheese", 4, 406.84m, 7, 7, 409.84m, 58.12m),
+                    ("Disgusting Ltd", 5, 156.14m, 2, 2, 159.14m, 78.07m),
+                    ("Mats and More", 5, 76.24m, 2, 2, 79.24m, 38.12m),
                 ]
             );
     }
@@ -970,9 +996,7 @@ public abstract class ExecutionTests
 
         records
             .Should()
-            .BeEquivalentTo(
-                ["[Manchesterford Supplies Inc]", "[United Cheese]", "[Uranium 4 Less]"]
-            );
+            .BeEquivalentTo(["Manchesterford Supplies Inc", "United Cheese", "Uranium 4 Less"]);
     }
 
     [Fact]
@@ -1013,19 +1037,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", 7, 7),
-                    ("[Handbags-a-Plenty]", 4, 0),
-                    ("[Manchesterford Supplies Inc]", 3, 3),
-                    ("[Tiles Tiles Tiles]", 2, 0),
-                    ("[Steve Makes Sandwiches]", 2, 2),
-                    ("[Statues While You Wait]", 2, 2),
-                    ("[Mats and More]", 2, 0),
-                    ("[Disgusting Ltd]", 2, 0),
-                    ("[Uranium 4 Less]", 1, 1),
-                    ("[Stationary Stationery]", 1, 0),
-                    ("[Pleasant Plc]", 1, 1),
-                    ("[Party Hats 4 U]", 1, 0),
-                    ("[Awnings-R-Us]", 1, 1),
+                    ("United Cheese", 7, 7),
+                    ("Handbags-a-Plenty", 4, 0),
+                    ("Manchesterford Supplies Inc", 3, 3),
+                    ("Tiles Tiles Tiles", 2, 0),
+                    ("Steve Makes Sandwiches", 2, 2),
+                    ("Statues While You Wait", 2, 2),
+                    ("Mats and More", 2, 0),
+                    ("Disgusting Ltd", 2, 0),
+                    ("Uranium 4 Less", 1, 1),
+                    ("Stationary Stationery", 1, 0),
+                    ("Pleasant Plc", 1, 1),
+                    ("Party Hats 4 U", 1, 0),
+                    ("Awnings-R-Us", 1, 1),
                 }
             );
 
@@ -1053,7 +1077,7 @@ public abstract class ExecutionTests
         var results = ExecuteQuery(queryJson);
         var records = results.Records.Select(x => (x.Selected[0], x.Selected[1], x.Aggregated[0]));
 
-        records.Should().BeEquivalentTo([(8, 12, 1), (8, 8, 1), (18, 6, 1), (8, 6, 1)]);
+        records.Should().BeEquivalentTo([(4, 6, 1), (4, 4, 1), (9, 3, 1), (4, 3, 1)]);
     }
 
     [Fact]
@@ -1114,19 +1138,19 @@ public abstract class ExecutionTests
             .BeEquivalentTo(
                 new[]
                 {
-                    ("[United Cheese]", 406.84m, 7m),
-                    ("[Handbags-a-Plenty]", 252.48m, 4m),
-                    ("[Steve Makes Sandwiches]", 176.24m, 2m),
-                    ("[Manchesterford Supplies Inc]", 164.36m, 3m),
-                    ("[Disgusting Ltd]", 156.14m, 2m),
-                    ("[Statues While You Wait]", 156.24m, 2m),
-                    ("[Tiles Tiles Tiles]", 106.24m, 2m),
-                    ("[Uranium 4 Less]", 88.12m, 1m),
-                    ("[Awnings-R-Us]", 88.12m, 1m),
-                    ("[Pleasant Plc]", 88.12m, 1m),
-                    ("[Mats and More]", 76.24m, 2m),
-                    ("[Party Hats 4 U]", 58.12m, 1m),
-                    ("[Stationary Stationery]", 28.12m, 1m),
+                    ("United Cheese", 406.84m, 7m),
+                    ("Handbags-a-Plenty", 252.48m, 4m),
+                    ("Steve Makes Sandwiches", 176.24m, 2m),
+                    ("Manchesterford Supplies Inc", 164.36m, 3m),
+                    ("Disgusting Ltd", 156.14m, 2m),
+                    ("Statues While You Wait", 156.24m, 2m),
+                    ("Tiles Tiles Tiles", 106.24m, 2m),
+                    ("Uranium 4 Less", 88.12m, 1m),
+                    ("Awnings-R-Us", 88.12m, 1m),
+                    ("Pleasant Plc", 88.12m, 1m),
+                    ("Mats and More", 76.24m, 2m),
+                    ("Party Hats 4 U", 58.12m, 1m),
+                    ("Stationary Stationery", 28.12m, 1m),
                 }
             );
 
@@ -1150,20 +1174,20 @@ public abstract class ExecutionTests
             .Should()
             .BeEquivalentTo(
                 [
-                    ("[United Cheese]", 406.84m),
-                    ("[Handbags-a-Plenty]", 252.48m),
-                    ("[Steve Makes Sandwiches]", 176.24m),
-                    ("[Manchesterford Supplies Inc]", 164.36m),
-                    ("[Disgusting Ltd]", 156.14m),
-                    ("[Statues While You Wait]", 156.24m),
-                    ("[Tiles Tiles Tiles]", 106.24m),
-                    ("[Uranium 4 Less]", 88.12m),
-                    ("[Awnings-R-Us]", 88.12m),
-                    ("[Pleasant Plc]", 88.12m),
-                    ("[Mats and More]", 76.24m),
-                    ("[Party Hats 4 U]", 58.12m),
-                    ("[Stationary Stationery]", 28.12m),
-                    ("[Acme Ltd]", default(decimal?)), // Included due to full join
+                    ("United Cheese", 406.84m),
+                    ("Handbags-a-Plenty", 252.48m),
+                    ("Steve Makes Sandwiches", 176.24m),
+                    ("Manchesterford Supplies Inc", 164.36m),
+                    ("Disgusting Ltd", 156.14m),
+                    ("Statues While You Wait", 156.24m),
+                    ("Tiles Tiles Tiles", 106.24m),
+                    ("Uranium 4 Less", 88.12m),
+                    ("Awnings-R-Us", 88.12m),
+                    ("Pleasant Plc", 88.12m),
+                    ("Mats and More", 76.24m),
+                    ("Party Hats 4 U", 58.12m),
+                    ("Stationary Stationery", 28.12m),
+                    ("Acme Ltd", default(decimal?)), // Included due to full join
                 ]
             );
 

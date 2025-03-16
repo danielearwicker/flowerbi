@@ -13,10 +13,7 @@ async function querySql(sql: string) {
     const started = new Date();
     const result = JSON.stringify(db.exec(sql));
     const finished = new Date();
-    console.log(`SQL query took ${finished.getTime() - started.getTime()} ms`);
-    if (sql.includes("allbugs")) {
-        console.log(sql);
-    }
+    console.log(`SQL query took ${finished.getTime() - started.getTime()} ms`, sql, result);
 
     return result;
 }

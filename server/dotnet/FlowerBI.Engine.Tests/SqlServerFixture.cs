@@ -3,6 +3,7 @@
 using System;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using Dapper;
 using Microsoft.Data.SqlClient;
@@ -11,7 +12,7 @@ namespace FlowerBI.Engine.Tests;
 
 public sealed class SqlServerFixture : IDisposable
 {
-    public Func<IDbConnection> Db { get; }
+    private static readonly Mutex _mutex = new(false, $"FlowerBITestSqlServer{VersionString}");
 
     private static string VersionString => Environment.Version.ToString().Replace('.', '_');
 
@@ -22,6 +23,7 @@ public sealed class SqlServerFixture : IDisposable
 
     public SqlServerFixture()
     {
+        _mutex.WaitOne();
         Docker(
             string.Join(
                 " ",
@@ -43,21 +45,21 @@ public sealed class SqlServerFixture : IDisposable
 
         CreateDb();
 
-        _cs.InitialCatalog = _databaseName;
+        using var db = Connect(false);
 
-        Db = () => new SqlConnection(_cs.ConnectionString);
-
-        using var db = Db();
         db.Execute("CREATE SCHEMA Testing;");
         db.Execute(SqlScripts.SetupTestingDb);
     }
 
     public void Dispose()
     {
+        DeleteDb();
+
 #if STOP_DOCKER_SQL
         Docker($"kill {_container}");
         Docker($"rm {_container}");
 #endif
+        _mutex.ReleaseMutex();
     }
 
     private static void Docker(string cmd)
@@ -82,15 +84,18 @@ public sealed class SqlServerFixture : IDisposable
         proc.WaitForExit();
     }
 
-    private readonly SqlConnectionStringBuilder _cs = new()
-    {
-        DataSource = $"localhost,{_port}",
-        InitialCatalog = "master",
-        UserID = "sa",
-        Password = _password,
-        Encrypt = false,
-        TrustServerCertificate = true,
-    };
+    public IDbConnection Connect(bool master) =>
+        new SqlConnection(
+            new SqlConnectionStringBuilder()
+            {
+                DataSource = $"localhost,{_port}",
+                InitialCatalog = master ? "master" : _databaseName,
+                UserID = "sa",
+                Password = _password,
+                Encrypt = false,
+                TrustServerCertificate = true,
+            }.ConnectionString
+        );
 
     private void CreateDb()
     {
@@ -98,42 +103,32 @@ public sealed class SqlServerFixture : IDisposable
 
         for (var i = 1; i <= attempts; i++)
         {
-            using var db = new SqlConnection(_cs.ConnectionString);
-
-            Console.WriteLine($"Creating database {_databaseName}...");
-
             try
             {
+                using var db = Connect(true);
                 db.Execute($"CREATE DATABASE {_databaseName};");
-
-                Console.WriteLine($"Created database {_databaseName}.");
-
                 return;
             }
             catch (SqlException x) when (x.Number == 1801)
             {
                 // Database already exists - delete and retry
-                DeleteDb(db);
+                DeleteDb();
             }
-            catch (Exception x) when (i < attempts)
+            catch (Exception) when (i < attempts)
             {
-                Debug.WriteLine($"Retrying soon due to {x.GetBaseException().Message}");
                 Thread.Sleep(1000);
             }
         }
     }
 
-    private static void DeleteDb(IDbConnection db)
+    private void DeleteDb()
     {
-        Console.WriteLine($"Deleting database {_databaseName}...");
-
+        using var db = Connect(true);
         db.Execute(
             $"""
             ALTER DATABASE {_databaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
             DROP DATABASE {_databaseName};
             """
         );
-
-        Console.WriteLine($"Deleted database {_databaseName}.");
     }
 }

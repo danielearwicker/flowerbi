@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net9.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
+     <BootsharpName>flowerbi-bootsharp</BootsharpName>     
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Bootsharp" Version="0.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../FlowerBI.Engine/FlowerBI.Engine.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -6,7 +6,7 @@ async function allocDb() {
     const SQL = await window.initSqlJs({
         locateFile(f: string) {
             return `${publicUrl}/${f}`;
-        }
+        },
     });
 
     const db = new SQL.Database();
@@ -18,7 +18,9 @@ let db: ReturnType<typeof allocDb> | undefined;
 
 type Await<T> = T extends {
     then(onfulfilled?: (value: infer U) => unknown): unknown;
-} ? U : T;
+}
+    ? U
+    : T;
 
 export type Database = NonNullable<Await<typeof db>>;
 
@@ -30,8 +32,8 @@ export function getDb(): Promise<Database> {
 }
 
 function makeRandomDate() {
-    const d = new Date(2018, 0, 1);
-    d.setDate(d.getDate() + Math.floor(Math.random() * 800));
+    const d = new Date();
+    d.setDate(d.getDate() - Math.floor(Math.random() * 800));
     return d;
 }
 
@@ -44,37 +46,30 @@ function startOfQuarter(d: Date) {
     return formatDate(new Date(d.getFullYear(), m, 1));
 }
 
-function startOfMonth(d: Date) {    
+function startOfMonth(d: Date) {
     return formatDate(new Date(d.getFullYear(), d.getMonth(), 1));
 }
 
 function pick(count: number, base: number) {
-     return Math.min(count - 1, Math.floor(Math.random() * count)) + base;     
+    return Math.min(count - 1, Math.floor(Math.random() * count)) + base;
 }
 
 function setupDb(db: Database) {
+    const workflowStates = ["Ignored", "Prioritised", "Assigned", "Fixed", "AsDesigned"];
 
-    const workflowStates = [
-        "Ignored",
-        "Prioritised",
-        "Assigned",
-        "Fixed",
-        "AsDesigned"
-    ];
-
-    const sourcesOfError = [
-        "Design flaw",
-        "Hackers",
-        "Honest mistake"
-    ];
+    const sourcesOfError = ["Design flaw", "Hackers", "Honest mistake"];
 
     const dates: Date[] = [];
     for (let n = 0; n < 50; n++) {
         dates.push(makeRandomDate());
     }
 
-    const dateRows = dates.map(x => `
-        ('${formatDate(x)}', ${x.getFullYear()}, '${startOfQuarter(x)}', '${startOfMonth(x)}')`).join(",");
+    const dateRows = dates
+        .map(
+            (x) => `
+        ('${formatDate(x)}', ${x.getFullYear()}, '${startOfQuarter(x)}', '${startOfMonth(x)}')`
+        )
+        .join(",");
 
     const workflows: string[] = [];
 

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
@@ -23,7 +23,7 @@ public record LabelledColumn(string JoinLabel, IColumn Value)
 public record LabelledTable(string JoinLabel, Table Value)
 {
     public static LabelledTable From(string joinLabel, Table value) =>
-        new LabelledTable(value.Conjoint ? joinLabel : null, value);
+        new(value.Conjoint ? joinLabel : null, value);
 
     public override string ToString() =>
         string.IsNullOrWhiteSpace(JoinLabel) ? Value.RefName : $"{Value.RefName}@{JoinLabel}";
@@ -31,25 +31,33 @@ public record LabelledTable(string JoinLabel, Table Value)
 
 public sealed class Schema : Named
 {
-    private Dictionary<string, Table> _tables = new Dictionary<string, Table>();
+    private readonly Dictionary<string, Table> _tables = [];
 
-    public Schema(Type source)
+    public Schema(ResolvedSchema schema)
     {
-        DbName = source.GetCustomAttributes(false).OfType<DbSchemaAttribute>().Single().Name;
+        DbName = schema.NameInDb;
+        RefName = schema.Name;
 
-        RefName = source.Name;
-
-        foreach (var tableClass in source.GetNestedTypes())
+        foreach (var table in schema.Tables)
         {
-            var table = new Table(this, tableClass);
-            _tables[table.RefName] = table;
+            _tables[table.Name] = new Table(this, table);
+        }
+
+        foreach (var table in _tables.Values)
+        {
+            table.BindDynamicForeignKeys();
         }
     }
 
     public IList<LabelledColumn> Load(IEnumerable<string> columns) =>
-        columns?.Select(GetColumn).ToList() ?? new List<LabelledColumn>();
+        columns?.Select(GetColumn).ToList() ?? [];
 
     public IEnumerable<Table> Tables => _tables.Values;
+
+    public Table GetTable(string name) =>
+        _tables.TryGetValue(name, out var table)
+            ? table
+            : throw new FlowerBIException($"No such table {name}");
 
     public LabelledColumn GetColumn(string labelledName)
     {
@@ -63,11 +71,6 @@ public sealed class Schema : Named
             throw new FlowerBIException("Column names must be of the form Table.Column");
         }
 
-        if (!_tables.TryGetValue(parts[0], out var table))
-        {
-            throw new FlowerBIException($"No such table {parts[0]}");
-        }
-
-        return new LabelledColumn(label, table.GetColumn(parts[1]));
+        return new LabelledColumn(label, GetTable(parts[0]).GetColumn(parts[1]));
     }
 }

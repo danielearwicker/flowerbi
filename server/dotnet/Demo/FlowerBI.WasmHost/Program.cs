@@ -3,8 +3,9 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
+using FlowerBI.DemoSchema;
 using FlowerBI.Engine.JsonModels;
-using Microsoft.AspNetCore.Components.Web;
+using FlowerBI.Yaml;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
@@ -48,22 +49,12 @@ public class Program
 
     private static IJSRuntime JsRuntime;
 
-    private static readonly Schema Demo = new Schema(typeof(DemoSchema.BugSchema));
+    private static readonly Schema Demo = new(ResolvedSchema.Resolve(DemoSchemaYaml.Yaml));
 
     public static DateTime AsUtc(DateTime dateTime) =>
         dateTime.Kind == DateTimeKind.Unspecified
             ? DateTime.SpecifyKind(dateTime, DateTimeKind.Utc)
             : dateTime.ToUniversalTime();
-
-    static Program()
-    {
-        DemoSchema.BugSchema.Date.Id.SetConverter(AsUtc);
-        DemoSchema.BugSchema.Date.FirstDayOfMonth.SetConverter(AsUtc);
-        DemoSchema.BugSchema.Date.FirstDayOfQuarter.SetConverter(AsUtc);
-        DemoSchema.BugSchema.Bug.AssignedDate.SetConverter(AsUtc);
-        DemoSchema.BugSchema.Bug.ReportedDate.SetConverter(AsUtc);
-        DemoSchema.BugSchema.Bug.ResolvedDate.SetConverter(AsUtc);
-    }
 
     private static readonly ISqlFormatter Formatter = new SqlLiteFormatter();
 

@@ -5,25 +5,28 @@ using FlowerBI.Engine.JsonModels;
 
 namespace FlowerBI;
 
-public class Ordering
+public class Ordering(LabelledColumn column, bool descending, int index)
 {
-    public bool Descending { get; }
+    public bool Descending { get; } = descending;
 
-    public LabelledColumn Column { get; }
+    public LabelledColumn Column { get; } = column;
 
-    public int Index { get; }
+    public int Index { get; } = index;
 
-    public Ordering(LabelledColumn column, bool descending, int index)
-    {
-        Column = column;
-        Descending = descending;
-        Index = index;
-    }
+    public int? SelectedIndex { get; }
+
+    public int? AggregatedIndex { get; }
 
     public Ordering(IColumn column, bool descending, int index)
         : this(new LabelledColumn(null, column), descending, index) { }
 
     public string Direction => Descending ? "desc" : "asc";
+
+    public Ordering()
+        : this((IColumn)null, true, 0)
+    {
+        AggregatedIndex = 0;
+    }
 
     public Ordering(
         OrderingJson json,
@@ -45,7 +48,24 @@ public class Ordering
                     "json",
                     $"Ordering index {json.Index} is out of range in {json.Type}"
                 )
-        ) { }
+        )
+    {
+        switch (json.Type)
+        {
+            case OrderingType.Select:
+                if (json.Index < selects)
+                    SelectedIndex = json.Index;
+                break;
+            case OrderingType.Value:
+                if (json.Index < values)
+                    AggregatedIndex = json.Index;
+                break;
+            case OrderingType.Calculation:
+                if (json.Index < calcs)
+                    AggregatedIndex = values + json.Index;
+                break;
+        }
+    }
 
     public static IList<Ordering> Load(
         IEnumerable<OrderingJson> orderings,
