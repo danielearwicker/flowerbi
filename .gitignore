@@ -4,8 +4,8 @@ dist
 bin
 obj
 nupkg
-server/dotnet/.vs/FlowerBI/xs/
-server/dotnet/.vs/FlowerBI/v16/
-server/dotnet/.vs/FlowerBI/DesignTimeBuild/
-client/packages/demo-site/public/_framework/
-client/packages/demo-site/build/
+dotnet/.vs/FlowerBI/xs/
+dotnet/.vs/FlowerBI/v16/
+dotnet/.vs/FlowerBI/DesignTimeBuild/
+js/packages/demo-site/public/_framework/
+js/packages/demo-site/build/

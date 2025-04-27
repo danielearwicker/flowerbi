@@ -1,0 +1,19 @@
+{
+    "name": "testapp",
+    "version": "5.5.0",
+    "main": "index.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "dependencies": {
+        "@types/node": "^22.13.10",
+        "flowerbi-bootsharp": "5.5.0",
+        "pg": "^8.14.1",
+        "sequelize": "^6.37.6",
+        "sqlite3": "^5.1.7"
+    }
+}

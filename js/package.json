@@ -1,0 +1,12 @@
+{
+    "private": true,
+    "workspaces": {
+        "packages": [
+            "packages/*"
+        ],
+        "nohoist": [
+            "**/webpack", "ts-jest"
+        ]
+    },
+    "resolutions": {}
+}
