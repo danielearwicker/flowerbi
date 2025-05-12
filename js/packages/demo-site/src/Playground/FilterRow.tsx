@@ -1,10 +1,13 @@
-import React from "react";
 import { BugSchema } from "../demoSchema";
-import { keysOf } from "flowerbi";
+import { keysOf } from "@flowerbi/client";
 import { Select } from "./Select";
 import { Input } from "./Input";
-import { SetterFunc, useLensOnArray, useLensOnObject } from "./lensHooks";
-import { BuiltFilter, getColumnDataType, operatorsForDataType } from "./builtQueryModel";
+import { type SetterFunc, useLensOnArray, useLensOnObject } from "./lensHooks";
+import {
+    type BuiltFilter,
+    getColumnDataType,
+    operatorsForDataType,
+} from "./builtQueryModel";
 
 function createDefaultFilter() {
     return { value: "", operator: "=" } as BuiltFilter;
@@ -21,25 +24,54 @@ export interface FilterRowProps {
     nested: boolean;
 }
 
-export function FilterRow({ filters, setFilters, index, nested }: FilterRowProps) {
-    const [filter, setFilter] = useLensOnArray(filters, setFilters, index, createDefaultFilter, isDeletion);
+export function FilterRow({
+    filters,
+    setFilters,
+    index,
+    nested,
+}: FilterRowProps) {
+    const [filter, setFilter] = useLensOnArray(
+        filters,
+        setFilters,
+        index,
+        createDefaultFilter,
+        isDeletion
+    );
 
     const [table, setTable] = useLensOnObject(filter, setFilter, "table");
     const [column, setColumn] = useLensOnObject(filter, setFilter, "column");
-    const [operator, setOperator] = useLensOnObject(filter, setFilter, "operator");
+    const [operator, setOperator] = useLensOnObject(
+        filter,
+        setFilter,
+        "operator"
+    );
     const [value, setValue] = useLensOnObject(filter, setFilter, "value");
 
     return (
         <tr>
             {nested && <td />}
             <td colSpan={nested ? 1 : 2} className="filter-cell">
-                <Select options={keysOf(BugSchema)} value={table} onChange={setTable} />
+                <Select
+                    options={keysOf(BugSchema)}
+                    value={table}
+                    onChange={setTable}
+                />
             </td>
             <td className="filter-cell">
-                <Select options={table ? keysOf(BugSchema[table]) : []} value={column} onChange={setColumn} />
+                <Select
+                    options={table ? keysOf(BugSchema[table]) : []}
+                    value={column}
+                    onChange={setColumn}
+                />
             </td>
             <td className="filter-cell">
-                <Select options={operatorsForDataType[getColumnDataType(table, column)]} value={operator} onChange={setOperator} />
+                <Select
+                    options={
+                        operatorsForDataType[getColumnDataType(table, column)]
+                    }
+                    value={operator}
+                    onChange={setOperator}
+                />
             </td>
             <td className="filter-cell">
                 <Input value={value} onChange={setValue} />

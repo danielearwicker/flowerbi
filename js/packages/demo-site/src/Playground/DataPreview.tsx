@@ -1,6 +1,9 @@
-import React from "react";
-import { QueryResultJson } from "flowerbi";
-import { BuiltOrdering, BuiltQuery, getColumnsWithOffsets } from "./builtQueryModel";
+import { type QueryResultJson } from "@flowerbi/client";
+import {
+    type BuiltOrdering,
+    type BuiltQuery,
+    getColumnsWithOffsets,
+} from "./builtQueryModel";
 
 export interface DataPreviewProps {
     query: BuiltQuery;
@@ -16,9 +19,18 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
             <thead>
                 <tr className="sticky">
                     {columns.map((x) => (
-                        <th key={x.selection.name} className="sort-header" onClick={(e) => onHeaderClick(x.selection.name)}>
+                        <th
+                            key={x.selection.name}
+                            className="sort-header"
+                            onClick={(e) => onHeaderClick(x.selection.name)}
+                        >
                             <span>{x.selection.name}</span>
-                            <span className="arrow">{getOrderingIcon(query.ordering, x.selection.name)}</span>
+                            <span className="arrow">
+                                {getOrderingIcon(
+                                    query.ordering,
+                                    x.selection.name
+                                )}
+                            </span>
                         </th>
                     ))}
                 </tr>
@@ -27,7 +39,12 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
                 {data.records.map((record, index) => (
                     <tr key={index}>
                         {columns.map((x) => (
-                            <td key={x.selection.name}>{x.selection.aggregation ? record.aggregated[x.offset] : record.selected[x.offset]}</td>
+                            <td key={x.selection.name}>
+                                {(x.selection.aggregation
+                                    ? record.aggregated[x.offset]
+                                    : record.selected[x.offset]
+                                )?.toString()}
+                            </td>
                         ))}
                     </tr>
                 ))}

@@ -1,5 +1,5 @@
-import { QueryFetch } from "flowerbi";
-import { PageFiltersProp } from "flowerbi-react";
+import type { QueryFetch } from "@flowerbi/client";
+import type { PageFiltersProp } from "../util/usePageFilters";
 
 export interface FetchProps {
     fetch: QueryFetch;

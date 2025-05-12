@@ -19,6 +19,7 @@ public class FlowerBISchema(string yaml, ISqlFormatter formatter) : IFlowerBISch
     {
         Converters = { new JsonStringEnumConverter() },
         WriteIndented = true,
+        PropertyNameCaseInsensitive = true,
     };
 
     public string? GenerateQuery(string queryJson)

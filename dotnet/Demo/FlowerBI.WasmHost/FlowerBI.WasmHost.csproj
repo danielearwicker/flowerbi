@@ -8,7 +8,7 @@
         <Exec WorkingDirectory="$(ProjectDir)" Command="echo Deleting old WASM from client demo-site" />
         <Exec WorkingDirectory="$(ProjectDir)" Command="rm -rf ../../../../client/packages/demo-site/public/_framework" />
         <Exec WorkingDirectory="$(ProjectDir)" Command="echo Copying new WASM to client demo-site" />
-        <Exec WorkingDirectory="$(ProjectDir)" Command="cp -R $(TargetDir)wwwroot/_framework ../../../../client/packages/demo-site/public/_framework/" />
+        <Exec WorkingDirectory="$(ProjectDir)" Command="cp -R $(TargetDir)wwwroot/_framework ../../../js/packages/demo-site/public/_framework/" />
     </Target>
 
     <ItemGroup>

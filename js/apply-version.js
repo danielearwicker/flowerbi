@@ -3,7 +3,14 @@ const path = require("path");
 
 const newVersion = fs.readFileSync("../.version", "utf8").trim();
 
-const packages = fs.readdirSync("packages").filter(x => x[0] !== '.');
+const packages = [
+    "@flowerbi/bootsharp",
+    "@flowerbi/client",
+    "@flowerbi/dates",
+    "@flowerbi/engine",
+    "@flowerbi/react",
+    "demo-site",
+];
 
 function getPackagePath(name) {
     return path.join("packages", name, "package.json");
@@ -18,11 +25,14 @@ function writePackage(name, json) {
 }
 
 for (const p of packages) {
-    
     const json = readPackage(p);
     json.version = newVersion;
 
-    for (const type of ["dependencies", "devDependencies", "peerDependencies"]) {
+    for (const type of [
+        "dependencies",
+        "devDependencies",
+        "peerDependencies",
+    ]) {
         const deps = json[type];
         if (deps) {
             for (const other of packages) {

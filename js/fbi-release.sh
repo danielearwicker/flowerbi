@@ -1,18 +1,18 @@
 node apply-version.js
 
-pushd packages/flowerbi
+pushd packages/@flowerbi/client
 npm run fbi-release
 popd
 
-pushd packages/flowerbi-react
+pushd packages/@flowerbi/engine
 npm run fbi-release
 popd
 
-pushd packages/flowerbi-dates
+pushd packages/@flowerbi/react
 npm run fbi-release
 popd
 
-pushd packages/flowerbi-react-utils
+pushd packages/@flowerbi/dates
 npm run fbi-release
 popd
 

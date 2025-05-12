@@ -1,12 +1,31 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./App.css";
 import { BugReporting } from "./Reports/BugReporting";
-import { FetchProps } from "./Reports/VisualProps";
-import { Chart, ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend, LineController } from "chart.js";
-import { localFetch } from "./localFetch";
+import {
+    Chart,
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Legend,
+    LineController,
+} from "chart.js";
 import { Playground } from "./Playground";
+import type { FetchProps } from "./Reports/VisualProps";
+import { query } from "./query";
 
-Chart.registry.add(ArcElement, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Legend, LineController);
+Chart.registry.add(
+    ArcElement,
+    CategoryScale,
+    LinearScale,
+    BarElement,
+    PointElement,
+    LineElement,
+    Legend,
+    LineController
+);
 
 Chart.defaults.font.family = "Segoe UI, 'Helvetica', 'Arial', sans-serif";
 if (Chart.defaults.plugins.legend && Chart.defaults.plugins.legend.labels) {
@@ -35,12 +54,16 @@ function App() {
         <div className="reports-site">
             <div className="list">
                 {reportNames.map((n) => (
-                    <div key={n} className={`item ${n === reportName && "selected"}`} onClick={() => setReportName(n)}>
+                    <div
+                        key={n}
+                        className={`item ${n === reportName && "selected"}`}
+                        onClick={() => setReportName(n)}
+                    >
                         {n}
                     </div>
                 ))}
             </div>
-            <div className="content">{report({ fetch: localFetch })}</div>
+            <div className="content">{report({ fetch: query })}</div>
         </div>
     );
 }

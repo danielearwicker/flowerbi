@@ -1,13 +1,18 @@
-import React, { useRef } from "react";
-import { QueryColumn } from "flowerbi";
-import { useFlowerBI, useQuery } from "flowerbi-react";
-import { fillDates } from "flowerbi-dates";
-import { useDropDown, DropDown, FlowerBIChartBox } from "flowerbi-react-utils";
+import { useRef } from "react";
 import { Bug, Workflow, DateReported } from "../demoSchema";
 import { dataColours } from "./dataColours";
-import { Chart as ChartJS, ChartDataset, ChartOptions, ChartData } from "chart.js";
-import { VisualProps } from "./VisualProps";
+import {
+    Chart as ChartJS,
+    type ChartDataset,
+    type ChartOptions,
+    type ChartData,
+} from "chart.js";
 import { Chart } from "react-chartjs-2";
+import type { VisualProps } from "./VisualProps";
+import type { QueryColumn } from "@flowerbi/client";
+import { DropDown, FlowerBIChartBox, useDropDown } from "../util";
+import { useFlowerBI } from "@flowerbi/react";
+import { fillDates } from "@flowerbi/dates";
 
 const dateGroupings = [
     { label: "Month", value: DateReported.FirstDayOfMonth },
@@ -20,13 +25,18 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
 
     const dateGrouping = useDropDown<QueryColumn<Date | number>>(dateGroupings);
 
-    const result = useQuery(fetch, {
+    const result = useFlowerBI(fetch, {
         select: {
             period: dateGrouping.selected,
             countAllCauses: Bug.Id.count(),
-            countHackers: Bug.Id.count([Workflow.SourceOfError.equalTo("Hackers")]),
+            countHackers: Bug.Id.count([
+                Workflow.SourceOfError.equalTo("Hackers"),
+            ]),
         },
-        filters: [Workflow.Resolved.equalTo(true), ...pageFilters.getFilters(id)],
+        filters: [
+            Workflow.Resolved.equalTo(true),
+            ...pageFilters.getFilters(id),
+        ],
         orderBy: [dateGrouping.selected.ascending()],
     });
 
@@ -70,7 +80,9 @@ export function BugsOverTime({ pageFilters, fetch }: VisualProps) {
             console.log("clicked", { evt, elements, chart });
             if (elements[0]) {
                 const clicked = result.records[elements[0].index].period;
-                pageFilters.setInteraction(id, [dateGrouping.selected.equalTo(clicked)]);
+                pageFilters.setInteraction(id, [
+                    dateGrouping.selected.equalTo(clicked),
+                ]);
             }
         },
         scales: {

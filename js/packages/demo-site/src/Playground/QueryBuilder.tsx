@@ -1,6 +1,5 @@
-import React from "react";
-import { SetterFunc, useLensOnObject } from "./lensHooks";
-import { BuiltQuery } from "./builtQueryModel";
+import { type SetterFunc, useLensOnObject } from "./lensHooks";
+import { type BuiltQuery } from "./builtQueryModel";
 import { SelectionRow } from "./SelectionRow";
 import { FilterRow } from "./FilterRow";
 
@@ -10,10 +9,18 @@ export interface QueryBuilderProps {
 }
 
 export function QueryBuilder({ value, onChange }: QueryBuilderProps) {
-    const [realSelections, setSelections] = useLensOnObject(value, onChange, "select");
+    const [realSelections, setSelections] = useLensOnObject(
+        value,
+        onChange,
+        "select"
+    );
     const selections = realSelections.concat({ name: "", filters: [] });
 
-    const [realFilters, setFilters] = useLensOnObject(value, onChange, "filters");
+    const [realFilters, setFilters] = useLensOnObject(
+        value,
+        onChange,
+        "filters"
+    );
     const filters = realFilters.concat({ value: "" });
 
     return (
@@ -29,7 +36,12 @@ export function QueryBuilder({ value, onChange }: QueryBuilderProps) {
             </thead>
             <tbody>
                 {selections.map((_, index) => (
-                    <SelectionRow key={index} selections={selections} setSelections={setSelections} index={index} />
+                    <SelectionRow
+                        key={index}
+                        selections={selections}
+                        setSelections={setSelections}
+                        index={index}
+                    />
                 ))}
             </tbody>
             <thead>
@@ -39,7 +51,13 @@ export function QueryBuilder({ value, onChange }: QueryBuilderProps) {
             </thead>
             <tbody>
                 {filters.map((_, index) => (
-                    <FilterRow key={index} filters={filters} setFilters={setFilters} index={index} nested={false} />
+                    <FilterRow
+                        key={index}
+                        filters={filters}
+                        setFilters={setFilters}
+                        index={index}
+                        nested={false}
+                    />
                 ))}
             </tbody>
         </table>

@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <RuntimeIdentifier>browser-wasm</RuntimeIdentifier>
-    <BootsharpName>flowerbi-bootsharp</BootsharpName>     
+    <BootsharpName>@flowerbi/bootsharp</BootsharpName>     
     <PublishTrimmed>false</PublishTrimmed>
   </PropertyGroup>
 

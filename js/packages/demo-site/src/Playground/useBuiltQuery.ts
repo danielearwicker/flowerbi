@@ -1,7 +1,20 @@
 import { useEffect, useState } from "react";
-import { FilterJson, FilterOperator, OrderingJson, QueryFetch, QueryJson, QueryResultJson } from "flowerbi";
-import { latestError, latestSql } from "../localFetch";
-import { BuiltFilter, BuiltQuery, getColumnDataType, getColumnsWithOffsets, getTypedFilterValue } from "./builtQueryModel";
+import type {
+    FilterJson,
+    FilterOperator,
+    OrderingJson,
+    QueryFetch,
+    QueryJson,
+    QueryResultJson,
+} from "@flowerbi/client";
+import {
+    type BuiltFilter,
+    type BuiltQuery,
+    getColumnDataType,
+    getColumnsWithOffsets,
+    getTypedFilterValue,
+} from "./builtQueryModel";
+import { getSql } from "../query";
 
 export interface DataPreviewProps {
     query: BuiltQuery;
@@ -43,7 +56,9 @@ function jsonFromBuiltQuery(query: BuiltQuery): QueryJson {
     }
 
     return {
-        select: columns.filter((x) => !x.selection.aggregation).map((x) => `${x.selection.table}.${x.selection.column}`),
+        select: columns
+            .filter((x) => !x.selection.aggregation)
+            .map((x) => `${x.selection.table}.${x.selection.column}`),
         aggregations: columns
             .filter((x) => x.selection.aggregation)
             .map((x) => ({
@@ -57,7 +72,15 @@ function jsonFromBuiltQuery(query: BuiltQuery): QueryJson {
 }
 
 export function useBuiltQuery(query: BuiltQuery, fetch: QueryFetch) {
-    const [data, setData] = useState<QueryResultJson>({ records: [] });
+    const [result, setResult] = useState<{
+        data: QueryResultJson;
+        sql: string;
+        error: string;
+    }>({
+        data: { records: [] },
+        sql: "",
+        error: "",
+    });
 
     const queryJson = jsonFromBuiltQuery(query);
     const queryJsonString = JSON.stringify(queryJson);
@@ -65,11 +88,17 @@ export function useBuiltQuery(query: BuiltQuery, fetch: QueryFetch) {
     useEffect(() => {
         const q: QueryJson = JSON.parse(queryJsonString);
         if (q.aggregations.length + (q.select?.length ?? 0) === 0) {
-            setData({ records: [] });
+            setResult({ data: { records: [] }, sql: "", error: "" });
         } else {
-            fetch(q).then(setData);
+            Promise.all([fetch(q), getSql(q)]).then(([data, sql]) => {
+                setResult({
+                    data,
+                    sql,
+                    error: "",
+                });
+            });
         }
     }, [fetch, queryJsonString]);
 
-    return { ...data, sql: latestSql, error: latestError };
+    return result;
 }

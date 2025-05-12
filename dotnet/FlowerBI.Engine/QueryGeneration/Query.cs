@@ -381,31 +381,14 @@ public class Query(QueryJson json, Schema schema)
 
     private IEnumerable<QueryRecordJson> ConvertRecords(
         IEnumerable<IDictionary<string, object>> list
-    )
-    {
-        var nullConvert = new Func<object, object>(x => x);
-
-        var aggColumns = Aggregations
-            .Select(x => new Func<object, object>(x.Convert))
-            .Concat(Calculations.Select(x => nullConvert))
-            .ToList();
-
-        var selColumns = Select
-            .Select(x => new Func<object, object>(x.Value.ConvertValue))
-            .ToList();
-
-        return list.Select(x => new QueryRecordJson
+    ) =>
+        list.Select(x => new QueryRecordJson
         {
-            Selected = GetList(x, "Select", selColumns),
-            Aggregated = GetList(x, "Value", aggColumns),
+            Selected = GetList(x, "Select"),
+            Aggregated = GetList(x, "Value"),
         });
-    }
 
-    private static IList<object> GetList(
-        IDictionary<string, object> raw,
-        string prefix,
-        IReadOnlyList<Func<object, object>> converters
-    )
+    private static IList<object> GetList(IDictionary<string, object> raw, string prefix)
     {
         IList<object> result = null;
 
@@ -415,7 +398,7 @@ public class Query(QueryJson json, Schema schema)
                 break;
 
             result ??= [];
-            result.Add(converters[n](value));
+            result.Add(value);
         }
 
         return result;
@@ -644,10 +627,7 @@ public class Query(QueryJson json, Schema schema)
                     AddCalculations(
                         new QueryRecordJson
                         {
-                            Selected =
-                            [
-                                .. grouping.Key.Select((v, i) => Select[i].Value.ConvertValue(v)),
-                            ],
+                            Selected = [.. grouping.Key],
                             Aggregated = [.. grouping.Value.Select((a, i) => a.Aggregator.Result)],
                         }
                     )

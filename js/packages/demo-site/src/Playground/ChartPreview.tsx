@@ -1,6 +1,5 @@
-import React from "react";
-import { QueryResultJson } from "flowerbi";
-import { BuiltQuery, getColumnsWithOffsets } from "./builtQueryModel";
+import { type QueryResultJson } from "@flowerbi/client";
+import { type BuiltQuery, getColumnsWithOffsets } from "./builtQueryModel";
 import { Chart } from "react-chartjs-2";
 import { dataColours } from "../Reports/dataColours";
 

@@ -1,0 +1,20 @@
+{
+    "name": "@flowerbi/engine",
+    "type": "module",
+    "version": "6.0.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "SQL generation logic for FlowerBI",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "test": "jest",
+        "docs": "typedoc --excludePrivate --readme home.md --out ../../../../docs/typedoc/engine src",
+        "fbi-release": "npm run test && npm run build && npm run docs"
+    },
+    "dependencies": {
+        "@flowerbi/bootsharp": "6.0.0"
+    }
+}

@@ -29,21 +29,19 @@ public static class TypeScript
     }
 
     public static void FromYaml(string yamlFile, string tsFile, TextWriter console) =>
-        FromSchema(ResolvedSchema.Resolve(File.ReadAllText(yamlFile)), tsFile, console);
+        FromSchema(File.ReadAllText(yamlFile), tsFile, console);
 
-    static void FromSchema(ResolvedSchema schema, string tsFile, TextWriter console)
+    static void FromSchema(string yamlText, string tsFile, TextWriter console)
     {
         using var writer = new WriteIfDifferent(tsFile, console);
 
-        FromSchema(schema, writer.Output, writer.Console);
+        FromSchema(yamlText, writer.Output, writer.Console);
     }
 
-    public static void FromSchema(
-        ResolvedSchema schema,
-        TextWriter outputWriter,
-        TextWriter console
-    )
+    public static void FromSchema(string yamlText, TextWriter outputWriter, TextWriter console)
     {
+        var schema = ResolvedSchema.Resolve(yamlText);
+
         var imports = new HashSet<string>(["QueryColumnRuntimeType", "QueryColumnDataType"]);
 
         var writer = new StringWriter();
@@ -94,12 +92,21 @@ public static class TypeScript
         }
         writer.WriteLine("};");
 
+        writer.WriteLine("export const yaml = `");
+
+        var yamlWriter = new IndentedWriter(writer);
+        foreach (var line in yamlText.Split('\n'))
+        {
+            yamlWriter.WriteLine(line.TrimEnd());
+        }
+        yamlWriter.WriteLine("`;");
+
         writer.Flush();
 
         if (imports.Count != 0)
         {
             outputWriter.WriteLine(
-                @$"import {{ {string.Join(", ", imports.OrderBy(x => x))} }} from ""flowerbi"";"
+                @$"import {{ {string.Join(", ", imports.OrderBy(x => x))} }} from ""@flowerbi/client"";"
             );
             outputWriter.WriteLine();
         }

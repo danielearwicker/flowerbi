@@ -1,8 +1,11 @@
 html,
 body,
 #root {
-    height: 100%;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1 auto;
 }
 
 .layout {
@@ -112,7 +115,11 @@ body,
 }
 
 .reports-site {
-    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: row;
 }
@@ -139,6 +146,8 @@ body,
     flex-direction: column;
     width: 100%;
     position: relative;
+    background-color: white;
+    color: #444;
 }
 
 .reports-site .content .title-bar {
@@ -249,6 +258,7 @@ body,
     gap: 0.5em;
     padding: 0.5em;
     background-color: white;
+    color: #444;
 }
 
 .playground .row {
@@ -288,6 +298,7 @@ body,
 .playground select {
     padding: 2px;
     margin: 0;
+    color: #444;
 }
 
 .playground input {
@@ -295,6 +306,9 @@ body,
     top: -1px;
     padding: 1px;
     margin: 0;
+    background-color: white;
+    color: #444;
+    border: none;
 }
 
 .playground th,
@@ -304,6 +318,7 @@ body,
     padding: 0.2em 0.5em;
     font-weight: normal;
     vertical-align: unset;
+    color: #444;
 }
 
 .playground .sticky th {

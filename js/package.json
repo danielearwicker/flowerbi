@@ -2,11 +2,16 @@
     "private": true,
     "workspaces": {
         "packages": [
-            "packages/*"
+            "packages/*",
+            "packages/@flowerbi/*"
         ],
         "nohoist": [
-            "**/webpack", "ts-jest"
+            "**/webpack",
+            "ts-jest"
         ]
     },
-    "resolutions": {}
+    "resolutions": {},
+    "devDependencies": {
+        "process": "^0.11.10"
+    }
 }

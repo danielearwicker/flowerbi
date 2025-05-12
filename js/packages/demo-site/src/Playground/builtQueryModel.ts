@@ -1,4 +1,8 @@
-import { AggregationType, FilterOperator, QueryColumnDataType } from "flowerbi";
+import {
+    type AggregationType,
+    type FilterOperator,
+    QueryColumnDataType,
+} from "@flowerbi/client";
 import { BugSchema } from "../demoSchema";
 
 export type TableName = keyof typeof BugSchema;
@@ -29,11 +33,26 @@ export interface BuiltQuery {
     filters: BuiltFilter[];
 }
 
-export const aggregationTypes: AggregationType[] = ["Count", "CountDistinct", "Sum", "Avg", "Min", "Max"];
+export const aggregationTypes: AggregationType[] = [
+    "Count",
+    "CountDistinct",
+    "Sum",
+    "Avg",
+    "Min",
+    "Max",
+];
 
-const nonNumericAggregationTypes: AggregationType[] = ["Count", "CountDistinct", "Min", "Max"];
+const nonNumericAggregationTypes: AggregationType[] = [
+    "Count",
+    "CountDistinct",
+    "Min",
+    "Max",
+];
 
-export const aggregationsForDataType: Record<QueryColumnDataType, AggregationType[]> = {
+export const aggregationsForDataType: Record<
+    QueryColumnDataType,
+    AggregationType[]
+> = {
     [QueryColumnDataType.Bool]: nonNumericAggregationTypes,
     [QueryColumnDataType.Byte]: aggregationTypes,
     [QueryColumnDataType.DateTime]: nonNumericAggregationTypes,
@@ -47,14 +66,20 @@ export const aggregationsForDataType: Record<QueryColumnDataType, AggregationTyp
     [QueryColumnDataType.None]: [],
 };
 
-export function getColumnDataType(table: TableName | undefined, column: string | undefined): QueryColumnDataType {
+export function getColumnDataType(
+    table: TableName | undefined,
+    column: string | undefined
+): QueryColumnDataType {
     if (!table || !column) return QueryColumnDataType.None;
     const x = BugSchema[table];
     const y = x[column as keyof typeof x];
     return y?.type.dataType ?? QueryColumnDataType.None;
 }
 
-export function getTypedFilterValue(dataType: QueryColumnDataType, value: string) {
+export function getTypedFilterValue(
+    dataType: QueryColumnDataType,
+    value: string
+) {
     if (dataType === QueryColumnDataType.None) {
         return undefined;
     }
@@ -84,15 +109,40 @@ export function getTypedFilterValue(dataType: QueryColumnDataType, value: string
     return isNaN(numeric) ? undefined : numeric;
 }
 
-export const operators: FilterOperator[] = ["=", "<>", ">", "<", ">=", "<=", "IN", "NOT IN", "BITS IN", "LIKE"];
+export const operators: FilterOperator[] = [
+    "=",
+    "<>",
+    ">",
+    "<",
+    ">=",
+    "<=",
+    "IN",
+    "NOT IN",
+    "BITS IN",
+    "LIKE",
+];
 
 const boolOperators: FilterOperator[] = ["="];
-const generalOperators: FilterOperator[] = boolOperators.concat(["<>", ">", "<", ">=", "<="]);
-const stringOrNumberOperators: FilterOperator[] = generalOperators.concat(["IN", "NOT IN"]);
-const intOperators: FilterOperator[] = stringOrNumberOperators.concat("BITS IN");
-const stringOperators: FilterOperator[] = stringOrNumberOperators.concat("LIKE");
+const generalOperators: FilterOperator[] = boolOperators.concat([
+    "<>",
+    ">",
+    "<",
+    ">=",
+    "<=",
+]);
+const stringOrNumberOperators: FilterOperator[] = generalOperators.concat([
+    "IN",
+    "NOT IN",
+]);
+const intOperators: FilterOperator[] =
+    stringOrNumberOperators.concat("BITS IN");
+const stringOperators: FilterOperator[] =
+    stringOrNumberOperators.concat("LIKE");
 
-export const operatorsForDataType: Record<QueryColumnDataType, FilterOperator[]> = {
+export const operatorsForDataType: Record<
+    QueryColumnDataType,
+    FilterOperator[]
+> = {
     [QueryColumnDataType.Bool]: boolOperators,
     [QueryColumnDataType.Byte]: intOperators,
     [QueryColumnDataType.DateTime]: stringOrNumberOperators,
@@ -107,7 +157,9 @@ export const operatorsForDataType: Record<QueryColumnDataType, FilterOperator[]>
 };
 
 export function getColumnsWithOffsets(query: BuiltQuery) {
-    const columns = query.select.filter((x) => x.name.trim() && x.table && x.column);
+    const columns = query.select.filter(
+        (x) => x.name.trim() && x.table && x.column
+    );
     const result: { selection: BuiltSelection; offset: number }[] = [];
     const usedNames: { [name: string]: boolean } = {};
 
