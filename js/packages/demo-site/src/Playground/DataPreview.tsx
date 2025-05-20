@@ -22,7 +22,7 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
                         <th
                             key={x.selection.name}
                             className="sort-header"
-                            onClick={(e) => onHeaderClick(x.selection.name)}
+                            onClick={() => onHeaderClick(x.selection.name)}
                         >
                             <span>{x.selection.name}</span>
                             <span className="arrow">

@@ -10,11 +10,14 @@
     "scripts": {
         "build": "tsc",
         "watch": "tsc -w",
-        "test": "jest",
-        "docs": "typedoc --excludePrivate --readme home.md --out ../../../../docs/typedoc/engine src",
+        "test": "bun test",
+        "docs": "typedoc --excludePrivate --out ../../../../docs/typedoc/engine src",
         "fbi-release": "npm run test && npm run build && npm run docs"
     },
     "dependencies": {
         "@flowerbi/bootsharp": "6.0.0"
+    },
+    "devDependencies": {
+        "@types/jest": "^29.5.14"
     }
 }

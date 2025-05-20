@@ -10,14 +10,16 @@ popd
 . ./publish-bootsharp.sh
 
 pushd js
+node configure-bootsharp.js
+node apply-version.js
 yarn
 . ./fbi-release.sh
 popd
 
 pushd dotnet
-. ./push.sh
+# . ./push.sh
 popd
 
 pushd js
-. ./publish.sh
+# . ./publish.sh
 popd
