@@ -21,5 +21,5 @@ pushd dotnet
 popd
 
 pushd js
-# . ./publish.sh
+. ./publish.sh
 popd
