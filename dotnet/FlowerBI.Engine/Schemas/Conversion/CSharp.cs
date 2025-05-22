@@ -60,7 +60,7 @@ public static class CSharp
 
         schemaWriter.WriteLine(
             $"""
-            public const string Name = "{schema.Name}";
+            public const string _TableName = "{schema.Name}";
             """
         );
 
