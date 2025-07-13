@@ -83,31 +83,6 @@ public abstract class ExecutionTests
         results.Totals.Should().BeNull();
     }
 
-    [Fact]
-    public void FilterByPrimaryKeyOfOtherTable()
-    {
-        var queryJson = new QueryJson
-        {
-            Aggregations =
-            [
-                new AggregationJson { Column = "Invoice.Amount", Function = AggregationType.Sum },
-            ],
-            Filters =
-            [
-                new FilterJson
-                {
-                    Column = "Vendor.Id",
-                    Operator = "=",
-                    Value = JsonDocument.Parse("2").RootElement,
-                },
-            ],
-        };
-
-        var results = ExecuteQuery(queryJson);
-        results.Records.Single().Aggregated.Single().Should().Be(164.36);
-        results.Totals.Should().BeNull();
-    }
-
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
@@ -204,46 +179,6 @@ public abstract class ExecutionTests
         results.Totals.Should().BeNull();
     }
 
-    [Fact]
-    public void SingleAggregationTotals()
-    {
-        var queryJson = new QueryJson
-        {
-            Select = ["Vendor.VendorName"],
-            Aggregations = [new() { Column = "Invoice.Amount", Function = AggregationType.Sum }],
-            Skip = 2,
-            Take = 10,
-            Totals = true,
-        };
-
-        var results = ExecuteQuery(queryJson);
-        var records = results.Records.Select(x =>
-            (x.Selected.Single(), Round(x.Aggregated.Single()))
-        );
-
-        records
-            .Should()
-            .BeEquivalentTo(
-                new[]
-                {
-                    ("Steve Makes Sandwiches", 176.24m),
-                    ("Manchesterford Supplies Inc", 164.36m),
-                    ("Disgusting Ltd", 156.14m),
-                    ("Statues While You Wait", 156.24m),
-                    ("Tiles Tiles Tiles", 106.24m),
-                    ("Uranium 4 Less", 88.12m),
-                    ("Awnings-R-Us", 88.12m),
-                    ("Pleasant Plc", 88.12m),
-                    ("Mats and More", 76.24m),
-                    ("Party Hats 4 U", 58.12m),
-                }
-            );
-
-        records.Select(x => x.Item2).Should().BeInDescendingOrder();
-
-        results.Totals.Aggregated.Select(Round).Single().Should().Be(1845.38m);
-    }
-
     [Theory]
     [InlineData(AggregationType.Min)]
     [InlineData(AggregationType.Max)]
@@ -287,26 +222,6 @@ public abstract class ExecutionTests
         records.Select(x => x.Item1).Should().BeInAscendingOrder();
 
         results.Totals.Should().BeNull();
-    }
-
-    [Fact]
-    public void SuspiciousComment()
-    {
-        ExecuteQuery(
-            new()
-            {
-                Comment = "suspicious \r\ncomment */ drop tables;",
-                Aggregations = [new() { Column = "Vendor.VendorName" }],
-            }
-        );
-
-        _log.Single()
-            .StartsWith(
-                """
-                /* suspicious
-                comment drop tables */
-                """
-            );
     }
 
     [Theory]
@@ -361,6 +276,245 @@ public abstract class ExecutionTests
         {
             results.Totals.Should().BeNull();
         }
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Stream(bool totals)
+    {
+        var queryJson = new QueryJson
+        {
+            Select = ["Vendor.VendorName"],
+            Aggregations =
+            [
+                new() { Column = "Invoice.Amount", Function = AggregationType.Sum },
+                new() { Column = "Invoice.Id", Function = AggregationType.Count },
+            ],
+            Totals = totals,
+        };
+
+        var results = new Query(queryJson, Schema).Stream(Formatter, Db, _log.Add).ToList();
+
+        if (totals)
+        {
+            results.First().Aggregated.Select(Round).Should().BeEquivalentTo([1845.38m, 29]);
+
+            results = [.. results.Skip(1)];
+        }
+
+        var records = results.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
+
+        records
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    ("United Cheese", 406.84m, 7m),
+                    ("Handbags-a-Plenty", 252.48m, 4m),
+                    ("Steve Makes Sandwiches", 176.24m, 2m),
+                    ("Manchesterford Supplies Inc", 164.36m, 3m),
+                    ("Disgusting Ltd", 156.14m, 2m),
+                    ("Statues While You Wait", 156.24m, 2m),
+                    ("Tiles Tiles Tiles", 106.24m, 2m),
+                    ("Uranium 4 Less", 88.12m, 1m),
+                    ("Awnings-R-Us", 88.12m, 1m),
+                    ("Pleasant Plc", 88.12m, 1m),
+                    ("Mats and More", 76.24m, 2m),
+                    ("Party Hats 4 U", 58.12m, 1m),
+                    ("Stationary Stationery", 28.12m, 1m),
+                }
+            );
+
+        records.Select(x => x.Item2).Should().BeInDescendingOrder();
+    }
+
+    [Theory]
+    [InlineData(OrderingType.Select, 0, -1)]
+    [InlineData(OrderingType.Select, 1, null)]
+    [InlineData(OrderingType.Value, 0, 0)]
+    [InlineData(OrderingType.Value, 1, 1)]
+    [InlineData(OrderingType.Value, 3, null)]
+    [InlineData(OrderingType.Calculation, 0, 2)]
+    [InlineData(OrderingType.Calculation, 1, 3)]
+    [InlineData(OrderingType.Calculation, 2, 4)]
+    [InlineData(OrderingType.Calculation, 3, 5)]
+    [InlineData(OrderingType.Calculation, 4, null)]
+    public void CalculationsAndIndexedOrderBy(
+        OrderingType orderingType,
+        int orderingIndex,
+        int? expectedOrderBy
+    )
+    {
+        var queryJson = new QueryJson
+        {
+            Select = ["Vendor.VendorName"],
+            Aggregations =
+            [
+                new AggregationJson { Column = "Invoice.Amount", Function = AggregationType.Sum },
+                new AggregationJson { Column = "Invoice.Id", Function = AggregationType.Count },
+            ],
+            Calculations =
+            [
+                new() { Aggregation = 1 },
+                new()
+                {
+                    First = new()
+                    {
+                        First = new() { Aggregation = 0 },
+                        Operator = "??",
+                        Second = new() { Value = 42 },
+                    },
+                    Operator = "+",
+                    Second = new() { Value = 3 },
+                },
+                new()
+                {
+                    First = new() { Aggregation = 0 },
+                    Operator = "/",
+                    Second = new() { Value = 2 },
+                },
+                new()
+                {
+                    First = new() { Value = 50 },
+                    Operator = "-",
+                    Second = new() { Aggregation = 0 },
+                },
+            ],
+            OrderBy = [new() { Type = orderingType, Index = orderingIndex }],
+        };
+
+        var func = new Func<QueryResultJson>(() => ExecuteQuery(queryJson));
+        if (expectedOrderBy == null)
+        {
+            func.Should().Throw<ArgumentOutOfRangeException>();
+            return;
+        }
+
+        var results = func();
+        var records = results.Records.Select(x =>
+            (
+                x.Selected[0],
+                Round(x.Aggregated[0]),
+                x.Aggregated[1],
+                x.Aggregated[2],
+                Round(x.Aggregated[3]),
+                Round(x.Aggregated[4]),
+                Round(x.Aggregated[5])
+            )
+        );
+        records
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    ("Uranium 4 Less", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Stationary Stationery", 28.12m, 1, 1, 31.12m, 14.06m, 21.88),
+                    ("Pleasant Plc", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Party Hats 4 U", 58.12m, 1, 1, 61.12m, 29.06m, -8.12),
+                    ("Awnings-R-Us", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
+                    ("Tiles Tiles Tiles", 106.24m, 2, 2, 109.24m, 53.12m, -56.24),
+                    ("Steve Makes Sandwiches", 176.24m, 2, 2, 179.24m, 88.12m, -126.24),
+                    ("Statues While You Wait", 156.24m, 2, 2, 159.24m, 78.12m, -106.24),
+                    ("Disgusting Ltd", 156.14m, 2, 2, 159.14m, 78.07m, -106.14),
+                    ("Mats and More", 76.24m, 2, 2, 79.24m, 38.12m, -26.24),
+                    ("Manchesterford Supplies Inc", 164.36m, 3, 3, 167.36m, 82.18m, -114.36),
+                    ("Handbags-a-Plenty", 252.48m, 4, 4, 255.48m, 126.24m, -202.48),
+                    ("United Cheese", 406.84m, 7, 7, 409.84m, 203.42m, -356.84),
+                }
+            );
+
+        var orderedBy =
+            expectedOrderBy == -1
+                ? results.Records.Select(x => x.Selected[0])
+                : results.Records.Select(x => x.Aggregated[expectedOrderBy.Value]);
+
+        orderedBy.Should().BeInAscendingOrder();
+    }
+
+    [Fact]
+    public void FilterByPrimaryKeyOfOtherTable()
+    {
+        var queryJson = new QueryJson
+        {
+            Aggregations =
+            [
+                new AggregationJson { Column = "Invoice.Amount", Function = AggregationType.Sum },
+            ],
+            Filters =
+            [
+                new FilterJson
+                {
+                    Column = "Vendor.Id",
+                    Operator = "=",
+                    Value = JsonDocument.Parse("2").RootElement,
+                },
+            ],
+        };
+
+        var results = ExecuteQuery(queryJson);
+        results.Records.Single().Aggregated.Single().Should().Be(164.36);
+        results.Totals.Should().BeNull();
+    }
+
+    [Fact]
+    public void SingleAggregationTotals()
+    {
+        var queryJson = new QueryJson
+        {
+            Select = ["Vendor.VendorName"],
+            Aggregations = [new() { Column = "Invoice.Amount", Function = AggregationType.Sum }],
+            Skip = 2,
+            Take = 10,
+            Totals = true,
+        };
+
+        var results = ExecuteQuery(queryJson);
+        var records = results.Records.Select(x =>
+            (x.Selected.Single(), Round(x.Aggregated.Single()))
+        );
+
+        records
+            .Should()
+            .BeEquivalentTo(
+                new[]
+                {
+                    ("Steve Makes Sandwiches", 176.24m),
+                    ("Manchesterford Supplies Inc", 164.36m),
+                    ("Disgusting Ltd", 156.14m),
+                    ("Statues While You Wait", 156.24m),
+                    ("Tiles Tiles Tiles", 106.24m),
+                    ("Uranium 4 Less", 88.12m),
+                    ("Awnings-R-Us", 88.12m),
+                    ("Pleasant Plc", 88.12m),
+                    ("Mats and More", 76.24m),
+                    ("Party Hats 4 U", 58.12m),
+                }
+            );
+
+        records.Select(x => x.Item2).Should().BeInDescendingOrder();
+
+        results.Totals.Aggregated.Select(Round).Single().Should().Be(1845.38m);
+    }
+
+    [Fact]
+    public void SuspiciousComment()
+    {
+        ExecuteQuery(
+            new()
+            {
+                Comment = "suspicious \r\ncomment */ drop tables;",
+                Aggregations = [new() { Column = "Vendor.VendorName" }],
+            }
+        );
+
+        _log.Single()
+            .StartsWith(
+                """
+                /* suspicious
+                comment drop tables */
+                """
+            );
     }
 
     [Fact]
@@ -794,109 +948,6 @@ public abstract class ExecutionTests
         records.Should().BeEquivalentTo(new[] { ("Snarvu", "Robocop", 78.12m) });
     }
 
-    [Theory]
-    [InlineData(OrderingType.Select, 0, -1)]
-    [InlineData(OrderingType.Select, 1, null)]
-    [InlineData(OrderingType.Value, 0, 0)]
-    [InlineData(OrderingType.Value, 1, 1)]
-    [InlineData(OrderingType.Value, 3, null)]
-    [InlineData(OrderingType.Calculation, 0, 2)]
-    [InlineData(OrderingType.Calculation, 1, 3)]
-    [InlineData(OrderingType.Calculation, 2, 4)]
-    [InlineData(OrderingType.Calculation, 3, 5)]
-    [InlineData(OrderingType.Calculation, 4, null)]
-    public void CalculationsAndIndexedOrderBy(
-        OrderingType orderingType,
-        int orderingIndex,
-        int? expectedOrderBy
-    )
-    {
-        var queryJson = new QueryJson
-        {
-            Select = ["Vendor.VendorName"],
-            Aggregations =
-            [
-                new AggregationJson { Column = "Invoice.Amount", Function = AggregationType.Sum },
-                new AggregationJson { Column = "Invoice.Id", Function = AggregationType.Count },
-            ],
-            Calculations =
-            [
-                new() { Aggregation = 1 },
-                new()
-                {
-                    First = new()
-                    {
-                        First = new() { Aggregation = 0 },
-                        Operator = "??",
-                        Second = new() { Value = 42 },
-                    },
-                    Operator = "+",
-                    Second = new() { Value = 3 },
-                },
-                new()
-                {
-                    First = new() { Aggregation = 0 },
-                    Operator = "/",
-                    Second = new() { Value = 2 },
-                },
-                new()
-                {
-                    First = new() { Value = 50 },
-                    Operator = "-",
-                    Second = new() { Aggregation = 0 },
-                },
-            ],
-            OrderBy = [new() { Type = orderingType, Index = orderingIndex }],
-        };
-
-        var func = new Func<QueryResultJson>(() => ExecuteQuery(queryJson));
-        if (expectedOrderBy == null)
-        {
-            func.Should().Throw<ArgumentOutOfRangeException>();
-            return;
-        }
-
-        var results = func();
-        var records = results.Records.Select(x =>
-            (
-                x.Selected[0],
-                Round(x.Aggregated[0]),
-                x.Aggregated[1],
-                x.Aggregated[2],
-                Round(x.Aggregated[3]),
-                Round(x.Aggregated[4]),
-                Round(x.Aggregated[5])
-            )
-        );
-        records
-            .Should()
-            .BeEquivalentTo(
-                new[]
-                {
-                    ("Uranium 4 Less", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("Stationary Stationery", 28.12m, 1, 1, 31.12m, 14.06m, 21.88),
-                    ("Pleasant Plc", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("Party Hats 4 U", 58.12m, 1, 1, 61.12m, 29.06m, -8.12),
-                    ("Awnings-R-Us", 88.12m, 1, 1, 91.12m, 44.06m, -38.12),
-                    ("Tiles Tiles Tiles", 106.24m, 2, 2, 109.24m, 53.12m, -56.24),
-                    ("Steve Makes Sandwiches", 176.24m, 2, 2, 179.24m, 88.12m, -126.24),
-                    ("Statues While You Wait", 156.24m, 2, 2, 159.24m, 78.12m, -106.24),
-                    ("Disgusting Ltd", 156.14m, 2, 2, 159.14m, 78.07m, -106.14),
-                    ("Mats and More", 76.24m, 2, 2, 79.24m, 38.12m, -26.24),
-                    ("Manchesterford Supplies Inc", 164.36m, 3, 3, 167.36m, 82.18m, -114.36),
-                    ("Handbags-a-Plenty", 252.48m, 4, 4, 255.48m, 126.24m, -202.48),
-                    ("United Cheese", 406.84m, 7, 7, 409.84m, 203.42m, -356.84),
-                }
-            );
-
-        var orderedBy =
-            expectedOrderBy == -1
-                ? results.Records.Select(x => x.Selected[0])
-                : results.Records.Select(x => x.Aggregated[expectedOrderBy.Value]);
-
-        orderedBy.Should().BeInAscendingOrder();
-    }
-
     [Fact]
     public void CalculationsAndMultiSelect()
     {
@@ -1104,57 +1155,6 @@ public abstract class ExecutionTests
         };
 
         a.Should().Throw<FlowerBIException>().WithMessage("Filter JSON contains empty array");
-    }
-
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
-    public void Stream(bool totals)
-    {
-        var queryJson = new QueryJson
-        {
-            Select = ["Vendor.VendorName"],
-            Aggregations =
-            [
-                new() { Column = "Invoice.Amount", Function = AggregationType.Sum },
-                new() { Column = "Invoice.Id", Function = AggregationType.Count },
-            ],
-            Totals = totals,
-        };
-
-        var results = new Query(queryJson, Schema).Stream(Formatter, Db, _log.Add).ToList();
-
-        if (totals)
-        {
-            results.First().Aggregated.Select(Round).Should().BeEquivalentTo([1845.38m, 29]);
-
-            results = [.. results.Skip(1)];
-        }
-
-        var records = results.Select(x => (x.Selected[0], Round(x.Aggregated[0]), x.Aggregated[1]));
-
-        records
-            .Should()
-            .BeEquivalentTo(
-                new[]
-                {
-                    ("United Cheese", 406.84m, 7m),
-                    ("Handbags-a-Plenty", 252.48m, 4m),
-                    ("Steve Makes Sandwiches", 176.24m, 2m),
-                    ("Manchesterford Supplies Inc", 164.36m, 3m),
-                    ("Disgusting Ltd", 156.14m, 2m),
-                    ("Statues While You Wait", 156.24m, 2m),
-                    ("Tiles Tiles Tiles", 106.24m, 2m),
-                    ("Uranium 4 Less", 88.12m, 1m),
-                    ("Awnings-R-Us", 88.12m, 1m),
-                    ("Pleasant Plc", 88.12m, 1m),
-                    ("Mats and More", 76.24m, 2m),
-                    ("Party Hats 4 U", 58.12m, 1m),
-                    ("Stationary Stationery", 28.12m, 1m),
-                }
-            );
-
-        records.Select(x => x.Item2).Should().BeInDescendingOrder();
     }
 
     [Fact]
