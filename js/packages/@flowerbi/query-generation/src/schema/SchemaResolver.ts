@@ -1,4 +1,4 @@
-import * as yaml from 'yaml';
+import { SimpleYamlParser } from './SimpleYamlParser';
 import { 
   YamlSchema, 
   YamlTable, 
@@ -11,7 +11,7 @@ import { FlowerBIException } from '../types';
 
 export class SchemaResolver {
   static resolve(yamlText: string): ResolvedSchema {
-    const yamlObj = yaml.parse(yamlText) as YamlSchema;
+    const yamlObj = SimpleYamlParser.parse(yamlText) as YamlSchema;
     return SchemaResolver.resolveYaml(yamlObj);
   }
 

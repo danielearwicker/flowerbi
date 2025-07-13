@@ -6,21 +6,33 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
+    "bundle": "webpack --mode production",
+    "bundle:dev": "webpack --mode development",
     "test": "jest",
     "dev": "tsc --watch"
   },
-  "keywords": ["sql", "query", "generation", "typescript"],
+  "keywords": [
+    "sql",
+    "query",
+    "generation",
+    "typescript"
+  ],
   "author": "Daniel Earwicker",
   "license": "MIT",
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
     "@types/jest": "^29.0.0",
     "@types/node": "^18.0.0",
+    "babel-loader": "^10.0.0",
     "jest": "^29.0.0",
     "ts-jest": "^29.0.0",
-    "typescript": "^5.0.0"
+    "ts-loader": "^9.0.0",
+    "typescript": "^5.0.0",
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0"
   },
   "dependencies": {
-    "handlebars": "^4.7.8",
-    "yaml": "^2.3.0"
+    "handlebars": "^4.7.8"
   }
 }
