@@ -17,3 +17,31 @@ export {
   PostgresFormatter,
   IdentifierPair,
 } from './SqlFormatter';
+
+// Export schema functionality
+export * from './schema/YamlSchemaTypes';
+export { SchemaResolver } from './schema/SchemaResolver';
+export { SchemaImplementation } from './schema/SchemaImplementation';
+
+// Export QueryEngine functionality
+export {
+  QueryEngine,
+  PreparedQuery,
+  DatabaseResult,
+  ArrayOfArraysResult,
+  ArrayOfObjectsResult,
+  createQueryEngine,
+} from './QueryEngine';
+export { QueryEngineHelpers } from './QueryEngineHelpers';
+export {
+  QueryEngineFactory,
+  QueryEngineConfig,
+  DatabaseType,
+  SqlFormatterSpec,
+  createQueryEngineFromYaml,
+} from './QueryEngineFactory';
+
+// Export code generation functionality
+export { TypeScriptGenerator } from './codegen/TypeScriptGenerator';
+export { CSharpGenerator } from './codegen/CSharpGenerator';
+export { IndentedWriter } from './codegen/IndentedWriter';

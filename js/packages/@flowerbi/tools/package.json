@@ -1,0 +1,25 @@
+{
+  "name": "@flowerbi/tools",
+  "version": "1.0.0",
+  "description": "Command-line tools for FlowerBI schema code generation",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "flowerbi-tools": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "jest"
+  },
+  "keywords": ["flowerbi", "sql", "query", "generation", "tools", "cli"],
+  "author": "Daniel Earwicker",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@flowerbi/query-generation": "file:../query-generation"
+  }
+}

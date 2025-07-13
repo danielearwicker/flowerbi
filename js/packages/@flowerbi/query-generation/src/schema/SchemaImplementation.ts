@@ -7,8 +7,8 @@ import {
   LabelledTable,
   ISqlFormatter,
   FlowerBIException,
-} from '@flowerbi/query-generation';
-import { IdentifierPair } from '@flowerbi/query-generation';
+} from '../types';
+import { IdentifierPair } from '../SqlFormatter';
 import { ResolvedSchema, ResolvedTable, ResolvedColumn, DataType } from './YamlSchemaTypes';
 
 export class DynamicColumn implements IColumn {

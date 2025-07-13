@@ -12,8 +12,7 @@ import {
   AggregationType,
   OrderingType,
 } from '@flowerbi/query-generation';
-import { SchemaResolver } from './schema/SchemaResolver';
-import { SchemaImplementation } from './schema/SchemaImplementation';
+import { SchemaResolver, SchemaImplementation } from '@flowerbi/query-generation';
 
 export abstract class ExecutionTestsBase {
   public log: string[] = [];

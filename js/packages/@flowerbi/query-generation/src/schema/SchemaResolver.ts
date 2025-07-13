@@ -7,7 +7,7 @@ import {
   ResolvedTable, 
   ResolvedSchema 
 } from './YamlSchemaTypes';
-import { FlowerBIException } from '@flowerbi/query-generation';
+import { FlowerBIException } from '../types';
 
 export class SchemaResolver {
   static resolve(yamlText: string): ResolvedSchema {
