@@ -14,9 +14,9 @@ export class Aggregation {
 
   static fromJson(json: AggregationJson, schema: Schema): Aggregation {
     return new Aggregation(
-      json.Function,
-      schema.GetColumn(json.Column),
-      Filter.Load(json.Filters, schema)
+      json.function,
+      schema.getColumn(json.column),
+      Filter.Load(json.filters, schema)
     );
   }
 

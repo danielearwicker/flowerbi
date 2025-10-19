@@ -14,102 +14,102 @@ export enum OrderingType {
 }
 
 export interface FilterJson {
-  Column: string;
-  Operator: string;
-  Value: any;
-  Constant?: any;
+  column: string;
+  operator: string;
+  value: any;
+  constant?: any;
 }
 
 export interface AggregationJson {
-  Function: AggregationType;
-  Column: string;
-  Filters?: FilterJson[];
+  function: AggregationType;
+  column: string;
+  filters?: FilterJson[];
 }
 
 export interface OrderingJson {
-  Descending: boolean;
-  Column?: string;
-  Type?: OrderingType;
-  Index?: number;
+  descending: boolean;
+  column?: string;
+  type?: OrderingType;
+  index?: number;
 }
 
 export interface CalculationJson {
-  Value?: number;
-  Aggregation?: number;
-  First?: CalculationJson;
-  Second?: CalculationJson;
-  Operator?: string;
+  value?: number;
+  aggregation?: number;
+  first?: CalculationJson;
+  second?: CalculationJson;
+  operator?: string;
 }
 
 export interface QueryJson {
-  Select?: string[];
-  Aggregations?: AggregationJson[];
-  Filters?: FilterJson[];
-  OrderBy?: OrderingJson[];
-  Calculations?: CalculationJson[];
-  Totals?: boolean;
-  Skip?: number;
-  Take?: number;
-  Comment?: string;
-  AllowDuplicates?: boolean;
-  FullJoins?: boolean;
+  select?: string[];
+  aggregations?: AggregationJson[];
+  filters?: FilterJson[];
+  orderBy?: OrderingJson[];
+  calculations?: CalculationJson[];
+  totals?: boolean;
+  skip?: number;
+  take?: number;
+  comment?: string;
+  allowDuplicates?: boolean;
+  fullJoins?: boolean;
 }
 
 export interface QueryRecordJson {
-  Selected: any[];
-  Aggregated: any[];
+  selected: any[];
+  aggregated: any[];
 }
 
 export interface QueryResultJson {
-  Records: QueryRecordJson[];
-  Totals?: QueryRecordJson;
+  records: QueryRecordJson[];
+  totals?: QueryRecordJson;
 }
 
 // Schema-related interfaces (simplified for now)
 export interface IColumn {
-  DbName: string;
-  Table: Table;
-  ClrType?: string;
+  dbName: string;
+  table: Table;
+  clrType?: string;
 }
 
 export interface IForeignKey extends IColumn {
-  To: { Table: Table };
+  to: { table: Table };
 }
 
 export interface Table {
-  Schema: Schema;
-  Name: string;
-  Columns: IColumn[];
-  Id?: IColumn;
-  Conjoint?: boolean;
-  Associative?: IForeignKey[];
-  GetForeignKeyTo(table: Table): IForeignKey;
-  ToSql(formatter: ISqlFormatter): string;
+  schema: Schema;
+  name: string;
+  columns: IColumn[];
+  id?: IColumn;
+  conjoint?: boolean;
+  associative?: IForeignKey[];
+  getForeignKeyTo(table: Table): IForeignKey;
+  toSql(formatter: ISqlFormatter): string;
 }
 
 export interface Schema {
-  Tables: Table[];
-  Load(columns: string[]): LabelledColumn[];
-  GetColumn(name: string): LabelledColumn;
+  tables: Table[];
+  load(columns: string[]): LabelledColumn[];
+  getColumn(name: string): LabelledColumn;
 }
 
 export interface LabelledColumn {
-  Value: IColumn;
-  JoinLabel: string | null;
+  value: IColumn;
+  joinLabel: string | null;
 }
 
 export interface LabelledTable {
-  Value: Table;
-  JoinLabel: string | null;
+  value: Table;
+  joinLabel: string | null;
 }
 
 export interface ISqlFormatter {
-  Identifier(name: string): string;
-  EscapedIdentifierPair(id1: string, id2: string): string;
-  SkipAndTake(skip: number, take: number): string;
-  Conditional(predExpr: string, thenExpr: string, elseExpr: string): string;
-  CastToFloat(valueExpr: string): string;
-  GetParamPrefix(): string;
+  identifier(name: string): string;
+  escapedIdentifierPair(id1: string, id2: string): string;
+  skipAndTake(skip: number, take: number): string;
+  conditional(predExpr: string, thenExpr: string, elseExpr: string): string;
+  castToFloat(valueExpr: string): string;
+  getParamPrefix(): string;
 }
 
 export interface IFilterParameters {

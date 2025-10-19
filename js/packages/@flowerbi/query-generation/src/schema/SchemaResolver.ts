@@ -93,9 +93,7 @@ export class SchemaResolver {
           }
         }
 
-        resolvedTable.NameInDb = table.name || tableKey;
-
-        // Handle extends
+        // Handle extends first, before setting NameInDb
         if (table.extends) {
           const extendsTable = yamlSchema.tables[table.extends];
           if (!extendsTable) {
@@ -132,7 +130,11 @@ export class SchemaResolver {
             };
           }
 
-          resolvedTable.NameInDb = resolvedTable.NameInDb || resolvedExtendsTable.NameInDb;
+          // For tables that extend another table, inherit the database name unless explicitly overridden
+          resolvedTable.NameInDb = table.name || resolvedExtendsTable.NameInDb;
+        } else {
+          // For regular tables, use the explicit name or default to the table key
+          resolvedTable.NameInDb = table.name || tableKey;
         }
 
         if (resolvedTable.Columns.length === 0) {

@@ -14,11 +14,11 @@ internal class Program
 
         if (args.Length == 3 && args[0] == "ts")
         {
-            TypeScript.FromYaml(args[1], args[2], Console.Out);
+            JintTypeScript.FromYaml(args[1], args[2], Console.Out);
         }
         else if (args.Length == 4 && args[0] == "cs")
         {
-            CSharp.FromYaml(args[1], args[2], args[3], Console.Out);
+            JintCSharp.FromYaml(args[1], args[2], args[3], Console.Out);
         }
         else
         {

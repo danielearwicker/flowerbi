@@ -12,21 +12,21 @@ import { IdentifierPair } from '../SqlFormatter';
 import { ResolvedSchema, ResolvedTable, ResolvedColumn, DataType } from './YamlSchemaTypes';
 
 export class DynamicColumn implements IColumn {
-  public readonly DbName: string;
-  public readonly Table: Table;
-  public readonly ClrType: string;
+  public readonly dbName: string;
+  public readonly table: Table;
+  public readonly clrType: string;
   public readonly LogicalName: string;
 
   constructor(table: Table, dbName: string, clrType: string, logicalName: string) {
-    this.Table = table;
-    this.DbName = dbName;
-    this.ClrType = clrType;
+    this.table = table;
+    this.dbName = dbName;
+    this.clrType = clrType;
     this.LogicalName = logicalName;
   }
 }
 
 export class DynamicForeignKey extends DynamicColumn implements IForeignKey {
-  public To!: { Table: Table };
+  public to!: { table: Table };
   private targetColumn?: ResolvedColumn;
 
   constructor(table: Table, dbName: string, clrType: string, logicalName: string, target: ResolvedColumn) {
@@ -36,39 +36,39 @@ export class DynamicForeignKey extends DynamicColumn implements IForeignKey {
 
   bind(schema: SchemaImplementation): void {
     const targetTable = schema.getTable(this.targetColumn!.Table.Name);
-    this.To = { Table: targetTable };
+    this.to = { table: targetTable };
   }
 }
 
 export class TableImplementation implements Table {
-  public readonly Schema: Schema;
-  public readonly Name: string;
-  public readonly DbName: string;
-  public readonly Columns: IColumn[];
-  public readonly Id?: IColumn;
-  public readonly Conjoint: boolean;
-  public readonly Associative: IForeignKey[];
+  public readonly schema: Schema;
+  public readonly name: string;
+  public readonly dbName: string;
+  public readonly columns: IColumn[];
+  public readonly id?: IColumn;
+  public readonly conjoint: boolean;
+  public readonly associative: IForeignKey[];
 
   private readonly foreignKeys = new Map<Table, IForeignKey>();
   private readonly resolvedTable: ResolvedTable;
 
   constructor(schema: Schema, resolvedTable: ResolvedTable) {
-    this.Schema = schema;
-    this.Name = resolvedTable.Name;
-    this.DbName = resolvedTable.NameInDb;
-    this.Conjoint = resolvedTable.conjoint;
-    this.Columns = [];
-    this.Associative = [];
+    this.schema = schema;
+    this.name = resolvedTable.Name;
+    this.dbName = resolvedTable.NameInDb;
+    this.conjoint = resolvedTable.conjoint;
+    this.columns = [];
+    this.associative = [];
     this.resolvedTable = resolvedTable;
 
     // Create ID column (optional)
     if (resolvedTable.IdColumn) {
-      this.Id = this.createColumn(resolvedTable.IdColumn);
+      this.id = this.createColumn(resolvedTable.IdColumn);
     }
 
     // Create regular columns
     for (const resolvedColumn of resolvedTable.Columns) {
-      this.Columns.push(this.createColumn(resolvedColumn));
+      this.columns.push(this.createColumn(resolvedColumn));
     }
   }
 
@@ -114,12 +114,12 @@ export class TableImplementation implements Table {
   }
 
   bindForeignKeys(schema: SchemaImplementation): void {
-    const allColumns = this.Id ? [...this.Columns, this.Id] : this.Columns;
+    const allColumns = this.id ? [...this.columns, this.id] : this.columns;
     
     for (const column of allColumns) {
       if (column instanceof DynamicForeignKey) {
         column.bind(schema);
-        this.foreignKeys.set(column.To.Table, column);
+        this.foreignKeys.set(column.to.table, column);
       }
     }
 
@@ -128,57 +128,57 @@ export class TableImplementation implements Table {
       // Find the corresponding foreign key in our columns
       const fk = allColumns.find(col => 
         col instanceof DynamicForeignKey && 
-        col.DbName === associativeColumn.NameInDb
+        col.dbName === associativeColumn.NameInDb
       ) as IForeignKey;
       
       if (fk) {
-        this.Associative.push(fk);
+        this.associative.push(fk);
       }
     }
   }
 
-  GetForeignKeyTo(table: Table): IForeignKey {
+  getForeignKeyTo(table: Table): IForeignKey {
     const fk = this.foreignKeys.get(table);
     if (!fk) {
-      throw new FlowerBIException(`Table ${this.Name} has no foreign key to ${table.Name}`);
+      throw new FlowerBIException(`Table ${this.name} has no foreign key to ${table.name}`);
     }
     return fk;
   }
 
-  ToSql(formatter: ISqlFormatter): string {
-    return IdentifierPair(formatter, (this.Schema as SchemaImplementation).NameInDb, this.DbName);
+  toSql(formatter: ISqlFormatter): string {
+    return IdentifierPair(formatter, (this.schema as SchemaImplementation).NameInDb, this.dbName);
   }
 }
 
 export class SchemaImplementation implements Schema {
-  public readonly Tables: Table[];
+  public readonly tables: Table[];
   public readonly NameInDb: string;
   private readonly tableMap = new Map<string, Table>();
 
   constructor(resolvedSchema: ResolvedSchema) {
     this.NameInDb = resolvedSchema.NameInDb;
-    this.Tables = [];
+    this.tables = [];
 
     // Create all tables first
     for (const resolvedTable of resolvedSchema.Tables) {
       const table = new TableImplementation(this, resolvedTable);
-      this.Tables.push(table);
-      this.tableMap.set(table.Name, table);
+      this.tables.push(table);
+      this.tableMap.set(table.name, table);
     }
 
     // Then bind foreign keys
-    for (const table of this.Tables) {
+    for (const table of this.tables) {
       if (table instanceof TableImplementation) {
         table.bindForeignKeys(this);
       }
     }
   }
 
-  Load(columns: string[]): LabelledColumn[] {
-    return columns.map(columnName => this.GetColumn(columnName));
+  load(columns: string[]): LabelledColumn[] {
+    return columns.map(columnName => this.getColumn(columnName));
   }
 
-  GetColumn(labelledName: string): LabelledColumn {
+  getColumn(labelledName: string): LabelledColumn {
     const atIndex = labelledName.indexOf('@');
     const [name, label] = atIndex === -1 
       ? [labelledName, null] 
@@ -194,8 +194,8 @@ export class SchemaImplementation implements Schema {
     const column = this.getColumnFromTable(table, columnName);
 
     return {
-      JoinLabel: label,
-      Value: column,
+      joinLabel: label,
+      value: column,
     };
   }
 
@@ -209,22 +209,22 @@ export class SchemaImplementation implements Schema {
 
   private getColumnFromTable(table: Table, columnName: string): IColumn {
     // Check ID column
-    if (table.Id && (table.Id.DbName === columnName || columnName === 'Id')) {
-      return table.Id;
+    if (table.id && (table.id.dbName === columnName || columnName === 'Id')) {
+      return table.id;
     }
 
     // Check regular columns - need to match by logical name (from ResolvedColumn.Name)
-    for (const column of table.Columns) {
+    for (const column of table.columns) {
       if (column instanceof DynamicColumn) {
         // Get the logical name from the ResolvedColumn
         const logicalName = this.getLogicalNameFromColumn(column);
-        if (logicalName === columnName || column.DbName === columnName) {
+        if (logicalName === columnName || column.dbName === columnName) {
           return column;
         }
       }
     }
 
-    throw new FlowerBIException(`No such column ${columnName} in table ${table.Name}`);
+    throw new FlowerBIException(`No such column ${columnName} in table ${table.name}`);
   }
 
   private getLogicalNameFromColumn(column: DynamicColumn): string {

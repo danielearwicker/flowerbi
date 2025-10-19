@@ -13,7 +13,7 @@
     "dependencies": {
         "@flowerbi/client": "6.0.0",
         "@flowerbi/dates": "6.0.0",
-        "@flowerbi/engine": "6.0.0",
+        "@flowerbi/query-generation": "1.0.0",
         "@flowerbi/react": "6.0.0",
         "@sqlite.org/sqlite-wasm": "^3.49.1-build4",
         "@types/chart.js": "^2.9.35",

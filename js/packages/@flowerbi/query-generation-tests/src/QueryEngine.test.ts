@@ -15,13 +15,13 @@ describe('QueryEngine', () => {
 
   test('prepareQuery generates SQL and parameters', () => {
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-      Filters: [
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+      filters: [
         {
-          Column: 'Vendor.Id',
-          Operator: '=',
-          Value: 2,
+          column: 'Vendor.Id',
+          operator: '=',
+          value: 2,
         },
       ],
     };
@@ -36,8 +36,8 @@ describe('QueryEngine', () => {
 
   test('mapResults handles array-of-objects format', () => {
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
     };
 
     const mockRows = [
@@ -48,19 +48,19 @@ describe('QueryEngine', () => {
     const dbResult = QueryEngineHelpers.fromArrayOfObjects(mockRows);
     const mapped = engine.mapResults(queryJson, dbResult);
 
-    expect(mapped.Records).toHaveLength(2);
-    expect(mapped.Records[0].Selected).toEqual(['Test Vendor']);
-    expect(mapped.Records[0].Aggregated).toEqual([100.50]);
-    expect(mapped.Records[1].Selected).toEqual(['Another Vendor']);
-    expect(mapped.Records[1].Aggregated).toEqual([200.25]);
-    expect(mapped.Totals).toBeUndefined();
+    expect(mapped.records).toHaveLength(2);
+    expect(mapped.records[0].selected).toEqual(['Test Vendor']);
+    expect(mapped.records[0].aggregated).toEqual([100.50]);
+    expect(mapped.records[1].selected).toEqual(['Another Vendor']);
+    expect(mapped.records[1].aggregated).toEqual([200.25]);
+    expect(mapped.totals).toBeUndefined();
   });
 
   test('mapResults handles totals query', () => {
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-      Totals: true,
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+      totals: true,
     };
 
     const mockRows = [
@@ -72,19 +72,19 @@ describe('QueryEngine', () => {
     const dbResult = QueryEngineHelpers.fromArrayOfObjects(mockRows);
     const mapped = engine.mapResults(queryJson, dbResult);
 
-    expect(mapped.Totals).toBeDefined();
-    expect(mapped.Totals!.Selected).toEqual([]);
-    expect(mapped.Totals!.Aggregated).toEqual([300.75]);
+    expect(mapped.totals).toBeDefined();
+    expect(mapped.totals!.selected).toEqual([]);
+    expect(mapped.totals!.aggregated).toEqual([300.75]);
     
-    expect(mapped.Records).toHaveLength(2);
-    expect(mapped.Records[0].Selected).toEqual(['Test Vendor']);
-    expect(mapped.Records[0].Aggregated).toEqual([100.50]);
+    expect(mapped.records).toHaveLength(2);
+    expect(mapped.records[0].selected).toEqual(['Test Vendor']);
+    expect(mapped.records[0].aggregated).toEqual([100.50]);
   });
 
   test('mapResults handles array-of-arrays format', () => {
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Count' as any, Column: 'Invoice.Id' }],
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Count' as any, column: 'Invoice.Id' }],
     };
 
     const dbResult: DatabaseResult = {
@@ -98,11 +98,11 @@ describe('QueryEngine', () => {
 
     const mapped = engine.mapResults(queryJson, dbResult);
 
-    expect(mapped.Records).toHaveLength(2);
-    expect(mapped.Records[0].Selected).toEqual(['Test Vendor']);
-    expect(mapped.Records[0].Aggregated).toEqual([5]);
-    expect(mapped.Records[1].Selected).toEqual(['Another Vendor']);
-    expect(mapped.Records[1].Aggregated).toEqual([3]);
+    expect(mapped.records).toHaveLength(2);
+    expect(mapped.records[0].selected).toEqual(['Test Vendor']);
+    expect(mapped.records[0].aggregated).toEqual([5]);
+    expect(mapped.records[1].selected).toEqual(['Another Vendor']);
+    expect(mapped.records[1].aggregated).toEqual([3]);
   });
 
   test('QueryEngineHelpers converts formats correctly', () => {
@@ -136,8 +136,8 @@ describe('QueryEngine', () => {
     const customEngine = createQueryEngineFromYaml(yamlSchema, customFormatter);
 
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Count' as any, Column: 'Invoice.Id' }],
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Count' as any, column: 'Invoice.Id' }],
     };
 
     const prepared = customEngine.prepareQuery(queryJson);
@@ -149,27 +149,27 @@ describe('QueryEngine', () => {
 
   test('accepts custom ISqlFormatter implementation', () => {
     class TestFormatter implements ISqlFormatter {
-      GetParamPrefix(): string {
+      getParamPrefix(): string {
         return '$';
       }
 
-      EscapedIdentifierPair(first: string, second: string): string {
+      escapedIdentifierPair(first: string, second: string): string {
         return `"${first}"."${second}"`;
       }
 
-      Identifier(name: string): string {
+      identifier(name: string): string {
         return `"${name}"`;
       }
 
-      SkipAndTake(skip: number, take: number): string {
+      skipAndTake(skip: number, take: number): string {
         return `LIMIT ${take} OFFSET ${skip}`;
       }
 
-      Conditional(predExpr: string, thenExpr: string, elseExpr: string): string {
+      conditional(predExpr: string, thenExpr: string, elseExpr: string): string {
         return `CASE WHEN ${predExpr} THEN ${thenExpr} ELSE ${elseExpr} END`;
       }
 
-      CastToFloat(valueExpr: string): string {
+      castToFloat(valueExpr: string): string {
         return `CAST(${valueExpr} AS FLOAT)`;
       }
     }
@@ -177,8 +177,8 @@ describe('QueryEngine', () => {
     const testEngine = createQueryEngineFromYaml(yamlSchema, new TestFormatter());
 
     const queryJson: QueryJson = {
-      Select: ['Vendor.VendorName'],
-      Aggregations: [{ Function: 'Count' as any, Column: 'Invoice.Id' }],
+      select: ['Vendor.VendorName'],
+      aggregations: [{ function: 'Count' as any, column: 'Invoice.Id' }],
     };
 
     const prepared = testEngine.prepareQuery(queryJson);

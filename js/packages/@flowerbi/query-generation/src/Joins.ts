@@ -2,9 +2,9 @@ import { ISqlFormatter, LabelledTable, Table, Schema, IForeignKey, IColumn, Labe
 import { IdentifierPair } from './SqlFormatter';
 
 interface LabelledArrow {
-  Key: IForeignKey;
-  Table: LabelledTable;
-  Reverse: boolean;
+  key: IForeignKey;
+  table: LabelledTable;
+  reverse: boolean;
 }
 
 class Referrers {
@@ -12,10 +12,10 @@ class Referrers {
 
   constructor(tables: Table[]) {
     for (const table of tables) {
-      const fks = table.Columns.filter((col): col is IForeignKey => 'To' in col);
+      const fks = table.columns.filter((col): col is IForeignKey => 'to' in col);
       
       for (const fk of fks) {
-        const targetTable = fk.To.Table;
+        const targetTable = fk.to.table;
         if (!this.byTable.has(targetTable)) {
           this.byTable.set(targetTable, []);
         }
@@ -40,19 +40,19 @@ class TableSubset {
     this.joinLabels = joinLabels;
   }
 
-  private getArrows(table: Table): Array<{ Key: IForeignKey; Table: Table; Reverse: boolean }> {
-    const arrows: Array<{ Key: IForeignKey; Table: Table; Reverse: boolean }> = [];
+  private getArrows(table: Table): Array<{ key: IForeignKey; table: Table; reverse: boolean }> {
+    const arrows: Array<{ key: IForeignKey; table: Table; reverse: boolean }> = [];
 
     // Forward arrows - FKs from this table to other tables
-    const forwardKeys = table.Columns.filter((col): col is IForeignKey => 'To' in col);
+    const forwardKeys = table.columns.filter((col): col is IForeignKey => 'to' in col);
     for (const key of forwardKeys) {
-      arrows.push({ Key: key, Table: key.To.Table, Reverse: false });
+      arrows.push({ key: key, table: key.to.table, reverse: false });
     }
 
     // Reverse arrows - FKs to this table from other tables
     const referrersToThisTable = this.referrers.getByTable(table);
     for (const referrer of referrersToThisTable) {
-      arrows.push({ Key: referrer, Table: referrer.Table, Reverse: true });
+      arrows.push({ key: referrer, table: referrer.table, reverse: true });
     }
     return arrows;
   }
@@ -60,29 +60,29 @@ class TableSubset {
   public getLabelledArrows(table: LabelledTable): LabelledArrow[] {
     const arrows: LabelledArrow[] = [];
     
-    for (const arrow of this.getArrows(table.Value)) {
-      if (arrow.Table.Conjoint && !table.Value.Conjoint) {
+    for (const arrow of this.getArrows(table.value)) {
+      if (arrow.table.conjoint && !table.value.conjoint) {
         // Target is conjoint, source is not conjoint - try all join labels
         for (const label of this.joinLabels) {
-          const toTable: LabelledTable = { JoinLabel: label, Value: arrow.Table };
+          const toTable: LabelledTable = { joinLabel: label, value: arrow.table };
           const matchingTable = this.findTableInSubset(toTable);
           if (matchingTable) {
-            arrows.push({ Key: arrow.Key, Table: matchingTable, Reverse: arrow.Reverse });
+            arrows.push({ key: arrow.key, table: matchingTable, reverse: arrow.reverse });
           }
         }
-      } else if (!arrow.Table.Conjoint && table.Value.Conjoint) {
+      } else if (!arrow.table.conjoint && table.value.conjoint) {
         // Source is conjoint, target is not conjoint - try null label (unlabeled)
-        const toTable: LabelledTable = { JoinLabel: null, Value: arrow.Table };
+        const toTable: LabelledTable = { joinLabel: null, value: arrow.table };
         const matchingTable = this.findTableInSubset(toTable);
         if (matchingTable) {
-          arrows.push({ Key: arrow.Key, Table: matchingTable, Reverse: arrow.Reverse });
+          arrows.push({ key: arrow.key, table: matchingTable, reverse: arrow.reverse });
         }
       } else {
         // Both same type (conjoint/non-conjoint) - use same join label
-        const toTable: LabelledTable = { JoinLabel: table.JoinLabel, Value: arrow.Table };
+        const toTable: LabelledTable = { joinLabel: table.joinLabel, value: arrow.table };
         const matchingTable = this.findTableInSubset(toTable);
         if (matchingTable) {
-          arrows.push({ Key: arrow.Key, Table: matchingTable, Reverse: arrow.Reverse });
+          arrows.push({ key: arrow.key, table: matchingTable, reverse: arrow.reverse });
         }
       }
     }
@@ -92,7 +92,7 @@ class TableSubset {
 
   private findTableInSubset(targetTable: LabelledTable): LabelledTable | undefined {
     for (const table of this.tables) {
-      if (table.Value === targetTable.Value && table.JoinLabel === targetTable.JoinLabel) {
+      if (table.value === targetTable.value && table.joinLabel === targetTable.joinLabel) {
         return table;
       }
     }
@@ -103,11 +103,11 @@ class TableSubset {
     const visited = new Map<string, LabelledTable>();
 
     const recurse = (table: LabelledTable) => {
-      const key = `${table.Value.Name}|${table.JoinLabel}`;
+      const key = `${table.value.name}|${table.joinLabel}`;
       if (!visited.has(key)) {
         visited.set(key, table);
         for (const arrow of this.getLabelledArrows(table)) {
-          recurse(arrow.Table);
+          recurse(arrow.table);
         }
       }
     };
@@ -120,12 +120,12 @@ class TableSubset {
     const visited = new Map<string, { table: LabelledTable, depth: number }>();
 
     const recurse = (table: LabelledTable, depth: number) => {
-      const key = `${table.Value.Name}|${table.JoinLabel}`;
+      const key = `${table.value.name}|${table.joinLabel}`;
       const existing = visited.get(key);
       if (!existing || existing.depth > depth) {
         visited.set(key, { table, depth });
         for (const arrow of this.getLabelledArrows(table)) {
-          recurse(arrow.Table, depth + 1);
+          recurse(arrow.table, depth + 1);
         }
       }
     };
@@ -142,29 +142,29 @@ export class Joins {
   private readonly aliasesByKey: Map<string, string> = new Map();
 
   private getTableKey(table: LabelledTable): string {
-    return `${table.Value.Name}|${table.JoinLabel}`;
+    return `${table.value.name}|${table.joinLabel}`;
   }
 
   private get schema(): Schema {
-    return Array.from(this.aliases.keys())[0].Value.Schema;
+    return Array.from(this.aliases.keys())[0].value.schema;
   }
 
   private get joinLabels(): string[] {
-    return Array.from(new Set(Array.from(this.aliases.keys()).map(x => x.JoinLabel).filter(x => x !== null) as string[]));
+    return Array.from(new Set(Array.from(this.aliases.keys()).map(x => x.joinLabel).filter(x => x !== null) as string[]));
   }
 
   private get tables(): LabelledTable[] {
     const allTables: LabelledTable[] = [];
     
     // Add unlabeled (null) versions of all tables
-    for (const table of this.schema.Tables) {
-      allTables.push({ JoinLabel: null, Value: table });
+    for (const table of this.schema.tables) {
+      allTables.push({ joinLabel: null, value: table });
     }
     
     // Add labeled versions for each join label
     for (const joinLabel of this.joinLabels) {
-      for (const table of this.schema.Tables) {
-        allTables.push({ JoinLabel: joinLabel, Value: table });
+      for (const table of this.schema.tables) {
+        allTables.push({ joinLabel: joinLabel, value: table });
       }
     }
     
@@ -191,20 +191,20 @@ export class Joins {
     let score = 0;
 
     // Prefer non-conjoint tables as they're usually central entities
-    if (!candidate.Value.Conjoint) {
+    if (!candidate.value.conjoint) {
       score += 10;
     }
 
     // Count foreign key relationships (both outgoing and incoming)
-    const outgoingFKs = candidate.Value.Columns.filter(col => 'To' in col).length;
-    const incomingFKs = referrers.getByTable(candidate.Value).length;
+    const outgoingFKs = candidate.value.columns.filter(col => 'to' in col).length;
+    const incomingFKs = referrers.getByTable(candidate.value).length;
     score += outgoingFKs + incomingFKs;
 
     // Check if this candidate can reach all needed tables
     const tables = new TableSubset(this.tables, referrers, this.joinLabels);
     const reachable = tables.getReachableTablesMostDistantFirst(candidate);
     const canReachAll = needed.every(n => 
-      n === candidate || reachable.some(r => r.Value === n.Value && r.JoinLabel === n.JoinLabel)
+      n === candidate || reachable.some(r => r.value === n.value && r.joinLabel === n.joinLabel)
     );
 
     if (canReachAll) {
@@ -217,11 +217,11 @@ export class Joins {
   }
 
   private isAssociativeTable(table: Table): boolean {
-    return table.Associative != null && table.Associative.length >= 2;
+    return table.associative != null && table.associative.length >= 2;
   }
 
   private isAssociativeRelationship(table: Table, foreignKey: IForeignKey): boolean {
-    return table.Associative?.includes(foreignKey) ?? false;
+    return table.associative?.includes(foreignKey) ?? false;
   }
 
   public getAlias(table: Table, join: string): string;
@@ -229,10 +229,10 @@ export class Joins {
   public getAlias(tableOrTable: Table | LabelledTable, join?: string): string {
     let labelledTable: LabelledTable;
     
-    if ('Value' in tableOrTable) {
+    if ('value' in tableOrTable) {
       labelledTable = tableOrTable;
     } else {
-      labelledTable = { JoinLabel: join!, Value: tableOrTable };
+      labelledTable = { joinLabel: join!, value: tableOrTable };
     }
 
     const key = this.getTableKey(labelledTable);
@@ -248,8 +248,8 @@ export class Joins {
   public aliased(column: LabelledColumn, sql: ISqlFormatter): string {
     return IdentifierPair(
       sql,
-      this.getAlias(column.Value.Table, column.JoinLabel!),
-      column.Value.DbName
+      this.getAlias(column.value.table, column.joinLabel!),
+      column.value.dbName
     );
   }
 
@@ -265,19 +265,19 @@ export class Joins {
       .sort((a, b) => a[1].localeCompare(b[1]))
       .map(([table]) => table);
 
-    const referrers = new Referrers(this.schema.Tables);
+    const referrers = new Referrers(this.schema.tables);
     const root = this.chooseBestRoot(needed, referrers);
-    const output: string[] = [`from ${root.Value.ToSql(sql)} ${this.getAlias(root)}`];
+    const output: string[] = [`from ${root.value.toSql(sql)} ${this.getAlias(root)}`];
 
     const canReachAllNeeded = (reached: LabelledTable[]): boolean =>
-      needed.every(n => n === root || reached.some(r => r.Value === n.Value && r.JoinLabel === n.JoinLabel));
+      needed.every(n => n === root || reached.some(r => r.value === n.value && r.joinLabel === n.joinLabel));
 
     let tables = new TableSubset(this.tables, referrers, this.joinLabels);
     let reachable = tables.getReachableTablesMostDistantFirst(root);
 
 
     if (!canReachAllNeeded(reachable)) {
-      throw new FlowerBIException(`Could not connect tables: ${needed.map(t => t.Value.Name).join(',')}`);
+      throw new FlowerBIException(`Could not connect tables: ${needed.map(t => t.value.name).join(',')}`);
     }
 
     // Minimize the join set
@@ -286,7 +286,7 @@ export class Joins {
       repeat = false;
       
       for (const candidateForRemoval of reachable) {
-        if (needed.some(n => n.Value === candidateForRemoval.Value && n.JoinLabel === candidateForRemoval.JoinLabel)) continue;
+        if (needed.some(n => n.value === candidateForRemoval.value && n.joinLabel === candidateForRemoval.joinLabel)) continue;
 
         const without = reachable.filter(x => x !== candidateForRemoval);
         const reducedTables = new TableSubset(without, referrers, this.joinLabels);
@@ -307,12 +307,12 @@ export class Joins {
 
       for (const candidateForAddition of this.tables) {
         // Skip if already included
-        if (reachable.some(r => r.Value === candidateForAddition.Value && r.JoinLabel === candidateForAddition.JoinLabel)) {
+        if (reachable.some(r => r.value === candidateForAddition.value && r.joinLabel === candidateForAddition.joinLabel)) {
           continue;
         }
 
         // Check if this table is associative (has associative relationships)
-        if (!this.isAssociativeTable(candidateForAddition.Value)) {
+        if (!this.isAssociativeTable(candidateForAddition.value)) {
           continue;
         }
 
@@ -321,9 +321,9 @@ export class Joins {
         const expandedTables = new TableSubset(expandedReachable, referrers, this.joinLabels);
         const associativeConnections = expandedTables.getLabelledArrows(candidateForAddition)
           .filter(arrow => 
-            !arrow.Reverse && 
-            this.isAssociativeRelationship(candidateForAddition.Value, arrow.Key) &&
-            reachable.some(r => r.Value === arrow.Table.Value && r.JoinLabel === arrow.Table.JoinLabel)
+            !arrow.reverse && 
+            this.isAssociativeRelationship(candidateForAddition.value, arrow.key) &&
+            reachable.some(r => r.value === arrow.table.value && r.joinLabel === arrow.table.joinLabel)
           );
 
         // If the associative table connects to at least 2 existing tables, include it
@@ -340,16 +340,16 @@ export class Joins {
     reachable = tables.getReachableTablesInJoinOrder(root);
 
     const joinedSoFar = new Set<string>();
-    joinedSoFar.add(`${root.Value.Name}|${root.JoinLabel}`);
+    joinedSoFar.add(`${root.value.name}|${root.joinLabel}`);
     const joinType = fullJoins ? 'full join' : 'join';
 
-    const nonRootTables = reachable.filter(x => !(x.Value === root.Value && x.JoinLabel === root.JoinLabel));
+    const nonRootTables = reachable.filter(x => !(x.value === root.value && x.joinLabel === root.joinLabel));
     
     // Remove duplicates from nonRootTables
     const uniqueNonRootTables: LabelledTable[] = [];
     const seenTables = new Set<string>();
     for (const table of nonRootTables) {
-      const key = `${table.Value.Name}|${table.JoinLabel}`;
+      const key = `${table.value.name}|${table.joinLabel}`;
       if (!seenTables.has(key)) {
         seenTables.add(key);
         uniqueNonRootTables.push(table);
@@ -359,28 +359,28 @@ export class Joins {
     for (const table of uniqueNonRootTables) {
       const availableArrows = tables.getLabelledArrows(table);
       const arrowsToAlreadyJoined = availableArrows.filter(x => 
-        joinedSoFar.has(`${x.Table.Value.Name}|${x.Table.JoinLabel}`)
+        joinedSoFar.has(`${x.table.value.name}|${x.table.joinLabel}`)
       );
       const criteria: string[] = [];
 
 
       for (const arrow of arrowsToAlreadyJoined) {
-        let leftColumn: IColumn = arrow.Key;
-        let rightColumn: IColumn = arrow.Key.To.Table.Id!;
+        let leftColumn: IColumn = arrow.key;
+        let rightColumn: IColumn = arrow.key.to.table.id!;
         
-        if (arrow.Reverse) {
+        if (arrow.reverse) {
           [leftColumn, rightColumn] = [rightColumn, leftColumn];
         }
 
-        const leftPair = IdentifierPair(sql, this.getAlias(table), leftColumn.DbName);
-        const rightPair = IdentifierPair(sql, this.getAlias(arrow.Table), rightColumn.DbName);
+        const leftPair = IdentifierPair(sql, this.getAlias(table), leftColumn.dbName);
+        const rightPair = IdentifierPair(sql, this.getAlias(arrow.table), rightColumn.dbName);
         criteria.push(`${leftPair} = ${rightPair}`);
       }
 
       output.push(
-        `${joinType} ${table.Value.ToSql(sql)} ${this.getAlias(table)} on ${criteria.join(' and ')}`
+        `${joinType} ${table.value.toSql(sql)} ${this.getAlias(table)} on ${criteria.join(' and ')}`
       );
-      joinedSoFar.add(`${table.Value.Name}|${table.JoinLabel}`);
+      joinedSoFar.add(`${table.value.name}|${table.joinLabel}`);
     }
 
     return { Sql: output.join('\n'), Tables: [root, ...uniqueNonRootTables] };

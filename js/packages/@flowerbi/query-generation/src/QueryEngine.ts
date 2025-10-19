@@ -63,9 +63,12 @@ export abstract class QueryEngine {
     const sql = query.toSqlWithComment(this.formatter, filterParams, outerFilters);
     
     // Extract parameter values in sorted order for consistent parameter binding
-    const parameters = Object.keys(filterParams)
+    const rawParameters = Object.keys(filterParams)
       .sort()
       .map(key => filterParams[key]);
+    
+    // Convert parameters to database-compatible format
+    const parameters = rawParameters.map(param => this.convertParameter(param));
     
     return { sql, parameters };
   }
@@ -80,7 +83,7 @@ export abstract class QueryEngine {
     const rows = this.extractRows(result);
     
     // Handle multiple statements (totals + records)
-    if (queryJson.Totals && this.hasTotalsQuery(queryJson)) {
+    if (queryJson.totals && this.hasTotalsQuery(queryJson)) {
       return this.mapTotalsResults(queryJson, rows);
     } else {
       return this.mapRecordsOnly(queryJson, rows);
@@ -105,7 +108,7 @@ export abstract class QueryEngine {
    * Check if the query generates totals SQL (contains semicolon for multiple statements)
    */
   private hasTotalsQuery(queryJson: QueryJson): boolean {
-    return queryJson.Totals === true;
+    return queryJson.totals === true;
   }
 
   /**
@@ -113,14 +116,14 @@ export abstract class QueryEngine {
    */
   private mapTotalsResults(queryJson: QueryJson, rows: any[][]): QueryResultJson {
     if (rows.length === 0) {
-      return { Records: [], Totals: undefined };
+      return { records: [], totals: undefined };
     }
 
     // First row is totals (only aggregations, no selected columns)
     const totalsRow = rows[0];
     const totals: QueryRecordJson = {
-      Selected: [],
-      Aggregated: totalsRow.map(this.convertValue),
+      selected: [],
+      aggregated: totalsRow.map(this.convertValue),
     };
 
     // Remaining rows are records
@@ -128,8 +131,8 @@ export abstract class QueryEngine {
     const records = recordRows.map(row => this.mapRecord(queryJson, row));
 
     return {
-      Records: records,
-      Totals: totals,
+      records: records,
+      totals: totals,
     };
   }
 
@@ -139,8 +142,8 @@ export abstract class QueryEngine {
   private mapRecordsOnly(queryJson: QueryJson, rows: any[][]): QueryResultJson {
     const records = rows.map(row => this.mapRecord(queryJson, row));
     return {
-      Records: records,
-      Totals: undefined,
+      records: records,
+      totals: undefined,
     };
   }
 
@@ -148,12 +151,28 @@ export abstract class QueryEngine {
    * Map a single row to a QueryRecordJson
    */
   private mapRecord(queryJson: QueryJson, row: any[]): QueryRecordJson {
-    const selectCount = queryJson.Select?.length || 0;
+    const selectCount = queryJson.select?.length || 0;
     
     return {
-      Selected: row.slice(0, selectCount).map(this.convertValue),
-      Aggregated: row.slice(selectCount).map(this.convertValue),
+      selected: row.slice(0, selectCount).map(this.convertValue),
+      aggregated: row.slice(selectCount).map(this.convertValue),
     };
+  }
+
+  /**
+   * Convert parameters to database-compatible format
+   * Can be overridden by specific engine implementations
+   */
+  protected convertParameter(param: any): any {
+    // Convert Date objects to local date string format (YYYY-MM-DD)
+    if (param instanceof Date) {
+      // Use local date components to avoid UTC timezone conversion
+      const year = param.getFullYear();
+      const month = String(param.getMonth() + 1).padStart(2, '0');
+      const day = String(param.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+    return param;
   }
 
   /**

@@ -65,16 +65,16 @@ export abstract class ExecutionTestsBase {
       const statements = sql.split(';').map(s => s.trim()).filter(s => s.length > 0);
       
       const result: QueryResultJson = {
-        Records: [],
-        Totals: undefined,
+        records: [],
+        totals: undefined,
       };
 
       if (statements.length === 1) {
         // Single statement - normal query
         const rows = await this.executeQuery(statements[0], paramValues);
-        result.Records = rows.map(row => ({
-          Selected: Object.values(row).filter((_, i) => i < (json.Select?.length || 0)).map(this.convertValue),
-          Aggregated: Object.values(row).filter((_, i) => i >= (json.Select?.length || 0)).map(this.convertValue),
+        result.records = rows.map(row => ({
+          selected: Object.values(row).filter((_, i) => i < (json.select?.length || 0)).map(this.convertValue),
+          aggregated: Object.values(row).filter((_, i) => i >= (json.select?.length || 0)).map(this.convertValue),
         }));
       } else if (statements.length === 2) {
         // Two statements - totals + records query
@@ -85,17 +85,17 @@ export abstract class ExecutionTestsBase {
         if (totalsRows.length > 0) {
           const totalsRow = totalsRows[0];
           // Totals query only has aggregations, no selected columns
-          result.Totals = {
-            Selected: [],
-            Aggregated: Object.values(totalsRow).map(this.convertValue),
+          result.totals = {
+            selected: [],
+            aggregated: Object.values(totalsRow).map(this.convertValue),
           };
         }
         
         // Execute records query second
         const recordsRows = await this.executeQuery(recordsStatement, paramValues);
-        result.Records = recordsRows.map(row => ({
-          Selected: Object.values(row).filter((_, i) => i < (json.Select?.length || 0)).map(this.convertValue),
-          Aggregated: Object.values(row).filter((_, i) => i >= (json.Select?.length || 0)).map(this.convertValue),
+        result.records = recordsRows.map(row => ({
+          selected: Object.values(row).filter((_, i) => i < (json.select?.length || 0)).map(this.convertValue),
+          aggregated: Object.values(row).filter((_, i) => i >= (json.select?.length || 0)).map(this.convertValue),
         }));
       } else {
         throw new FlowerBIException(`Unexpected number of SQL statements: ${statements.length}`);
@@ -129,8 +129,8 @@ export abstract class ExecutionTestsBase {
   // Test helper methods
   public expectRecordsToEqual(actual: QueryRecordJson[], expected: any[]): void {
     const actualMapped = actual.map(record => {
-      const selected = record.Selected;
-      const aggregated = record.Aggregated?.map(ExecutionTestsBase.round);
+      const selected = record.selected;
+      const aggregated = record.aggregated?.map(ExecutionTestsBase.round);
       return selected.length === 1 && aggregated?.length === 1
         ? [selected[0], aggregated[0]]
         : [...selected, ...(aggregated || [])];

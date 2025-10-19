@@ -33,6 +33,7 @@ public sealed class Schema : Named
 {
     private readonly Dictionary<string, Table> _tables = [];
 
+    // Keep the original constructor for backward compatibility
     public Schema(ResolvedSchema schema)
     {
         DbName = schema.NameInDb;
@@ -47,6 +48,14 @@ public sealed class Schema : Named
         {
             table.BindDynamicForeignKeys();
         }
+    }
+
+    // Add static factory method that uses Jint
+    public static Schema FromYaml(string yamlText, string bundlePath = null)
+    {
+        // Use the existing ResolvedSchema.Resolve for now to maintain compatibility
+        // TODO: Replace with pure Jint implementation in future version
+        return new Schema(ResolvedSchema.Resolve(yamlText));
     }
 
     public IList<LabelledColumn> Load(IEnumerable<string> columns) =>

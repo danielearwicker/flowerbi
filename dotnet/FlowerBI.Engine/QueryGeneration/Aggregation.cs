@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using FlowerBI.Engine.JsonModels;
 
 namespace FlowerBI;
 
+[JsonConverter(typeof(JsonStringEnumConverter))]
 public enum AggregationType
 {
     Count,

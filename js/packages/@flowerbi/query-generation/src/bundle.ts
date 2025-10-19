@@ -72,9 +72,9 @@ export interface FlowerBIAPI {
   parseSchema(yamlText: string): string; // Returns JSON serialized ResolvedSchema
   
   // Query engine operations  
-  createQueryEngine(yamlText: string, databaseType: string): string; // Returns engine ID
-  prepareQuery(engineId: string, queryJson: string): string; // Returns JSON PreparedQuery
-  mapResults(engineId: string, queryJson: string, databaseResult: string): string; // Returns JSON QueryResultJson
+  createQueryEngine(yamlText: string, databaseType: string): QueryEngine; // Returns QueryEngine object
+  prepareQuery(queryJson: string): string; // Returns JSON PreparedQuery  
+  mapResults(queryJson: string, databaseResult: string): string; // Returns JSON QueryResultJson
   
   // Code generation
   generateTypeScript(yamlText: string): string; // Returns generated TS code
@@ -92,9 +92,7 @@ export interface FlowerBIAPI {
  * Internal implementation with proper error handling
  */
 class FlowerBIImplementation implements FlowerBIAPI {
-  private engines = new Map<string, QueryEngine>();
   private lastError: string | null = null;
-  private nextEngineId = 1;
 
   private handleError<T>(operation: () => T): T | null {
     try {
@@ -111,36 +109,37 @@ class FlowerBIImplementation implements FlowerBIAPI {
       const schema = SchemaResolver.resolve(yamlText);
       
       // Create a simplified version without circular references for JSON serialization
+      // Using camelCase to match JavaScript conventions
       const simplified = {
-        Name: schema.Name,
-        NameInDb: schema.NameInDb,
-        Tables: schema.Tables.map(table => ({
-          Name: table.Name,
-          NameInDb: table.NameInDb,
+        name: schema.Name,
+        nameInDb: schema.NameInDb,
+        tables: schema.Tables.map(table => ({
+          name: table.Name,
+          nameInDb: table.NameInDb,
           conjoint: table.conjoint,
-          IdColumn: table.IdColumn ? {
-            Name: table.IdColumn.Name,
-            NameInDb: table.IdColumn.NameInDb,
-            DataType: table.IdColumn.DataType,
-            Nullable: table.IdColumn.Nullable,
-            Target: table.IdColumn.Target ? {
-              Name: table.IdColumn.Target.Name,
-              TableName: table.IdColumn.Target.Table.Name
+          idColumn: table.IdColumn ? {
+            name: table.IdColumn.Name,
+            nameInDb: table.IdColumn.NameInDb,
+            dataType: table.IdColumn.DataType,
+            nullable: table.IdColumn.Nullable,
+            target: table.IdColumn.Target ? {
+              name: table.IdColumn.Target.Name,
+              tableName: table.IdColumn.Target.Table.Name
             } : undefined
           } : undefined,
-          Columns: table.Columns.map(col => ({
-            Name: col.Name,
-            NameInDb: col.NameInDb,
-            DataType: col.DataType,
-            Nullable: col.Nullable,
-            Target: col.Target ? {
-              Name: col.Target.Name,
-              TableName: col.Target.Table.Name
+          columns: table.Columns.map(col => ({
+            name: col.Name,
+            nameInDb: col.NameInDb,
+            dataType: col.DataType,
+            nullable: col.Nullable,
+            target: col.Target ? {
+              name: col.Target.Name,
+              tableName: col.Target.Table.Name
             } : undefined
           })),
-          Associative: table.Associative.map(assoc => ({
-            Name: assoc.Name,
-            NameInDb: assoc.NameInDb
+          associative: table.Associative.map(assoc => ({
+            name: assoc.Name,
+            nameInDb: assoc.NameInDb
           }))
         }))
       };
@@ -149,56 +148,41 @@ class FlowerBIImplementation implements FlowerBIAPI {
     }) || '{}';
   }
 
-  createQueryEngine(yamlText: string, databaseType: string): string {
-    return this.handleError(() => {
+  createQueryEngine(yamlText: string, databaseType: string): any {
+    const result = this.handleError(() => {
       // Validate database type
       const validTypes: DatabaseType[] = ['sqlserver', 'sqlite', 'postgresql', 'mysql'];
       if (!validTypes.includes(databaseType as DatabaseType)) {
         throw new Error(`Unsupported database type: ${databaseType}`);
       }
 
-      // Create engine
+      // Create the actual engine
       const engine = QueryEngineFactory.fromYaml({
         yamlSchema: yamlText,
         sqlFormatter: databaseType as DatabaseType
       });
-
-      // Store engine and return ID
-      const engineId = `engine_${this.nextEngineId++}`;
-      this.engines.set(engineId, engine);
       
-      return engineId;
-    }) || '';
+      // Return a wrapper object that explicitly exposes the methods
+      return {
+        prepareQuery: (queryJson: QueryJson) => engine.prepareQuery(queryJson),
+        mapResults: (queryJson: QueryJson, databaseResult: DatabaseResult) => engine.mapResults(queryJson, databaseResult)
+      };
+    });
+    
+    if (!result) {
+      throw new Error(this.lastError || 'Failed to create query engine');
+    }
+    
+    return result;
   }
 
-  prepareQuery(engineId: string, queryJson: string): string {
-    return this.handleError(() => {
-      const engine = this.engines.get(engineId);
-      if (!engine) {
-        throw new Error(`Engine not found: ${engineId}`);
-      }
-
-      const query: QueryJson = JSON.parse(queryJson);
-      const prepared = engine.prepareQuery(query);
-      
-      return JSON.stringify(prepared);
-    }) || '{}';
+  // These methods are now on the QueryEngine object directly
+  prepareQuery(queryJson: string): string {
+    throw new Error('prepareQuery should be called on QueryEngine instance');
   }
 
-  mapResults(engineId: string, queryJson: string, databaseResult: string): string {
-    return this.handleError(() => {
-      const engine = this.engines.get(engineId);
-      if (!engine) {
-        throw new Error(`Engine not found: ${engineId}`);
-      }
-
-      const query: QueryJson = JSON.parse(queryJson);
-      const dbResult: DatabaseResult = JSON.parse(databaseResult);
-      
-      const result = engine.mapResults(query, dbResult);
-      
-      return JSON.stringify(result);
-    }) || '{}';
+  mapResults(queryJson: string, databaseResult: string): string {
+    throw new Error('mapResults should be called on QueryEngine instance');
   }
 
   generateTypeScript(yamlText: string): string {

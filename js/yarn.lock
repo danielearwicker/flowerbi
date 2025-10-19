@@ -1209,7 +1209,7 @@
   version "6.0.0"
   resolved "file:packages/@flowerbi/dates"
 
-"@flowerbi/engine@6.0.0", "@flowerbi/engine@file:/Users/danielearwicker/src/github/danielearwicker/flowerbi/js/packages/@flowerbi/engine":
+"@flowerbi/engine@file:/Users/danielearwicker/src/github/danielearwicker/flowerbi/js/packages/@flowerbi/engine":
   version "6.0.0"
   resolved "file:packages/@flowerbi/engine"
   dependencies:
@@ -1224,12 +1224,11 @@
     mssql "^10.0.0"
     sqlite3 "^5.1.6"
 
-"@flowerbi/query-generation@file:../query-generation", "@flowerbi/query-generation@file:/Users/danielearwicker/src/github/danielearwicker/flowerbi/js/packages/@flowerbi/query-generation":
+"@flowerbi/query-generation@1.0.0", "@flowerbi/query-generation@file:../query-generation", "@flowerbi/query-generation@file:/Users/danielearwicker/src/github/danielearwicker/flowerbi/js/packages/@flowerbi/query-generation":
   version "1.0.0"
   resolved "file:packages/@flowerbi/query-generation"
   dependencies:
     handlebars "^4.7.8"
-    yamljs "^0.3.0"
 
 "@flowerbi/react@6.0.0", "@flowerbi/react@file:/Users/danielearwicker/src/github/danielearwicker/flowerbi/js/packages/@flowerbi/react":
   version "6.0.0"
@@ -2914,7 +2913,7 @@ delegates@^1.0.0:
   dependencies:
     "@flowerbi/client" "6.0.0"
     "@flowerbi/dates" "6.0.0"
-    "@flowerbi/engine" "6.0.0"
+    "@flowerbi/query-generation" "1.0.0"
     "@flowerbi/react" "6.0.0"
     "@sqlite.org/sqlite-wasm" "^3.49.1-build4"
     "@types/chart.js" "^2.9.35"

@@ -11,4 +11,8 @@
     <PackageReference Include="Jint" Version="4.2.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="../FlowerBI.Engine/FlowerBI.Engine.csproj" />
+  </ItemGroup>
+
 </Project>

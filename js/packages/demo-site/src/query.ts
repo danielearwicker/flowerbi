@@ -1,28 +1,21 @@
-import { createSchema, type FlowerBIFormatter } from "@flowerbi/engine";
+import {
+    createQueryEngineFromYaml,
+    type QueryJson as QueryJsonBackend,
+} from "@flowerbi/query-generation";
+import {
+    type QueryJson as QueryJsonFrontend,
+    type QueryResultJson as QueryResultJsonFrontend,
+} from "@flowerbi/client";
 import { yaml } from "./demoSchema";
-import type { QueryJson, QueryResultJson } from "@flowerbi/client";
 import { db } from "./db";
-import type { BindingSpec } from "@sqlite.org/sqlite-wasm";
+import type { BindingSpec, SqlValue } from "@sqlite.org/sqlite-wasm";
 
-const formatter: FlowerBIFormatter = {
-    identifier: (name) => name,
-    escapedIdentifierPair: (id1, id2) => `${id1}.${id2}`,
-    skipAndTake: (skip, take) => `
-limit ${take} -- take
-offset ${skip} -- skip
-`,
-    conditional: (predExpr, thenExpr, elseExpr) =>
-        `case when ${predExpr} then ${thenExpr} else ${elseExpr} END`,
-    castToFloat: (valueExpr) => `cast(${valueExpr} as real)`,
-    getParamPrefix: () => ":",
-};
+const queryEngine = createQueryEngineFromYaml(yaml, "sqlite");
 
-const schemaCreation = createSchema(yaml, formatter);
-
-export async function getSql(query: QueryJson): Promise<string> {
-    const schema = await schemaCreation;
-
-    const { sql, parameters } = schema.generateSql(query);
+export async function getSql(query: QueryJsonFrontend): Promise<string> {
+    const { sql, parameters } = queryEngine.prepareQuery(
+        query as QueryJsonBackend
+    );
 
     return `${sql}
     /* 
@@ -30,12 +23,34 @@ export async function getSql(query: QueryJson): Promise<string> {
     */`;
 }
 
-export async function query(query: QueryJson): Promise<QueryResultJson> {
-    const schema = await schemaCreation;
-    const { sql, parameters } = schema.generateSql(query);
+export async function query(
+    query: QueryJsonFrontend
+): Promise<QueryResultJsonFrontend> {
+    console.log("query", query);
 
-    const result = (await db).selectObjects(sql, parameters as BindingSpec);
+    const { sql, parameters } = queryEngine.prepareQuery(
+        query as QueryJsonBackend
+    );
 
-    const records = result.map((r) => schema.interpretRecord(query, r));
-    return { records };
+    console.log({ sql, parameters });
+
+    const sdb = await db;
+
+    let result: { [columnName: string]: SqlValue }[];
+
+    try {
+        result = sdb.selectObjects(sql, parameters as BindingSpec);
+    } catch (error) {
+        console.error("Error executing query:", error);
+        throw error;
+    }
+    console.log({ sql, parameters, result });
+
+    // Convert the result to the format expected by QueryEngine.mapResults
+    const dbResult = {
+        type: "array-of-objects" as const,
+        rows: result,
+    };
+
+    return queryEngine.mapResults(query as QueryJsonBackend, dbResult);
 }

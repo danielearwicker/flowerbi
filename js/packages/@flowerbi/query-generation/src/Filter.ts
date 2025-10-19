@@ -36,15 +36,15 @@ export class Filter {
 
   static fromJson(json: FilterJson, schema: Schema): Filter {
     return new Filter(
-      schema.GetColumn(json.Column),
-      json.Operator,
-      this.unpackAndValidateValue(json.Value),
-      this.unpackAndValidateValue(json.Constant)
+      schema.getColumn(json.column),
+      json.operator,
+      this.unpackAndValidateValue(json.value),
+      this.unpackAndValidateValue(json.constant)
     );
   }
 
   static fromIColumn(column: IColumn, operator: string, value: any, constant?: any): Filter {
-    return new Filter({ JoinLabel: null, Value: column }, operator, value, constant);
+    return new Filter({ joinLabel: null, value: column }, operator, value, constant);
   }
 
   static Load(filters: FilterJson[] | undefined, schema: Schema): Filter[] {

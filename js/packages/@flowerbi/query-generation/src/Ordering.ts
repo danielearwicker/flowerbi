@@ -22,7 +22,7 @@ export class Ordering {
   }
 
   static fromIColumn(column: IColumn, descending: boolean, index: number): Ordering {
-    return new Ordering({ JoinLabel: null, Value: column }, descending, index);
+    return new Ordering({ joinLabel: null, value: column }, descending, index);
   }
 
   static defaultOrdering(): Ordering {
@@ -36,42 +36,42 @@ export class Ordering {
     values = 0,
     calcs = 0
   ): Ordering {
-    const column = json.Column ? schema.GetColumn(json.Column) : null;
+    const column = json.column ? schema.getColumn(json.column) : null;
     
     let index = 0;
     let selectedIndex: number | undefined;
     let aggregatedIndex: number | undefined;
 
-    if (json.Index !== undefined && json.Type !== undefined) {
-      switch (json.Type) {
+    if (json.index !== undefined && json.type !== undefined) {
+      switch (json.type) {
         case OrderingType.Select:
-          if (json.Index < selects) {
-            selectedIndex = json.Index;
-            index = json.Index;
+          if (json.index < selects) {
+            selectedIndex = json.index;
+            index = json.index;
           } else {
-            throw new FlowerBIException(`Ordering index ${json.Index} is out of range in ${json.Type}`);
+            throw new FlowerBIException(`Ordering index ${json.index} is out of range in ${json.type}`);
           }
           break;
         case OrderingType.Value:
-          if (json.Index < values) {
-            aggregatedIndex = json.Index;
-            index = json.Index + selects;
+          if (json.index < values) {
+            aggregatedIndex = json.index;
+            index = json.index + selects;
           } else {
-            throw new FlowerBIException(`Ordering index ${json.Index} is out of range in ${json.Type}`);
+            throw new FlowerBIException(`Ordering index ${json.index} is out of range in ${json.type}`);
           }
           break;
         case OrderingType.Calculation:
-          if (json.Index < calcs) {
-            aggregatedIndex = values + json.Index;
-            index = json.Index + selects + values;
+          if (json.index < calcs) {
+            aggregatedIndex = values + json.index;
+            index = json.index + selects + values;
           } else {
-            throw new FlowerBIException(`Ordering index ${json.Index} is out of range in ${json.Type}`);
+            throw new FlowerBIException(`Ordering index ${json.index} is out of range in ${json.type}`);
           }
           break;
       }
     }
 
-    return new Ordering(column, json.Descending, index, selectedIndex, aggregatedIndex);
+    return new Ordering(column, json.descending, index, selectedIndex, aggregatedIndex);
   }
 
   static Load(

@@ -12,29 +12,29 @@ export function runSharedTestSuite(
     describe('Theory Tests', () => {
       test.each([false, true])('MinimalSelectOneColumn - allowDuplicates: %s', async (allowDuplicates) => {
         const results = await tests.executeFlowerBIQuery({
-          Aggregations: [{ Function: 'Count' as any, Column: 'Vendor.VendorName' }],
-          Skip: 0,
-          Take: 1,
-          AllowDuplicates: allowDuplicates,
+          aggregations: [{ function: 'Count' as any, column: 'Vendor.VendorName' }],
+          skip: 0,
+          take: 1,
+          allowDuplicates: allowDuplicates,
         });
 
-        expect(results.Records).toHaveLength(1);
-        expect(results.Records[0].Aggregated[0]).toBe(14);
-        expect(results.Totals).toBeUndefined();
+        expect(results.records).toHaveLength(1);
+        expect(results.records[0].aggregated[0]).toBe(14);
+        expect(results.totals).toBeUndefined();
       });
 
       test.each([true, false])('SingleAggregation - allowDuplicates: %s', async (allowDuplicates) => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Skip: 2,
-          Take: 10,
-          AllowDuplicates: allowDuplicates,
+          select: ['Vendor.VendorName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          skip: 2,
+          take: 10,
+          allowDuplicates: allowDuplicates,
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -51,21 +51,21 @@ export function runSharedTestSuite(
         ]));
 
         tests.expectToBeInDescendingOrder(records.map(x => x[1]));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
 
       test.each([false, true])('SingleAggregationOrderBySelect - descending: %s', async (descending) => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Skip: 2,
-          Take: 10,
-          OrderBy: [{ Column: 'Vendor.VendorName', Descending: descending }],
+          select: ['Vendor.VendorName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          skip: 2,
+          take: 10,
+          orderBy: [{ column: 'Vendor.VendorName', descending: descending }],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         const expectedDescending = [
@@ -95,19 +95,19 @@ export function runSharedTestSuite(
         ];
 
         expect(records).toEqual(expect.arrayContaining(descending ? expectedDescending : expectedAscending));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
 
       test.each(['Min', 'Max'])('AggregationFunctions - %s', async (aggregationType) => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [{ Function: aggregationType as any, Column: 'Invoice.Amount' }],
-          OrderBy: [{ Column: 'Vendor.VendorName', Descending: false }],
-          Skip: 0,
-          Take: 100,
+          select: ['Vendor.VendorName'],
+          aggregations: [{ function: aggregationType as any, column: 'Invoice.Amount' }],
+          orderBy: [{ column: 'Vendor.VendorName', descending: false }],
+          skip: 0,
+          take: 100,
         });
 
-        const records = results.Records.map(x => [x.Selected[0], x.Aggregated[0]]);
+        const records = results.records.map(x => [x.selected[0], x.aggregated[0]]);
 
         const expected = [
           ['Awnings-R-Us', 88.12, 88.12],
@@ -132,24 +132,24 @@ export function runSharedTestSuite(
 
         expect(records).toEqual(expectedForType);
         tests.expectToBeInAscendingOrder(records.map(x => x[0]));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
 
       test.each([false, true])('DoubleAggregation - totals: %s', async (totals) => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
+            { function: 'Count' as any, column: 'Invoice.Id' },
           ],
-          Totals: totals,
+          totals: totals,
         });
 
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          x.Aggregated[1]
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          x.aggregated[1]
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -171,9 +171,9 @@ export function runSharedTestSuite(
         tests.expectToBeInDescendingOrder(records.map(x => x[1]));
 
         if (totals) {
-          expect(results.Totals?.Aggregated.map(ExecutionTestsBase.round)).toEqual([1845.38, 29]);
+          expect(results.totals?.aggregated.map(ExecutionTestsBase.round)).toEqual([1845.38, 29]);
         } else {
-          expect(results.Totals).toBeUndefined();
+          expect(results.totals).toBeUndefined();
         }
       });
 
@@ -181,25 +181,25 @@ export function runSharedTestSuite(
         // Note: Stream functionality would need to be implemented separately
         // For now, testing equivalent batch functionality
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
+            { function: 'Count' as any, column: 'Invoice.Id' },
           ],
-          Totals: totals,
+          totals: totals,
         });
 
-        let records = results.Records;
+        let records = results.records;
         if (totals) {
           // In our current implementation, totals are separate from records
-          expect(results.Totals?.Aggregated.map(ExecutionTestsBase.round)).toEqual([1845.38, 29]);
+          expect(results.totals?.aggregated.map(ExecutionTestsBase.round)).toEqual([1845.38, 29]);
           // No need to slice records since totals are separate
         }
 
         const mappedRecords = records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          x.Aggregated[1]
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          x.aggregated[1]
         ]);
 
         expect(mappedRecords).toEqual(expect.arrayContaining([
@@ -234,34 +234,34 @@ export function runSharedTestSuite(
         ['Calculation', 4, null],
       ])('CalculationsAndIndexedOrderBy - %s index %s', async (orderingType, orderingIndex, expectedOrderBy) => {
         const queryJson = {
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
+            { function: 'Count' as any, column: 'Invoice.Id' },
           ],
-          Calculations: [
-            { Aggregation: 1 },
+          calculations: [
+            { aggregation: 1 },
             {
-              First: {
-                First: { Aggregation: 0 },
-                Operator: '??',
-                Second: { Value: 42 },
+              first: {
+                first: { aggregation: 0 },
+                operator: '??',
+                second: { value: 42 },
               },
-              Operator: '+',
-              Second: { Value: 3 },
+              operator: '+',
+              second: { value: 3 },
             },
             {
-              First: { Aggregation: 0 },
-              Operator: '/',
-              Second: { Value: 2 },
+              first: { aggregation: 0 },
+              operator: '/',
+              second: { value: 2 },
             },
             {
-              First: { Value: 50 },
-              Operator: '-',
-              Second: { Aggregation: 0 },
+              first: { value: 50 },
+              operator: '-',
+              second: { aggregation: 0 },
             },
           ],
-          OrderBy: [{ Type: orderingType as any, Index: orderingIndex, Descending: false }],
+          orderBy: [{ type: orderingType as any, index: orderingIndex, descending: false }],
         };
 
         if (expectedOrderBy === null) {
@@ -273,14 +273,14 @@ export function runSharedTestSuite(
         const results = await tests.executeFlowerBIQuery(queryJson);
         
         
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          x.Aggregated[1],
-          x.Aggregated[2],
-          ExecutionTestsBase.round(x.Aggregated[3]),
-          ExecutionTestsBase.round(x.Aggregated[4]),
-          ExecutionTestsBase.round(x.Aggregated[5])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          x.aggregated[1],
+          x.aggregated[2],
+          ExecutionTestsBase.round(x.aggregated[3]),
+          ExecutionTestsBase.round(x.aggregated[4]),
+          ExecutionTestsBase.round(x.aggregated[5])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -300,8 +300,8 @@ export function runSharedTestSuite(
         ]));
 
         const orderedBy = expectedOrderBy === -1
-          ? results.Records.map(x => x.Selected[0])
-          : results.Records.map(x => x.Aggregated[expectedOrderBy]);
+          ? results.records.map(x => x.selected[0])
+          : results.records.map(x => x.aggregated[expectedOrderBy]);
 
         tests.expectToBeInAscendingOrder(orderedBy);
       });
@@ -311,34 +311,34 @@ export function runSharedTestSuite(
     describe('Fact Tests', () => {
       test('FilterByPrimaryKeyOfOtherTable', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Filters: [
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          filters: [
             {
-              Column: 'Vendor.Id',
-              Operator: '=',
-              Value: 2,
+              column: 'Vendor.Id',
+              operator: '=',
+              value: 2,
             },
           ],
         });
 
 
-        expect(results.Records).toHaveLength(1);
-        expect(results.Records[0].Aggregated[0]).toBe(164.36);
-        expect(results.Totals).toBeUndefined();
+        expect(results.records).toHaveLength(1);
+        expect(results.records[0].aggregated[0]).toBe(164.36);
+        expect(results.totals).toBeUndefined();
       });
 
       test('SingleAggregationTotals', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Skip: 2,
-          Take: 10,
-          Totals: true,
+          select: ['Vendor.VendorName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          skip: 2,
+          take: 10,
+          totals: true,
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -355,13 +355,13 @@ export function runSharedTestSuite(
         ]));
 
         tests.expectToBeInDescendingOrder(records.map(x => x[1]));
-        expect(ExecutionTestsBase.round(results.Totals!.Aggregated[0])).toBe(1845.38);
+        expect(ExecutionTestsBase.round(results.totals!.aggregated[0])).toBe(1845.38);
       });
 
       test('SuspiciousComment', async () => {
         await tests.executeFlowerBIQuery({
-          Comment: 'suspicious \r\ncomment */ drop tables;',
-          Aggregations: [{ Function: 'Count' as any, Column: 'Vendor.VendorName' }],
+          comment: 'suspicious \r\ncomment */ drop tables;',
+          aggregations: [{ function: 'Count' as any, column: 'Vendor.VendorName' }],
         });
 
         // Expect the comment to contain actual line breaks (like C# version)
@@ -371,17 +371,17 @@ export function runSharedTestSuite(
 
       test('DoubleAggregationDifferentFilters', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
             { 
-              Function: 'Count' as any, 
-              Column: 'Invoice.Id',
-              Filters: [
+              function: 'Count' as any, 
+              column: 'Invoice.Id',
+              filters: [
                 {
-                  Column: 'Invoice.Paid',
-                  Operator: '=',
-                  Value: true,
+                  column: 'Invoice.Paid',
+                  operator: '=',
+                  value: true,
                 },
               ],
             },
@@ -389,10 +389,10 @@ export function runSharedTestSuite(
         });
 
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          ExecutionTestsBase.round(x.Aggregated[1])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          ExecutionTestsBase.round(x.aggregated[1])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -412,23 +412,23 @@ export function runSharedTestSuite(
         ]));
 
         tests.expectToBeInDescendingOrder(records.map(x => x[1]));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
 
       test('DoubleAggregationMultipleSelects', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Department.DepartmentName'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName', 'Department.DepartmentName'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
+            { function: 'Count' as any, column: 'Invoice.Id' },
           ],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          x.Aggregated[0],
-          x.Aggregated[1]
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          x.aggregated[0],
+          x.aggregated[1]
         ]);
 
         // Both Invoice and Supplier are linked to a Department, so "maximum joinage" is required, i.e.
@@ -446,14 +446,14 @@ export function runSharedTestSuite(
 
       test('ManyToMany', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Tag.TagName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
+          select: ['Vendor.VendorName', 'Tag.TagName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -472,21 +472,21 @@ export function runSharedTestSuite(
 
       test('MultipleManyToMany', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Tag.TagName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Filters: [
+          select: ['Vendor.VendorName', 'Tag.TagName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          filters: [
             {
-              Column: 'Category.CategoryName',
-              Operator: '=',
-              Value: 'Regular',
+              column: 'Category.CategoryName',
+              operator: '=',
+              value: 'Regular',
             },
           ],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          x.Aggregated[0]
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          x.aggregated[0]
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -499,27 +499,27 @@ export function runSharedTestSuite(
 
       test('MultipleManyToManyWithSpecifiedJoins', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Filters: [
+          select: ['Vendor.VendorName', 'AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          filters: [
             {
-              Column: 'AnnotationName.Name@x',
-              Operator: '=',
-              Value: 'Approver',
+              column: 'AnnotationName.Name@x',
+              operator: '=',
+              value: 'Approver',
             },
             {
-              Column: 'AnnotationName.Name@y',
-              Operator: '=',
-              Value: 'Instructions',
+              column: 'AnnotationName.Name@y',
+              operator: '=',
+              value: 'Instructions',
             },
           ],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          x.Selected[2],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          x.selected[2],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -530,17 +530,17 @@ export function runSharedTestSuite(
         ]));
 
         tests.expectToBeInDescendingOrder(records.map(x => x[3]));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
 
       test('NoAggregation', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Tag.TagName'],
+          select: ['Vendor.VendorName', 'Tag.TagName'],
         });
 
-        expect(results.Records.every(r => r.Aggregated === null || r.Aggregated.length === 0)).toBe(true);
+        expect(results.records.every(r => r.aggregated === null || r.aggregated.length === 0)).toBe(true);
 
-        const records = results.Records.map(x => [x.Selected[0], x.Selected[1]]);
+        const records = results.records.map(x => [x.selected[0], x.selected[1]]);
 
         expect(records).toEqual(expect.arrayContaining([
           ['United Cheese', 'Interesting'],
@@ -556,13 +556,13 @@ export function runSharedTestSuite(
 
       test('NoAggregationAllowingDuplicates', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Tag.TagName'],
-          AllowDuplicates: true,
+          select: ['Vendor.VendorName', 'Tag.TagName'],
+          allowDuplicates: true,
         });
 
-        expect(results.Records.every(r => r.Aggregated === null || r.Aggregated.length === 0)).toBe(true);
+        expect(results.records.every(r => r.aggregated === null || r.aggregated.length === 0)).toBe(true);
 
-        const records = results.Records.map(x => [x.Selected[0], x.Selected[1]]);
+        const records = results.records.map(x => [x.selected[0], x.selected[1]]);
 
         expect(records).toEqual(expect.arrayContaining([
           ['United Cheese', 'Interesting'],
@@ -579,27 +579,27 @@ export function runSharedTestSuite(
 
       test('AggregationCountDistinct', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'CountDistinct' as any, Column: 'Invoice.Amount' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'CountDistinct' as any, column: 'Invoice.Amount' },
             { 
-              Function: 'CountDistinct' as any, 
-              Column: 'Invoice.Amount',
-              Filters: [
+              function: 'CountDistinct' as any, 
+              column: 'Invoice.Amount',
+              filters: [
                 {
-                  Column: 'Invoice.Paid',
-                  Operator: '=',
-                  Value: true,
+                  column: 'Invoice.Paid',
+                  operator: '=',
+                  value: true,
                 },
               ],
             },
           ],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Aggregated[0],
-          x.Aggregated[1] ?? 0
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.aggregated[0],
+          x.aggregated[1] ?? 0
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -623,51 +623,51 @@ export function runSharedTestSuite(
 
       test('MultipleManyToManyWithSpecifiedJoinsAndMultipleJoinDependencies', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          Filters: [
+          select: ['Vendor.VendorName', 'AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          filters: [
             {
-              Column: 'AnnotationName.Name@x',
-              Operator: '=',
-              Value: 'Approver',
+              column: 'AnnotationName.Name@x',
+              operator: '=',
+              value: 'Approver',
             },
             {
-              Column: 'AnnotationName.Name@y',
-              Operator: '=',
-              Value: 'Instructions',
+              column: 'AnnotationName.Name@y',
+              operator: '=',
+              value: 'Instructions',
             },
             {
-              Column: 'Department.DepartmentName',
-              Operator: '=',
-              Value: 'Cheese',
+              column: 'Department.DepartmentName',
+              operator: '=',
+              value: 'Cheese',
             },
           ],
         });
 
-        const records = results.Records.map(x => [...x.Selected, ...x.Aggregated.map(ExecutionTestsBase.round)]);
+        const records = results.records.map(x => [...x.selected, ...x.aggregated.map(ExecutionTestsBase.round)]);
         expect(records).toEqual([['Statues While You Wait', 'Snarvu', 'Cash only', 78.12]]);
       });
 
       test('ManyToManyWithComplicatedSchema', async () => {
         const results = await tests.executeFlowerBIQuery(
           {
-            Select: ['Vendor.VendorName', 'Category.CategoryName'],
-            Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-            Filters: [
+            select: ['Vendor.VendorName', 'Category.CategoryName'],
+            aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+            filters: [
               {
-                Column: 'Department.DepartmentName',
-                Operator: '=',
-                Value: 'Cheese',
+                column: 'Department.DepartmentName',
+                operator: '=',
+                value: 'Cheese',
               },
             ],
           },
           ExecutionTestsBase.ComplicatedSchema
         );
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -679,68 +679,68 @@ export function runSharedTestSuite(
       test('ManyToManyConjointWithComplicatedSchema', async () => {
         const results = await tests.executeFlowerBIQuery(
           {
-            Select: ['AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
-            Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-            Filters: [
+            select: ['AnnotationValue.Value@x', 'AnnotationValue.Value@y'],
+            aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+            filters: [
               {
-                Column: 'AnnotationName.Name@x',
-                Operator: '=',
-                Value: 'Approver',
+                column: 'AnnotationName.Name@x',
+                operator: '=',
+                value: 'Approver',
               },
               {
-                Column: 'AnnotationName.Name@y',
-                Operator: '=',
-                Value: 'Movie',
+                column: 'AnnotationName.Name@y',
+                operator: '=',
+                value: 'Movie',
               },
               {
-                Column: 'Department.DepartmentName',
-                Operator: '=',
-                Value: 'Cheese',
+                column: 'Department.DepartmentName',
+                operator: '=',
+                value: 'Cheese',
               },
             ],
           },
           ExecutionTestsBase.ComplicatedSchema
         );
 
-        const records = results.Records.map(x => [...x.Selected, ...x.Aggregated.map(ExecutionTestsBase.round)]);
+        const records = results.records.map(x => [...x.selected, ...x.aggregated.map(ExecutionTestsBase.round)]);
         expect(records).toEqual([['Snarvu', 'Robocop', 78.12]]);
       });
 
       test('CalculationsAndMultiSelect', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName', 'Vendor.DepartmentId'],
-          Aggregations: [
-            { Function: 'Sum' as any, Column: 'Invoice.Amount' },
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName', 'Vendor.DepartmentId'],
+          aggregations: [
+            { function: 'Sum' as any, column: 'Invoice.Amount' },
+            { function: 'Count' as any, column: 'Invoice.Id' },
           ],
-          Calculations: [
-            { Aggregation: 1 },
+          calculations: [
+            { aggregation: 1 },
             {
-              First: {
-                First: { Aggregation: 0 },
-                Operator: '??',
-                Second: { Value: 42 },
+              first: {
+                first: { aggregation: 0 },
+                operator: '??',
+                second: { value: 42 },
               },
-              Operator: '+',
-              Second: { Value: 3 },
+              operator: '+',
+              second: { value: 3 },
             },
             {
-              First: { Aggregation: 0 },
-              Operator: '/',
-              Second: { Aggregation: 1 },
+              first: { aggregation: 0 },
+              operator: '/',
+              second: { aggregation: 1 },
             },
           ],
-          OrderBy: [{ Type: 'Select' as any, Index: 1, Descending: false }],
+          orderBy: [{ type: 'Select' as any, index: 1, descending: false }],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          x.Selected[1],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          x.Aggregated[1],
-          x.Aggregated[2],
-          ExecutionTestsBase.round(x.Aggregated[3]),
-          ExecutionTestsBase.round(x.Aggregated[4])
+        const records = results.records.map(x => [
+          x.selected[0],
+          x.selected[1],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          x.aggregated[1],
+          x.aggregated[2],
+          ExecutionTestsBase.round(x.aggregated[3]),
+          ExecutionTestsBase.round(x.aggregated[4])
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -762,24 +762,24 @@ export function runSharedTestSuite(
 
       test('BitFilters', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Filters: [
+          select: ['Vendor.VendorName'],
+          filters: [
             {
-              Column: 'Invoice.VendorId',
-              Operator: 'BITS IN',
-              Constant: 1 | 2, // Binary: 011 (bits 0 and 1)
-              Value: [0, 2],
+              column: 'Invoice.VendorId',
+              operator: 'BITS IN',
+              constant: 1 | 2, // Binary: 011 (bits 0 and 1)
+              value: [0, 2],
             },
             {
-              Column: 'Invoice.VendorId',
-              Operator: 'BITS IN',
-              Constant: 4 | 8, // Binary: 1100 (bits 2 and 3)
-              Value: [0, 4],
+              column: 'Invoice.VendorId',
+              operator: 'BITS IN',
+              constant: 4 | 8, // Binary: 1100 (bits 2 and 3)
+              value: [0, 4],
             },
           ],
         });
 
-        const records = results.Records.map(x => x.Selected[0]);
+        const records = results.records.map(x => x.selected[0]);
 
         expect(records).toEqual(expect.arrayContaining([
           'Manchesterford Supplies Inc',
@@ -790,28 +790,28 @@ export function runSharedTestSuite(
 
       test('DoubleAggregationWithBitFilters', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [
-            { Function: 'Count' as any, Column: 'Invoice.Id' },
+          select: ['Vendor.VendorName'],
+          aggregations: [
+            { function: 'Count' as any, column: 'Invoice.Id' },
             { 
-              Function: 'Count' as any, 
-              Column: 'Invoice.Id',
-              Filters: [
+              function: 'Count' as any, 
+              column: 'Invoice.Id',
+              filters: [
                 {
-                  Column: 'Invoice.VendorId',
-                  Operator: 'BITS IN',
-                  Constant: 1 | 2, // Binary: 011 (bits 0 and 1)
-                  Value: [0, 2],
+                  column: 'Invoice.VendorId',
+                  operator: 'BITS IN',
+                  constant: 1 | 2, // Binary: 011 (bits 0 and 1)
+                  value: [0, 2],
                 },
               ],
             },
           ],
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0]),
-          x.Aggregated[1]
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0]),
+          x.aggregated[1]
         ]);
 
         expect(records).toEqual(expect.arrayContaining([
@@ -835,18 +835,18 @@ export function runSharedTestSuite(
 
       test('SqlAndDapperWithListFilter', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Invoice.VendorId', 'Invoice.DepartmentId'],
-          Aggregations: [{ Function: 'Count' as any, Column: 'Vendor.VendorName' }],
-          Filters: [
+          select: ['Invoice.VendorId', 'Invoice.DepartmentId'],
+          aggregations: [{ function: 'Count' as any, column: 'Vendor.VendorName' }],
+          filters: [
             {
-              Column: 'Invoice.Id',
-              Operator: 'IN',
-              Value: [2, 4, 6, 8],
+              column: 'Invoice.Id',
+              operator: 'IN',
+              value: [2, 4, 6, 8],
             },
           ],
         });
 
-        const records = results.Records.map(x => [x.Selected[0], x.Selected[1], x.Aggregated[0]]);
+        const records = results.records.map(x => [x.selected[0], x.selected[1], x.aggregated[0]]);
         expect(records).toEqual(expect.arrayContaining([
           [4, 6, 1],
           [4, 4, 1],
@@ -857,13 +857,13 @@ export function runSharedTestSuite(
 
       test('SqlAndDapperWithEmptyListFilter', async () => {
         const queryPromise = tests.executeFlowerBIQuery({
-          Select: ['Invoice.VendorId', 'Invoice.DepartmentId'],
-          Aggregations: [{ Function: 'Count' as any, Column: 'Vendor.VendorName' }],
-          Filters: [
+          select: ['Invoice.VendorId', 'Invoice.DepartmentId'],
+          aggregations: [{ function: 'Count' as any, column: 'Vendor.VendorName' }],
+          filters: [
             {
-              Column: 'Invoice.Id',
-              Operator: 'IN',
-              Value: [],
+              column: 'Invoice.Id',
+              operator: 'IN',
+              value: [],
             },
           ],
         });
@@ -873,18 +873,18 @@ export function runSharedTestSuite(
 
       test('FullJoins', async () => {
         const results = await tests.executeFlowerBIQuery({
-          Select: ['Vendor.VendorName'],
-          Aggregations: [{ Function: 'Sum' as any, Column: 'Invoice.Amount' }],
-          FullJoins: true,
+          select: ['Vendor.VendorName'],
+          aggregations: [{ function: 'Sum' as any, column: 'Invoice.Amount' }],
+          fullJoins: true,
         });
 
-        const records = results.Records.map(x => [
-          x.Selected[0],
-          ExecutionTestsBase.round(x.Aggregated[0])
+        const records = results.records.map(x => [
+          x.selected[0],
+          ExecutionTestsBase.round(x.aggregated[0])
         ]);
 
         // Should match C# version's explicit expected results
-        tests.expectRecordsToEqual(results.Records, [
+        tests.expectRecordsToEqual(results.records, [
           ['United Cheese', 406.84],
           ['Handbags-a-Plenty', 252.48],
           ['Steve Makes Sandwiches', 176.24],
@@ -902,7 +902,7 @@ export function runSharedTestSuite(
         ]);
 
         tests.expectToBeInDescendingOrder(records.map(x => x[1]).filter(x => x !== null));
-        expect(results.Totals).toBeUndefined();
+        expect(results.totals).toBeUndefined();
       });
     });
   });

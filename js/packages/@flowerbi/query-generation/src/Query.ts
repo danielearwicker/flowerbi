@@ -80,24 +80,24 @@ export class Query {
   );
 
   constructor(json: QueryJson, schema: Schema) {
-    this.Select = schema.Load(json.Select || []);
-    this.Aggregations = Aggregation.Load(json.Aggregations, schema);
-    this.Filters = Filter.Load(json.Filters, schema);
+    this.Select = schema.load(json.select || []);
+    this.Aggregations = Aggregation.Load(json.aggregations, schema);
+    this.Filters = Filter.Load(json.filters, schema);
     this.OrderBy = Ordering.Load(
-      json.OrderBy,
+      json.orderBy,
       schema,
-      json.Select?.length || 0,
-      json.Aggregations?.length || 0,
-      json.Calculations?.length || 0
+      json.select?.length || 0,
+      json.aggregations?.length || 0,
+      json.calculations?.length || 0
     );
-    this.Calculations = json.Calculations || [];
-    this.Totals = json.Totals || false;
-    this.Skip = json.Skip || 0;
-    this.Take = json.Take || 100;
-    this.Comment = json.Comment || '';
-    this.AllowDuplicates = json.AllowDuplicates || false;
+    this.Calculations = json.calculations || [];
+    this.Totals = json.totals || false;
+    this.Skip = json.skip || 0;
+    this.Take = json.take || 100;
+    this.Comment = json.comment || '';
+    this.AllowDuplicates = json.allowDuplicates || false;
     this.CommandTimeoutSeconds = 30;
-    this.FullJoins = json.FullJoins || false;
+    this.FullJoins = json.fullJoins || false;
   }
 
   private static formatAggFunction(
@@ -176,7 +176,7 @@ export class Query {
   }
 
   private static formatParameterPlaceholder(sql: ISqlFormatter, paramName: string): string {
-    const prefix = sql.GetParamPrefix();
+    const prefix = sql.getParamPrefix();
     if (prefix === '?') {
       // SQLite uses positional parameters
       return '?';
@@ -201,7 +201,7 @@ export class Query {
       {},
       outerFilters,
       false
-    ).Tables.map(x => x.Value);
+    ).Tables.map(x => x.value);
   }
 
   public toSqlAndTables(
@@ -215,7 +215,7 @@ export class Query {
     const selects = (totals ? [] : this.Select)
       .map(
         (c, i) =>
-          `${sql.EscapedIdentifierPair(joins.getAlias(c.Value.Table, c.JoinLabel!), c.Value.DbName)} Select${i}`
+          `${sql.escapedIdentifierPair(joins.getAlias(c.value.table, c.joinLabel!), c.value.dbName)} Select${i}`
       );
 
     const aggs = this.Aggregations.map(
@@ -238,7 +238,7 @@ export class Query {
         ? null
         : this.Select.map(x => ({ Part: joins.aliased(x, sql) }));
 
-    const skipAndTake = !totals ? sql.SkipAndTake(this.Skip, this.Take) : null;
+    const skipAndTake = !totals ? sql.skipAndTake(this.Skip, this.Take) : null;
 
     const orderBy =
       skipAndTake === null ? null
@@ -281,13 +281,13 @@ export class Query {
     selects: LabelledColumn[]
   ): string {
     const found = selects.findIndex(c => 
-      c.Value.DbName === ordering.Column?.Value.DbName && 
-      c.Value.Table === ordering.Column?.Value.Table &&
-      c.JoinLabel === ordering.Column?.JoinLabel
+      c.value.dbName === ordering.Column?.value.dbName && 
+      c.value.table === ordering.Column?.value.table &&
+      c.joinLabel === ordering.Column?.joinLabel
     );
     if (found === -1) {
       throw new FlowerBIException(
-        `Cannot order by ${ordering.Column?.Value.DbName} as it has not been selected`
+        `Cannot order by ${ordering.Column?.value.dbName} as it has not been selected`
       );
     }
     return `${found + 1} ${ordering.Direction}`;

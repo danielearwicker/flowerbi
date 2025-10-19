@@ -794,3 +794,97 @@ public class ArrayComparer : IEqualityComparer<object[]>
 }
 
 #endif
+
+/// <summary>
+/// Static factory methods for creating queries with Jint integration
+/// </summary>
+public static class QueryExtensions
+{
+    /// <summary>
+    /// Create a query using Jint JavaScript bundle for SQL generation
+    /// Provides the same API as the original Query class but uses JavaScript implementation
+    /// </summary>
+    public static JintQueryWrapper CreateWithJint(QueryJson json, string yamlText, string databaseType = "sqlite", string bundlePath = null)
+    {
+        return new JintQueryWrapper(json, yamlText, databaseType, bundlePath);
+    }
+
+    /// <summary>
+    /// Create a query using Jint with an existing schema
+    /// </summary>
+    public static JintQueryWrapper CreateWithJint(QueryJson json, Schema schema, string databaseType = "sqlite", string bundlePath = null)
+    {
+        // For now, we need the YAML text. In future, we can extract it from the schema
+        throw new NotImplementedException("Creating Jint queries from Schema objects is not yet supported. Use CreateWithJint(QueryJson, string, string, string) with YAML text instead.");
+    }
+}
+
+/// <summary>
+/// Wrapper that provides Query-like API but uses Jint JavaScript implementation internally
+/// </summary>
+public class JintQueryWrapper : IDisposable
+{
+    private readonly FlowerBI.Jint.JintQuery _jintQuery;
+    private readonly FlowerBI.Jint.JintSchema _jintSchema;
+    private readonly QueryJson _json;
+    private readonly string _databaseType;
+    private bool _disposed;
+
+    internal JintQueryWrapper(QueryJson json, string yamlText, string databaseType, string bundlePath)
+    {
+        _json = json;
+        _databaseType = databaseType;
+        _jintSchema = FlowerBI.Jint.JintSchema.FromYaml(yamlText, bundlePath);
+        _jintQuery = new FlowerBI.Jint.JintQuery(json, _jintSchema, databaseType);
+    }
+
+    /// <summary>
+    /// Get the SQL for this query
+    /// </summary>
+    public string ToSql()
+    {
+        return _jintQuery.ToSql();
+    }
+
+    /// <summary>
+    /// Get prepared query with SQL and parameters
+    /// </summary>
+    public FlowerBI.JintEngine.PreparedQuery GetPreparedQuery()
+    {
+        return _jintQuery.GetPreparedQuery();
+    }
+
+    /// <summary>
+    /// Get the parameters for this query
+    /// </summary>
+    public object[] GetParameters()
+    {
+        return _jintQuery.GetParameters();
+    }
+
+    /// <summary>
+    /// Map database results to FlowerBI format
+    /// </summary>
+    public QueryResultJson MapResults(object[][] rows)
+    {
+        return _jintQuery.MapResults(rows);
+    }
+
+    /// <summary>
+    /// Map database results from objects (as might come from Dapper)
+    /// </summary>
+    public QueryResultJson MapResults(IEnumerable<object> rows)
+    {
+        return _jintQuery.MapResults(rows);
+    }
+
+    public void Dispose()
+    {
+        if (!_disposed)
+        {
+            _jintQuery?.Dispose();
+            _jintSchema?.Dispose();
+            _disposed = true;
+        }
+    }
+}
