@@ -1,0 +1,27 @@
+{
+    "name": "@flowerbi/dates",
+    "type": "module",
+    "version": "6.0.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "FlowerBI: ultra-minimal BI analytics query and UI tools",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "devDependencies": {
+        "@types/jest": "^29.5.14",
+        "moment": "^2.29.4",
+        "prettier": "^2.5.1",
+        "typedoc": "^0.28.4",
+        "typescript": "5.8.3"
+    },
+    "peerDependencies": {
+        "moment": "^2.29.4"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "test": "bun test",
+        "docs": "typedoc --excludePrivate --out ../../../../docs/typedoc/dates src",
+        "fbi-release": "npm run test && npm run build && npm run docs"
+    }
+}

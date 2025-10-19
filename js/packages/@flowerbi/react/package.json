@@ -1,0 +1,31 @@
+{
+    "name": "@flowerbi/react",
+    "type": "module",
+    "version": "6.0.0",
+    "author": "Daniel Earwicker <dan@earwicker.com>",
+    "license": "MIT",
+    "description": "React helpers for FlowerBI",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "dependencies": {
+        "@types/json-stable-stringify": "^1.0.32",
+        "@types/react": "^16.9.0",
+        "@flowerbi/client": "6.0.0",
+        "json-stable-stringify": "^1.0.1"
+    },
+    "devDependencies": {
+        "prettier": "^2.5.1",
+        "react": "^17.0.2",
+        "typedoc": "^0.28.4",
+        "typescript": "5.8.3"
+    },
+    "peerDependencies": {
+        "react": "^16.13.1 || ^17.0.2"
+    },
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "docs": "typedoc --out ../../../../docs/typedoc/react src",
+        "fbi-release": "npm run build && npm run docs"
+    }
+}

@@ -1,0 +1,19 @@
+schema: ParquetTestSchema
+name: ParquetTest
+tables:
+
+    Date:
+        id:
+            Id: [datetime]
+        columns:
+            DayOfMonth: [int]
+            Month: [int]
+            Year: [int]
+            MonthName: [string]
+            StartOfMonth: [datetime]
+
+    Business:
+        columns:
+            Amount: [double]
+            Product: [string]
+            Purchased: [Date]
