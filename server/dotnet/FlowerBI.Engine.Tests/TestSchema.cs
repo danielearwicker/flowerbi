@@ -1,115 +1,145 @@
-﻿namespace FlowerBI.Engine.Tests;
+namespace FlowerBI.Engine.Tests;
 
-[DbSchema("Testing")]
 public static class TestSchema
 {
-    [DbTable("Department")]
     public static class Department
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly Column<string> DepartmentName = new Column<string>("DepartmentName");
+        public const string Id = "Department.Id";
+        public const string DepartmentName = "Department.DepartmentName";
     }
 
-    [DbTable("Supplier")]
     public static class Vendor
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly Column<string> VendorName = new Column<string>(
-            "VendorName",
-            x => $"[{x}]"
-        );
-        public static readonly ForeignKey<long> DepartmentId = new ForeignKey<long>(
-            "DepartmentId",
-            Department.Id
-        );
+        public const string Id = "Vendor.Id";
+        public const string VendorName = "Vendor.VendorName";
+        public const string DepartmentId = "Vendor.DepartmentId";
     }
 
-    [DbTable("Invoice")]
     public static class Invoice
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly ForeignKey<long> VendorId = new ForeignKey<long>(
-            "VendorId",
-            Vendor.Id,
-            x => x * 2
-        );
-        public static readonly ForeignKey<long> DepartmentId = new ForeignKey<long>(
-            "DepartmentId",
-            Department.Id,
-            x => x * 2
-        );
-        public static readonly Column<decimal> Amount = new Column<decimal>("FancyAmount");
-        public static readonly Column<bool?> Paid = new Column<bool?>("Paid");
+        public const string Id = "Invoice.Id";
+        public const string VendorId = "Invoice.VendorId";
+        public const string DepartmentId = "Invoice.DepartmentId";
+        public const string Amount = "Invoice.Amount";
+        public const string Paid = "Invoice.Paid";
     }
 
-    [DbTable("Tag")]
     public static class Tag
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly Column<string> TagName = new Column<string>("TagName");
+        public const string Id = "Tag.Id";
+        public const string TagName = "Tag.TagName";
     }
 
-    [DbTable("InvoiceTag")]
     public static class InvoiceTag
     {
-        public static readonly ForeignKey<long> InvoiceId = new ForeignKey<long>(
-            "InvoiceId",
-            Invoice.Id
-        );
-        public static readonly ForeignKey<long> TagId = new ForeignKey<long>("TagId", Tag.Id);
+        public const string InvoiceId = "InvoiceTag.InvoiceId";
+        public const string TagId = "InvoiceTag.TagId";
     }
 
-    [DbTable("Category")]
     public static class Category
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly Column<string> CategoryName = new Column<string>("CategoryName");
+        public const string Id = "Category.Id";
+        public const string CategoryName = "Category.CategoryName";
     }
 
-    [DbTable("InvoiceCategory")]
     public static class InvoiceCategory
     {
-        public static readonly ForeignKey<long> InvoiceId = new ForeignKey<long>(
-            "InvoiceId",
-            Invoice.Id
-        );
-        public static readonly ForeignKey<long> CategoryId = new ForeignKey<long>(
-            "CategoryId",
-            Category.Id
-        );
+        public const string InvoiceId = "InvoiceCategory.InvoiceId";
+        public const string CategoryId = "InvoiceCategory.CategoryId";
     }
 
-    [DbTable("AnnotationName", true)]
     public static class AnnotationName
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly Column<string> Name = new Column<string>("Name");
+        public const string Id = "AnnotationName.Id";
+        public const string Name = "AnnotationName.Name";
     }
 
-    [DbTable("AnnotationValue", true)]
     public static class AnnotationValue
     {
-        public static readonly PrimaryKey<long> Id = new PrimaryKey<long>("Id");
-        public static readonly ForeignKey<long> AnnotationNameId = new ForeignKey<long>(
-            "AnnotationNameId",
-            AnnotationName.Id
-        );
-        public static readonly Column<string> Value = new Column<string>("Value");
+        public const string Id = "AnnotationValue.Id";
+        public const string AnnotationNameId = "AnnotationValue.AnnotationNameId";
+        public const string Value = "AnnotationValue.Value";
     }
 
-    [DbTable("InvoiceAnnotation", true)]
     public static class InvoiceAnnotation
     {
-        [DbAssociative]
-        public static readonly ForeignKey<long> InvoiceId = new ForeignKey<long>(
-            "InvoiceId",
-            Invoice.Id
-        );
-
-        [DbAssociative]
-        public static readonly ForeignKey<long> AnnotationValueId = new ForeignKey<long>(
-            "AnnotationValueId",
-            AnnotationValue.Id
-        );
+        public const string InvoiceId = "InvoiceAnnotation.InvoiceId";
+        public const string AnnotationValueId = "InvoiceAnnotation.AnnotationValueId";
     }
+
+    private const string YamlSchema = """
+        schema: TestSchema
+        name: Testing
+        tables:
+            Department:
+                id:
+                    Id: [long]
+                columns:
+                    DepartmentName: [string]
+
+            Vendor:
+                name: Supplier
+                id:
+                    Id: [long]
+                columns:
+                    VendorName: [string]
+                    DepartmentId: [Department]
+
+            Invoice:
+                id:
+                    Id: [long]
+                columns:
+                    VendorId: [Vendor]
+                    DepartmentId: [Department]
+                    Amount: [decimal, FancyAmount]
+                    Paid: [bool?]
+
+            Tag:
+                id:
+                    Id: [long]
+                columns:
+                    TagName: [string]
+
+            InvoiceTag:
+                columns:
+                    InvoiceId: [Invoice]
+                    TagId: [Tag]
+
+            Category:
+                id:
+                    Id: [long]
+                columns:
+                    CategoryName: [string]
+
+            InvoiceCategory:
+                columns:
+                    InvoiceId: [Invoice]
+                    CategoryId: [Category]
+
+            AnnotationName:
+                conjoint: true
+                id:
+                    Id: [long]
+                columns:
+                    Name: [string]
+
+            AnnotationValue:
+                conjoint: true
+                id:
+                    Id: [long]
+                columns:
+                    AnnotationNameId: [AnnotationName]
+                    Value: [string]
+
+            InvoiceAnnotation:
+                conjoint: true
+                columns:
+                    InvoiceId: [Invoice]
+                    AnnotationValueId: [AnnotationValue]
+                associative:
+                    - InvoiceId
+                    - AnnotationValueId
+        """;
+
+    public static Schema Schema { get; } = FlowerBI.Schema.FromYaml(YamlSchema);
 }
