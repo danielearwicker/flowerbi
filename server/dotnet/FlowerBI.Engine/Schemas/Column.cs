@@ -15,7 +15,7 @@ public interface IColumn : INamed
 
     object ConvertValue(object fromDb);
 
-    string FullName => $"{Table.RefName}.{RefName}";
+    string FullName { get; }
 }
 
 public class Column : Named, IColumn
@@ -27,6 +27,8 @@ public class Column : Named, IColumn
     public bool Nullable { get; }
 
     public Type ClrType => GetClrType(DataType, Nullable);
+
+    public string FullName => $"{Table.RefName}.{RefName}";
 
     internal Column(string dbName, string refName, DataType dataType, bool nullable)
     {

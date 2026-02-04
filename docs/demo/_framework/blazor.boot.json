@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "FlowerBI.WasmHost",
   "resources": {
-    "hash": "sha256-J/yXtpcg3GgaCe+aWiMo72/eXP7OqOU+2a6nPWPQs/I=",
+    "hash": "sha256-oEI/acCXWK4j9RcSw59+3CdNy/Kag1qkQw1MK5RLNzs=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-NljIbpK/1KCj0+knpX8U77Rbl5kTtfFIuFjK7AuczEw="
     },
@@ -212,14 +212,14 @@
       "mscorlib.wasm": "sha256-oV7k+vcNqj7FS6Y/lMtdhVlq3myDH55/wVxmO4QPrw4=",
       "netstandard.wasm": "sha256-XMXMB0WW//vbNNgQiFAqYo7IJ2C4yQX590aoAbOtTB4=",
       "System.Private.CoreLib.wasm": "sha256-tuhzUgbFn7ji3yhMSxyBLHAps9h0RsFnq+8pUoizHiw=",
-      "FlowerBI.DemoSchema.wasm": "sha256-0NqHcckJcRqWgYh+qGWX3y4XsPCvA4f4zAnqqNQ9YE8=",
-      "FlowerBI.Engine.wasm": "sha256-ayUh+sx0KuxCi0vZBlHb0SYqwFpEAw4LJLt8W9zzjo8=",
-      "FlowerBI.WasmHost.wasm": "sha256-z7/3YgK3HyKSm1bKCv74aEBU89blML1eZYHf9YskwKg="
+      "FlowerBI.DemoSchema.wasm": "sha256-hFa+V6F9yfPNm5+KBAiXn+XlCo4prdxX1dx99acCjoI=",
+      "FlowerBI.Engine.wasm": "sha256-aaG1HyjOxxAT+WwaIHd+nI7+qd3KC4Z3dqjp9Z98ZZ4=",
+      "FlowerBI.WasmHost.wasm": "sha256-APFXzn1qnWmXtO57Uw7ABielhWyZQn3MMq9BD8W7Fiw="
     },
     "pdb": {
-      "FlowerBI.DemoSchema.pdb": "sha256-xTQRYvRwOFz9GWgJxRM5CtBMw0Ol+6foO33Rq5TN6ls=",
-      "FlowerBI.Engine.pdb": "sha256-lyjyR/Y5H5Q3dNVPyxNj6IDeXoBjzH/2gYjsc02iwLY=",
-      "FlowerBI.WasmHost.pdb": "sha256-kWwoUaBXmMnVk314vIcHwlWBqOQcty7ZlQbDwUwL7s0="
+      "FlowerBI.DemoSchema.pdb": "sha256-yXwz1bn6RsR8bTMFOtonaJb3x/ws4DZoVJXMjANfv/E=",
+      "FlowerBI.Engine.pdb": "sha256-iMD05lPfcq8X90c2NkiYnD0KYfH0WS3QtCEjZBE+iaY=",
+      "FlowerBI.WasmHost.pdb": "sha256-UvTscrxnTtt1+rUlFDGGzl8K3OlBtK5MZEueJCXT6Y8="
     }
   },
   "cacheBootResources": true,

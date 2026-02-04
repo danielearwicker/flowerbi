@@ -1,6 +1,6 @@
 {
     "name": "flowerbi",
-    "version": "6.0.0",
+    "version": "6.0.1",
     "author": "Daniel Earwicker <dan@earwicker.com>",
     "license": "MIT",
     "description": "FlowerBI: ultra-minimal BI analytics query and UI tools",
