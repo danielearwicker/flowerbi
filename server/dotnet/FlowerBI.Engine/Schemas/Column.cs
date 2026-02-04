@@ -14,6 +14,8 @@ public interface IColumn : INamed
     bool Nullable { get; }
 
     object ConvertValue(object fromDb);
+
+    string FullName => $"{Table.RefName}.{RefName}";
 }
 
 public class Column : Named, IColumn
