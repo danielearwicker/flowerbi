@@ -1,6 +1,6 @@
-﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
@@ -31,25 +31,60 @@ public record LabelledTable(string JoinLabel, Table Value)
 
 public sealed class Schema : Named
 {
-    private Dictionary<string, Table> _tables = new Dictionary<string, Table>();
+    private readonly Dictionary<string, Table> _tables = new();
 
-    public Schema(Type source)
+    private Schema(string refName, string dbName)
     {
-        DbName = source.GetCustomAttributes(false).OfType<DbSchemaAttribute>().Single().Name;
+        RefName = refName;
+        DbName = dbName;
+    }
 
-        RefName = source.Name;
+    public static Schema FromYaml(string yamlContent)
+    {
+        var resolved = ResolvedSchema.Resolve(yamlContent);
+        return FromResolved(resolved);
+    }
 
-        foreach (var tableClass in source.GetNestedTypes())
+    internal static Schema FromResolved(ResolvedSchema resolved)
+    {
+        var schema = new Schema(resolved.Name, resolved.NameInDb);
+
+        // Build lookup from ResolvedColumn to the runtime IColumn we create
+        // Use reference equality since ResolvedColumn/ResolvedTable have circular references
+        // that break the auto-generated GetHashCode/Equals
+        var columnMap = new Dictionary<ResolvedColumn, IColumn>(ReferenceEqualityComparer.Instance);
+
+        // First pass: create all tables and columns (without FK targets)
+        foreach (var rt in resolved.Tables)
         {
-            var table = new Table(this, tableClass);
-            _tables[table.RefName] = table;
+            var table = new Table(schema, rt, columnMap);
+            schema._tables[table.RefName] = table;
         }
+
+        // Second pass: wire up FK targets
+        foreach (var rt in resolved.Tables)
+        {
+            var table = schema._tables[rt.Name];
+            table.ResolveTargets(rt, columnMap);
+        }
+
+        return schema;
     }
 
     public IList<LabelledColumn> Load(IEnumerable<string> columns) =>
         columns?.Select(GetColumn).ToList() ?? new List<LabelledColumn>();
 
     public IEnumerable<Table> Tables => _tables.Values;
+
+    public Table GetTable(string refName)
+    {
+        if (!_tables.TryGetValue(refName, out var table))
+        {
+            throw new FlowerBIException($"No such table {refName}");
+        }
+
+        return table;
+    }
 
     public LabelledColumn GetColumn(string labelledName)
     {

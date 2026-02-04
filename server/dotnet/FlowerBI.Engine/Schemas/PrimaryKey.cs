@@ -1,18 +1,21 @@
-﻿using System;
+using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
-public class PrimaryKey<T>(string name, Func<T, T> converter = null, Column<T> extends = null)
-    : Column<T>(name, converter, extends) { }
-
-public class PrimaryForeignKey<T>(
-    string name,
-    PrimaryKey<T> to,
-    Func<T, T> converter = null,
-    Column<T> extends = null
-) : PrimaryKey<T>(name, converter, extends), IForeignKey
+public class PrimaryKey : Column
 {
-    public PrimaryKey<T> To { get; } = to;
+    internal PrimaryKey(string dbName, string refName, DataType dataType, bool nullable)
+        : base(dbName, refName, dataType, nullable)
+    {
+    }
+}
 
-    IColumn IForeignKey.To => To;
+public sealed class PrimaryForeignKey : PrimaryKey, IForeignKey
+{
+    public IColumn To { get; internal set; }
+
+    internal PrimaryForeignKey(string dbName, string refName, DataType dataType, bool nullable)
+        : base(dbName, refName, dataType, nullable)
+    {
+    }
 }

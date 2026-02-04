@@ -31,13 +31,6 @@ public static class TypeScript
     public static void FromYaml(string yamlFile, string tsFile, TextWriter console) =>
         FromSchema(ResolvedSchema.Resolve(File.ReadAllText(yamlFile)), tsFile, console);
 
-    public static void FromReflection(
-        string path,
-        string schemaClass,
-        string tsFile,
-        TextWriter console
-    ) => FromSchema(Reflection.ToSchema(path, schemaClass, console), tsFile, console);
-
     static void FromSchema(ResolvedSchema schema, string tsFile, TextWriter console)
     {
         using var writer = new WriteIfDifferent(tsFile, console);

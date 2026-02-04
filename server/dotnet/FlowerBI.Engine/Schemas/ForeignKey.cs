@@ -1,4 +1,4 @@
-﻿using System;
+using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
@@ -7,14 +7,12 @@ public interface IForeignKey : IColumn
     IColumn To { get; }
 }
 
-public sealed class ForeignKey<T>(
-    string name,
-    PrimaryKey<T> to,
-    Func<T, T> converter = null,
-    Column<T> extends = null
-) : Column<T>(name, converter, extends), IForeignKey
+public sealed class ForeignKey : Column, IForeignKey
 {
-    public PrimaryKey<T> To { get; } = to;
+    public IColumn To { get; internal set; }
 
-    IColumn IForeignKey.To => To;
+    internal ForeignKey(string dbName, string refName, DataType dataType, bool nullable)
+        : base(dbName, refName, dataType, nullable)
+    {
+    }
 }
