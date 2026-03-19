@@ -27,7 +27,7 @@ export function DataPreview({ query, data, onHeaderClick }: DataPreviewProps) {
                 {data.records.map((record, index) => (
                     <tr key={index}>
                         {columns.map((x) => (
-                            <td key={x.selection.name}>{x.selection.aggregation ? record.aggregated[x.offset] : record.selected[x.offset]}</td>
+                            <td key={x.selection.name}>{String(x.selection.aggregation ? record.aggregated[x.offset] : record.selected[x.offset])}</td>
                         ))}
                     </tr>
                 ))}
