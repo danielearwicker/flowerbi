@@ -8,25 +8,25 @@ export const Date = {
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     CalendarYearNumber: new IntegerQueryColumn<number>("Date.CalendarYearNumber",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Short,
         ""
     )
-), 
+),
     FirstDayOfQuarter: new QueryColumn<Date>("Date.FirstDayOfQuarter",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     FirstDayOfMonth: new QueryColumn<Date>("Date.FirstDayOfMonth",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
 };
 
 export const DateReported = {
@@ -35,25 +35,25 @@ export const DateReported = {
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     CalendarYearNumber: new IntegerQueryColumn<number>("DateReported.CalendarYearNumber",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Short,
         ""
     )
-), 
+),
     FirstDayOfQuarter: new QueryColumn<Date>("DateReported.FirstDayOfQuarter",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     FirstDayOfMonth: new QueryColumn<Date>("DateReported.FirstDayOfMonth",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
 };
 
 export const DateResolved = {
@@ -62,25 +62,25 @@ export const DateResolved = {
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     CalendarYearNumber: new IntegerQueryColumn<number>("DateResolved.CalendarYearNumber",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Short,
         ""
     )
-), 
+),
     FirstDayOfQuarter: new QueryColumn<Date>("DateResolved.FirstDayOfQuarter",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     FirstDayOfMonth: new QueryColumn<Date>("DateResolved.FirstDayOfMonth",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
 };
 
 export const DateAssigned = {
@@ -89,25 +89,25 @@ export const DateAssigned = {
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     CalendarYearNumber: new IntegerQueryColumn<number>("DateAssigned.CalendarYearNumber",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Short,
         ""
     )
-), 
+),
     FirstDayOfQuarter: new QueryColumn<Date>("DateAssigned.FirstDayOfQuarter",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
     FirstDayOfMonth: new QueryColumn<Date>("DateAssigned.FirstDayOfMonth",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         ""
     )
-), 
+),
 };
 
 export const Workflow = {
@@ -116,31 +116,31 @@ export const Workflow = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     Resolved: new QueryColumn<boolean>("Workflow.Resolved",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     WorkflowState: new StringQueryColumn<string>("Workflow.WorkflowState",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
     SourceOfError: new StringQueryColumn<string>("Workflow.SourceOfError",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
     FixedByCustomer: new QueryColumn<boolean>("Workflow.FixedByCustomer",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
 };
 
 export const Category = {
@@ -149,13 +149,13 @@ export const Category = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     Label: new StringQueryColumn<string>("Category.Label",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
 };
 
 export const Customer = {
@@ -164,13 +164,13 @@ export const Customer = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     CustomerName: new StringQueryColumn<string>("Customer.CustomerName",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
 };
 
 export const Coder = {
@@ -179,13 +179,13 @@ export const Coder = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     FullName: new StringQueryColumn<string>("Coder.FullName",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
 };
 
 export const CoderAssigned = {
@@ -194,13 +194,13 @@ export const CoderAssigned = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     FullName: new StringQueryColumn<string>("CoderAssigned.FullName",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
 };
 
 export const CoderResolved = {
@@ -209,13 +209,13 @@ export const CoderResolved = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     FullName: new StringQueryColumn<string>("CoderResolved.FullName",
     new QueryColumnRuntimeType(
         QueryColumnDataType.String,
         ""
     )
-), 
+),
 };
 
 export const CategoryCombination = {
@@ -224,43 +224,43 @@ export const CategoryCombination = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     Crashed: new QueryColumn<boolean>("CategoryCombination.Crashed",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     DataLoss: new QueryColumn<boolean>("CategoryCombination.DataLoss",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     SecurityBreach: new QueryColumn<boolean>("CategoryCombination.SecurityBreach",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     OffByOne: new QueryColumn<boolean>("CategoryCombination.OffByOne",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     Slow: new QueryColumn<boolean>("CategoryCombination.Slow",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
     StackOverflow: new QueryColumn<boolean>("CategoryCombination.StackOverflow",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Bool,
         ""
     )
-), 
+),
 };
 
 export const Bug = {
@@ -269,55 +269,55 @@ export const Bug = {
         QueryColumnDataType.Int,
         ""
     )
-), 
+),
     WorkflowId: new IntegerQueryColumn<number>("Bug.WorkflowId",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Int,
         "Workflow.Id"
     )
-), 
+),
     CustomerId: new IntegerQueryColumn<number>("Bug.CustomerId",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Int,
         "Customer.Id"
     )
-), 
+),
     ReportedDate: new QueryColumn<Date>("Bug.ReportedDate",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         "DateReported.Id"
     )
-), 
+),
     ResolvedDate: new QueryColumn<Date>("Bug.ResolvedDate",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         "DateResolved.Id"
     )
-), 
+),
     AssignedDate: new QueryColumn<Date>("Bug.AssignedDate",
     new QueryColumnRuntimeType(
         QueryColumnDataType.DateTime,
         "DateAssigned.Id"
     )
-), 
+),
     CategoryCombinationId: new IntegerQueryColumn<number>("Bug.CategoryCombinationId",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Int,
         "CategoryCombination.Id"
     )
-), 
+),
     AssignedCoderId: new IntegerQueryColumn<number>("Bug.AssignedCoderId",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Int,
         "CoderAssigned.Id"
     )
-), 
+),
     ResolvedCoderId: new IntegerQueryColumn<number>("Bug.ResolvedCoderId",
     new QueryColumnRuntimeType(
         QueryColumnDataType.Int,
         "CoderResolved.Id"
     )
-), 
+),
 };
 
 export const BugSchema = {
