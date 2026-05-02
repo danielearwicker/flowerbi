@@ -1,5 +1,6 @@
 namespace FlowerBI.Yaml;
 
+using System;
 using System.Collections.Generic;
 
 public record ResolvedTable(string Name, bool conjoint)
@@ -12,4 +13,8 @@ public record ResolvedTable(string Name, bool conjoint)
     public List<ResolvedColumn> Columns { get; } = new List<ResolvedColumn>();
 
     public List<ResolvedColumn> Associative { get; } = new List<ResolvedColumn>();
+
+    public string Doc { get; set; }
+
+    public IReadOnlyList<string> See { get; set; } = Array.Empty<string>();
 }

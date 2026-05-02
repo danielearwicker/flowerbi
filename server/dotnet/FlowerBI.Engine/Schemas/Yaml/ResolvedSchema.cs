@@ -5,7 +5,12 @@ using System.Collections.Generic;
 using System.Linq;
 using YamlDotNet.Serialization;
 
-public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedTable> Tables)
+public record ResolvedSchema(
+    string Name,
+    string NameInDb,
+    IEnumerable<ResolvedTable> Tables,
+    IEnumerable<ResolvedTopic> Topics
+)
 {
     public static ResolvedSchema Resolve(string yamlText)
     {
@@ -26,7 +31,12 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             throw new FlowerBIException("Schema must have non-empty tables property");
         }
 
-        // Validate all columns are [name, type] array
+        // Normalise loose column values into a canonical shape (yamlType + doc + see)
+        // Each (tableKey -> columnName -> NormalisedColumn). Done up-front so the rest of
+        // resolution can ignore the dual-form distinction.
+        var normalisedColumns = new Dictionary<string, Dictionary<string, NormalisedColumn>>();
+        var normalisedIds = new Dictionary<string, KeyValuePair<string, NormalisedColumn>?>();
+
         foreach (var (tableKey, table) in yaml.tables)
         {
             if (table.id != null && table.id.Count != 1)
@@ -34,21 +44,28 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
                 throw new FlowerBIException($"Table {tableKey} id must have a single column");
             }
 
+            var cols = new Dictionary<string, NormalisedColumn>();
+            normalisedColumns[tableKey] = cols;
+
             if (table.columns != null)
             {
-                foreach (
-                    var (name, type) in table.columns.Concat(
-                        table.id ?? new Dictionary<string, string[]>()
-                    )
-                )
+                foreach (var (name, raw) in table.columns)
                 {
-                    if (type.Length < 1 || type.Length > 2)
-                    {
-                        throw new FlowerBIException(
-                            $"Table {tableKey} column {name} type must be an array of length 1 or 2"
-                        );
-                    }
+                    cols[name] = NormaliseColumn(tableKey, name, raw);
                 }
+            }
+
+            if (table.id != null)
+            {
+                var (idName, idRaw) = table.id.First();
+                normalisedIds[tableKey] = new KeyValuePair<string, NormalisedColumn>(
+                    idName,
+                    NormaliseColumn(tableKey, idName, idRaw)
+                );
+            }
+            else
+            {
+                normalisedIds[tableKey] = null;
             }
         }
 
@@ -70,21 +87,32 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             var resolvedTable = resolvedTables.FirstOrDefault(x => x.Name == tableKey);
             if (resolvedTable.NameInDb == null)
             {
-                resolvedTable.IdColumn =
-                    table.id != null
-                        ? new ResolvedColumn(
-                            resolvedTable,
-                            table.id.First().Key,
-                            table.id.First().Value
-                        )
-                        : null;
-                if (table.columns != null)
+                var idEntry = normalisedIds[tableKey];
+                resolvedTable.IdColumn = idEntry.HasValue
+                    ? new ResolvedColumn(
+                        resolvedTable,
+                        idEntry.Value.Key,
+                        idEntry.Value.Value.YamlType
+                    )
+                    {
+                        Doc = idEntry.Value.Value.Doc,
+                        See = idEntry.Value.Value.See,
+                    }
+                    : null;
+
+                foreach (var (colName, norm) in normalisedColumns[tableKey])
                 {
-                    resolvedTable.Columns.AddRange(
-                        table.columns.Select(x => new ResolvedColumn(resolvedTable, x.Key, x.Value))
+                    resolvedTable.Columns.Add(
+                        new ResolvedColumn(resolvedTable, colName, norm.YamlType)
+                        {
+                            Doc = norm.Doc,
+                            See = norm.See,
+                        }
                     );
                 }
                 resolvedTable.NameInDb = table.name;
+                resolvedTable.Doc = table.doc;
+                resolvedTable.See = table.see ?? Array.Empty<string>();
 
                 if (table.extends != null)
                 {
@@ -97,30 +125,45 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
 
                     var extendsTable = ResolveTable(table.extends, extendsYaml);
 
-                    resolvedTable.Columns.AddRange(
-                        extendsTable.Columns.Select(x => new ResolvedColumn(
-                            resolvedTable,
-                            x.Name,
-                            x.YamlType
-                        )
-                        {
-                            Extends = x,
-                        })
+                    var existingNames = new HashSet<string>(
+                        resolvedTable.Columns.Select(c => c.Name)
                     );
-
-                    if (extendsTable.IdColumn != null)
+                    foreach (var inherited in extendsTable.Columns)
                     {
-                        resolvedTable.IdColumn ??= new ResolvedColumn(
+                        if (existingNames.Contains(inherited.Name))
+                        {
+                            continue;
+                        }
+                        resolvedTable.Columns.Add(
+                            new ResolvedColumn(resolvedTable, inherited.Name, inherited.YamlType)
+                            {
+                                Extends = inherited,
+                                Doc = inherited.Doc,
+                                See = inherited.See,
+                            }
+                        );
+                    }
+
+                    if (extendsTable.IdColumn != null && resolvedTable.IdColumn == null)
+                    {
+                        resolvedTable.IdColumn = new ResolvedColumn(
                             resolvedTable,
                             extendsTable.IdColumn.Name,
                             extendsTable.IdColumn.YamlType
                         )
                         {
                             Extends = extendsTable.IdColumn,
+                            Doc = extendsTable.IdColumn.Doc,
+                            See = extendsTable.IdColumn.See,
                         };
                     }
 
                     resolvedTable.NameInDb ??= extendsTable.NameInDb;
+                    resolvedTable.Doc ??= extendsTable.Doc;
+                    if (table.see == null)
+                    {
+                        resolvedTable.See = extendsTable.See;
+                    }
                 }
 
                 if (!resolvedTable.Columns.Any())
@@ -228,6 +271,153 @@ public record ResolvedSchema(string Name, string NameInDb, IEnumerable<ResolvedT
             }
         }
 
-        return new ResolvedSchema(yaml.schema, yaml.name ?? yaml.schema, resolvedTables);
+        var resolvedTopics = new List<ResolvedTopic>();
+        if (yaml.topics != null)
+        {
+            var topicNames = new HashSet<string>();
+            foreach (var (topicKey, raw) in yaml.topics)
+            {
+                if (string.IsNullOrWhiteSpace(topicKey))
+                {
+                    throw new FlowerBIException("Topic must have non-empty key");
+                }
+                if (!topicNames.Add(topicKey))
+                {
+                    throw new FlowerBIException($"More than one topic is named '{topicKey}'");
+                }
+                if (yaml.tables.ContainsKey(topicKey))
+                {
+                    throw new FlowerBIException(
+                        $"Topic '{topicKey}' has the same name as a table; topic and table names must not collide"
+                    );
+                }
+                resolvedTopics.Add(NormaliseTopic(topicKey, raw));
+            }
+        }
+
+        return new ResolvedSchema(
+            yaml.schema,
+            yaml.name ?? yaml.schema,
+            resolvedTables,
+            resolvedTopics
+        );
+    }
+
+    private readonly record struct NormalisedColumn(
+        string[] YamlType,
+        string Doc,
+        IReadOnlyList<string> See
+    );
+
+    private static NormalisedColumn NormaliseColumn(string tableKey, string columnName, object raw)
+    {
+        // Legacy short form: a YAML sequence -> List<object> of strings.
+        if (raw is IList<object> seq)
+        {
+            if (seq.Count < 1 || seq.Count > 2)
+            {
+                throw new FlowerBIException(
+                    $"Table {tableKey} column {columnName} type must be an array of length 1 or 2"
+                );
+            }
+            var asStrings = seq.Select(x => x?.ToString()).ToArray();
+            return new NormalisedColumn(asStrings, null, Array.Empty<string>());
+        }
+
+        // New long form: a YAML mapping -> Dictionary<object, object>.
+        if (raw is IDictionary<object, object> map)
+        {
+            string type = null;
+            string dbName = null;
+            string doc = null;
+            IReadOnlyList<string> see = Array.Empty<string>();
+
+            foreach (var (rawKey, rawVal) in map)
+            {
+                var key = rawKey?.ToString();
+                switch (key)
+                {
+                    case "type":
+                        type = rawVal?.ToString();
+                        break;
+                    case "name":
+                        dbName = rawVal?.ToString();
+                        break;
+                    case "doc":
+                        doc = rawVal?.ToString();
+                        break;
+                    case "see":
+                        see = ReadStringList(rawVal, $"{tableKey}.{columnName}.see");
+                        break;
+                    default:
+                        throw new FlowerBIException(
+                            $"Table {tableKey} column {columnName} has unknown property '{key}'"
+                        );
+                }
+            }
+
+            if (string.IsNullOrEmpty(type))
+            {
+                throw new FlowerBIException(
+                    $"Table {tableKey} column {columnName} must specify a 'type'"
+                );
+            }
+
+            var yamlType = dbName == null ? new[] { type } : new[] { type, dbName };
+            return new NormalisedColumn(yamlType, doc, see);
+        }
+
+        throw new FlowerBIException(
+            $"Table {tableKey} column {columnName} must be either a [type] sequence or a mapping with a 'type' key"
+        );
+    }
+
+    private static ResolvedTopic NormaliseTopic(string name, object raw)
+    {
+        if (raw is string s)
+        {
+            return new ResolvedTopic(name, s);
+        }
+
+        if (raw is IDictionary<object, object> map)
+        {
+            string doc = null;
+            IReadOnlyList<string> see = Array.Empty<string>();
+
+            foreach (var (rawKey, rawVal) in map)
+            {
+                var key = rawKey?.ToString();
+                switch (key)
+                {
+                    case "doc":
+                        doc = rawVal?.ToString();
+                        break;
+                    case "see":
+                        see = ReadStringList(rawVal, $"topic '{name}' see");
+                        break;
+                    default:
+                        throw new FlowerBIException($"Topic '{name}' has unknown property '{key}'");
+                }
+            }
+
+            return new ResolvedTopic(name, doc) { See = see };
+        }
+
+        throw new FlowerBIException(
+            $"Topic '{name}' must be either a string or a mapping with 'doc' and optional 'see'"
+        );
+    }
+
+    private static IReadOnlyList<string> ReadStringList(object raw, string context)
+    {
+        if (raw == null)
+        {
+            return Array.Empty<string>();
+        }
+        if (raw is IList<object> list)
+        {
+            return list.Select(x => x?.ToString()).ToArray();
+        }
+        throw new FlowerBIException($"{context} must be a list of strings");
     }
 }

@@ -33,6 +33,8 @@ public sealed class Schema : Named
 {
     private readonly Dictionary<string, Table> _tables = new();
 
+    private readonly Dictionary<string, Topic> _topics = new();
+
     private Schema(string refName, string dbName)
     {
         RefName = refName;
@@ -68,13 +70,107 @@ public sealed class Schema : Named
             table.ResolveTargets(rt, columnMap);
         }
 
+        // Build Topic objects (without their See lists yet — resolved in the next pass).
+        foreach (var rtopic in resolved.Topics)
+        {
+            schema._topics[rtopic.Name] = new Topic(rtopic.Name, rtopic.Doc);
+        }
+
+        // Resolve every See string list into IDocumented references. Done last so that all
+        // tables, columns, and topics exist when we look up references.
+        foreach (var rt in resolved.Tables)
+        {
+            var table = schema._tables[rt.Name];
+            table.See = schema.ResolveSeeList(rt.See, $"table {rt.Name}");
+
+            if (rt.IdColumn != null)
+            {
+                var col = (Column)columnMap[rt.IdColumn];
+                col.See = schema.ResolveSeeList(
+                    rt.IdColumn.See,
+                    $"column {rt.Name}.{rt.IdColumn.Name}"
+                );
+            }
+            foreach (var rc in rt.Columns)
+            {
+                var col = (Column)columnMap[rc];
+                col.See = schema.ResolveSeeList(rc.See, $"column {rt.Name}.{rc.Name}");
+            }
+        }
+        foreach (var rtopic in resolved.Topics)
+        {
+            schema._topics[rtopic.Name].See = schema.ResolveSeeList(
+                rtopic.See,
+                $"topic '{rtopic.Name}'"
+            );
+        }
+
         return schema;
+    }
+
+    private IReadOnlyList<IDocumented> ResolveSeeList(IReadOnlyList<string> entries, string context)
+    {
+        if (entries == null || entries.Count == 0)
+        {
+            return System.Array.Empty<IDocumented>();
+        }
+
+        var result = new List<IDocumented>(entries.Count);
+        foreach (var entry in entries)
+        {
+            if (string.IsNullOrWhiteSpace(entry))
+            {
+                throw new FlowerBIException($"{context} has an empty 'see' entry");
+            }
+
+            var dot = entry.IndexOf('.');
+            if (dot >= 0)
+            {
+                var tableName = entry[..dot];
+                var columnName = entry[(dot + 1)..];
+                if (!_tables.TryGetValue(tableName, out var table))
+                {
+                    throw new FlowerBIException(
+                        $"{context} 'see' references unknown table '{tableName}' in '{entry}'"
+                    );
+                }
+                IColumn column;
+                try
+                {
+                    column = table.GetColumn(columnName);
+                }
+                catch (FlowerBIException)
+                {
+                    throw new FlowerBIException(
+                        $"{context} 'see' references unknown column '{entry}'"
+                    );
+                }
+                result.Add(column);
+            }
+            else if (_topics.TryGetValue(entry, out var topic))
+            {
+                result.Add(topic);
+            }
+            else if (_tables.TryGetValue(entry, out var table))
+            {
+                result.Add(table);
+            }
+            else
+            {
+                throw new FlowerBIException(
+                    $"{context} 'see' references '{entry}' which is neither a topic nor a table"
+                );
+            }
+        }
+        return result;
     }
 
     public IList<LabelledColumn> Load(IEnumerable<string> columns) =>
         columns?.Select(GetColumn).ToList() ?? new List<LabelledColumn>();
 
     public IEnumerable<Table> Tables => _tables.Values;
+
+    public IReadOnlyDictionary<string, Topic> Topics => _topics;
 
     public Table GetTable(string refName)
     {
@@ -84,6 +180,16 @@ public sealed class Schema : Named
         }
 
         return table;
+    }
+
+    public Topic GetTopic(string name)
+    {
+        if (!_topics.TryGetValue(name, out var topic))
+        {
+            throw new FlowerBIException($"No such topic {name}");
+        }
+
+        return topic;
     }
 
     public LabelledColumn GetColumn(string labelledName)

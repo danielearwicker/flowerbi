@@ -1,10 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
-public sealed class Table : Named
+public sealed class Table : Named, IDocumented
 {
     public Schema Schema { get; }
 
@@ -12,24 +13,34 @@ public sealed class Table : Named
 
     public bool Conjoint { get; }
 
+    public string Doc { get; internal set; }
+
+    public IReadOnlyList<IDocumented> See { get; internal set; } = Array.Empty<IDocumented>();
+
     private readonly Dictionary<Table, IForeignKey> _keys = new();
 
     private readonly Dictionary<string, IColumn> _columns = new();
 
     private readonly List<IColumn> _associative = new();
 
-    internal Table(Schema schema, ResolvedTable resolved, Dictionary<ResolvedColumn, IColumn> columnMap)
+    internal Table(
+        Schema schema,
+        ResolvedTable resolved,
+        Dictionary<ResolvedColumn, IColumn> columnMap
+    )
     {
         Schema = schema;
         RefName = resolved.Name;
         DbName = resolved.NameInDb;
         Conjoint = resolved.conjoint;
+        Doc = resolved.Doc;
 
         // Create ID column if present
         if (resolved.IdColumn != null)
         {
             var idCol = CreateColumn(resolved.IdColumn, isPrimaryKey: true);
             idCol.Table = this;
+            idCol.Doc = resolved.IdColumn.Doc;
             Id = idCol;
             _columns[idCol.RefName] = idCol;
             columnMap[resolved.IdColumn] = idCol;
@@ -40,6 +51,7 @@ public sealed class Table : Named
         {
             var col = CreateColumn(rc, isPrimaryKey: false);
             col.Table = this;
+            col.Doc = rc.Doc;
             _columns[col.RefName] = col;
             columnMap[rc] = col;
         }
@@ -51,7 +63,10 @@ public sealed class Table : Named
         }
     }
 
-    internal void ResolveTargets(ResolvedTable resolved, Dictionary<ResolvedColumn, IColumn> columnMap)
+    internal void ResolveTargets(
+        ResolvedTable resolved,
+        Dictionary<ResolvedColumn, IColumn> columnMap
+    )
     {
         // Wire up FK target for ID column if it's a PrimaryForeignKey
         if (resolved.IdColumn?.Target != null && Id is PrimaryForeignKey pfk)
