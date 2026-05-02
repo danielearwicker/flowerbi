@@ -28,6 +28,11 @@ public sealed class SqliteFixture : IDisposable
 
     public void Dispose()
     {
+        // Microsoft.Data.Sqlite pools connections by default. Closing a SqliteConnection
+        // returns the underlying handle to the pool rather than releasing the file lock,
+        // so File.Delete fails on Windows. Clear the pool first.
+        SqliteConnection.ClearAllPools();
+
         foreach (var filename in _filenames)
         {
             if (File.Exists(filename))

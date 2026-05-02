@@ -1,9 +1,10 @@
 using System;
+using System.Collections.Generic;
 using FlowerBI.Yaml;
 
 namespace FlowerBI;
 
-public interface IColumn : INamed
+public interface IColumn : INamed, IDocumented
 {
     Table Table { get; }
 
@@ -29,6 +30,10 @@ public class Column : Named, IColumn
     public Type ClrType => GetClrType(DataType, Nullable);
 
     public string FullName => $"{Table.RefName}.{RefName}";
+
+    public string Doc { get; internal set; }
+
+    public IReadOnlyList<IDocumented> See { get; internal set; } = Array.Empty<IDocumented>();
 
     internal Column(string dbName, string refName, DataType dataType, bool nullable)
     {

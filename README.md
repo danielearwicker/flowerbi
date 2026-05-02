@@ -148,6 +148,7 @@ This runs the whole stack in-browser, using some WASM-based components. This is 
 Gradually appearing:
 
 -   [Yaml Schemas](./docs/markdown/yaml.md)
+-   [Documenting your schema](./docs/markdown/documentation.md)
 -   [Virtual Tables](./docs/markdown/virtual-tables.md)
 -   [Many-to-Many](./docs/markdown/many-to-many.md)
 -   [Conjoint Tables](./docs/markdown/conjoint.md)

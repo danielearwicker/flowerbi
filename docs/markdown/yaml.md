@@ -94,3 +94,10 @@ InvoiceAnnotation:
 ```
 
 [This is an obscure enough topic to get its own explanation](./conjoint.md).
+
+## Documentation
+
+Tables, columns, and a top-level `topics:` section can carry free-text `doc`
+and cross-reference `see` lists, surfaced in the runtime `Schema` model and in
+generated TypeScript/C# as JSDoc and XML doc comments. See
+[Documenting your schema](./documentation.md) for the full rules.

@@ -1,4 +1,7 @@
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using FlowerBI.Yaml;
 
 namespace FlowerBI.Conversion;
@@ -37,12 +40,15 @@ public static class CSharp
         writer.WriteLine("{");
 
         var schemaWriter = new IndentedWriter(writer);
+        var topicNames = new HashSet<string>(schema.Topics.Select(t => t.Name));
+        var topicIdentifiers = schema.Topics.ToDictionary(t => t.Name, t => CsIdentifier(t.Name));
 
         // Generate table classes with string constants
         foreach (var table in schema.Tables)
         {
             console.WriteLine($"Exporting table {table.Name}");
 
+            WriteXmlDoc(schemaWriter, table.Doc, table.See, topicNames, topicIdentifiers);
             schemaWriter.WriteLine($"public static class {table.Name}");
             schemaWriter.WriteLine("{");
 
@@ -51,6 +57,13 @@ public static class CSharp
             // Write ID column if present
             if (table.IdColumn != null)
             {
+                WriteXmlDoc(
+                    tableWriter,
+                    table.IdColumn.Doc,
+                    table.IdColumn.See,
+                    topicNames,
+                    topicIdentifiers
+                );
                 tableWriter.WriteLine(
                     $"public const string {table.IdColumn.Name} = \"{table.Name}.{table.IdColumn.Name}\";"
                 );
@@ -59,11 +72,30 @@ public static class CSharp
             // Write regular columns
             foreach (var column in table.Columns)
             {
+                WriteXmlDoc(tableWriter, column.Doc, column.See, topicNames, topicIdentifiers);
                 tableWriter.WriteLine(
                     $"public const string {column.Name} = \"{table.Name}.{column.Name}\";"
                 );
             }
 
+            schemaWriter.WriteLine("}");
+            schemaWriter.WriteLine();
+        }
+
+        // Generate Topics nested class if any topics declared
+        if (schema.Topics.Any())
+        {
+            console.WriteLine("Exporting topics");
+            schemaWriter.WriteLine("public static class Topics");
+            schemaWriter.WriteLine("{");
+            var topicsWriter = new IndentedWriter(schemaWriter);
+            foreach (var topic in schema.Topics)
+            {
+                WriteXmlDoc(topicsWriter, topic.Doc, topic.See, topicNames, topicIdentifiers);
+                topicsWriter.WriteLine(
+                    $"public const string {topicIdentifiers[topic.Name]} = \"{topic.Name}\";"
+                );
+            }
             schemaWriter.WriteLine("}");
             schemaWriter.WriteLine();
         }
@@ -90,5 +122,83 @@ public static class CSharp
 
         writer.Flush();
         console.WriteLine("Done.");
+    }
+
+    private static void WriteXmlDoc(
+        IndentedWriter writer,
+        string doc,
+        IReadOnlyList<string> see,
+        HashSet<string> topicNames,
+        IReadOnlyDictionary<string, string> topicIdentifiers
+    )
+    {
+        var hasDoc = !string.IsNullOrEmpty(doc);
+        var hasSee = see != null && see.Count > 0;
+        if (!hasDoc && !hasSee)
+        {
+            return;
+        }
+
+        if (hasDoc)
+        {
+            var lines = SplitLines(doc).ToList();
+            if (lines.Count == 1)
+            {
+                writer.WriteLine($"/// <summary>{XmlEscape(lines[0])}</summary>");
+            }
+            else
+            {
+                writer.WriteLine("/// <summary>");
+                foreach (var line in lines)
+                {
+                    writer.WriteLine($"/// {XmlEscape(line)}");
+                }
+                writer.WriteLine("/// </summary>");
+            }
+        }
+        if (hasSee)
+        {
+            foreach (var entry in see)
+            {
+                writer.WriteLine(
+                    $"/// <seealso cref=\"{RewriteSeeForXml(entry, topicNames, topicIdentifiers)}\"/>"
+                );
+            }
+        }
+    }
+
+    private static string RewriteSeeForXml(
+        string entry,
+        HashSet<string> topicNames,
+        IReadOnlyDictionary<string, string> topicIdentifiers
+    ) =>
+        entry.Contains('.') || !topicNames.Contains(entry)
+            ? entry
+            : $"Topics.{topicIdentifiers[entry]}";
+
+    private static IEnumerable<string> SplitLines(string text)
+    {
+        var trimmed = text.Replace("\r\n", "\n").TrimEnd('\n');
+        return trimmed.Split('\n');
+    }
+
+    private static string XmlEscape(string s) =>
+        s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+
+    private static string CsIdentifier(string name)
+    {
+        if (string.IsNullOrEmpty(name))
+        {
+            return "_";
+        }
+        var sb = new StringBuilder(name.Length);
+        var first = name[0];
+        sb.Append(char.IsLetter(first) || first == '_' ? first : '_');
+        for (var i = 1; i < name.Length; i++)
+        {
+            var c = name[i];
+            sb.Append(char.IsLetterOrDigit(c) || c == '_' ? c : '_');
+        }
+        return sb.ToString();
     }
 }
