@@ -97,6 +97,7 @@ public record ResolvedSchema(
                     {
                         Doc = idEntry.Value.Value.Doc,
                         See = idEntry.Value.Value.See,
+                        Meta = idEntry.Value.Value.Meta,
                     }
                     : null;
 
@@ -107,12 +108,14 @@ public record ResolvedSchema(
                         {
                             Doc = norm.Doc,
                             See = norm.See,
+                            Meta = norm.Meta,
                         }
                     );
                 }
                 resolvedTable.NameInDb = table.name;
                 resolvedTable.Doc = table.doc;
                 resolvedTable.See = table.see ?? Array.Empty<string>();
+                resolvedTable.Meta = table.meta ?? EmptyMeta;
 
                 if (table.extends != null)
                 {
@@ -140,6 +143,7 @@ public record ResolvedSchema(
                                 Extends = inherited,
                                 Doc = inherited.Doc,
                                 See = inherited.See,
+                                Meta = inherited.Meta,
                             }
                         );
                     }
@@ -155,6 +159,7 @@ public record ResolvedSchema(
                             Extends = extendsTable.IdColumn,
                             Doc = extendsTable.IdColumn.Doc,
                             See = extendsTable.IdColumn.See,
+                            Meta = extendsTable.IdColumn.Meta,
                         };
                     }
 
@@ -164,6 +169,9 @@ public record ResolvedSchema(
                     {
                         resolvedTable.See = extendsTable.See;
                     }
+                    // Per-key merge: the base table's meta is inherited, but any keys the
+                    // derived table declares itself take precedence.
+                    resolvedTable.Meta = MergeMeta(extendsTable.Meta, resolvedTable.Meta);
                 }
 
                 if (!resolvedTable.Columns.Any())
@@ -306,7 +314,8 @@ public record ResolvedSchema(
     private readonly record struct NormalisedColumn(
         string[] YamlType,
         string Doc,
-        IReadOnlyList<string> See
+        IReadOnlyList<string> See,
+        IReadOnlyDictionary<string, string> Meta
     );
 
     private static NormalisedColumn NormaliseColumn(string tableKey, string columnName, object raw)
@@ -321,7 +330,12 @@ public record ResolvedSchema(
                 );
             }
             var asStrings = seq.Select(x => x?.ToString()).ToArray();
-            return new NormalisedColumn(asStrings, null, Array.Empty<string>());
+            return new NormalisedColumn(
+                asStrings,
+                null,
+                Array.Empty<string>(),
+                EmptyMeta
+            );
         }
 
         // New long form: a YAML mapping -> Dictionary<object, object>.
@@ -331,6 +345,7 @@ public record ResolvedSchema(
             string dbName = null;
             string doc = null;
             IReadOnlyList<string> see = Array.Empty<string>();
+            IReadOnlyDictionary<string, string> meta = EmptyMeta;
 
             foreach (var (rawKey, rawVal) in map)
             {
@@ -349,6 +364,9 @@ public record ResolvedSchema(
                     case "see":
                         see = ReadStringList(rawVal, $"{tableKey}.{columnName}.see");
                         break;
+                    case "meta":
+                        meta = ReadStringMap(rawVal, $"{tableKey}.{columnName}.meta");
+                        break;
                     default:
                         throw new FlowerBIException(
                             $"Table {tableKey} column {columnName} has unknown property '{key}'"
@@ -364,7 +382,7 @@ public record ResolvedSchema(
             }
 
             var yamlType = dbName == null ? new[] { type } : new[] { type, dbName };
-            return new NormalisedColumn(yamlType, doc, see);
+            return new NormalisedColumn(yamlType, doc, see, meta);
         }
 
         throw new FlowerBIException(
@@ -419,5 +437,53 @@ public record ResolvedSchema(
             return list.Select(x => x?.ToString()).ToArray();
         }
         throw new FlowerBIException($"{context} must be a list of strings");
+    }
+
+    private static readonly IReadOnlyDictionary<string, string> EmptyMeta =
+        new Dictionary<string, string>();
+
+    private static IReadOnlyDictionary<string, string> ReadStringMap(object raw, string context)
+    {
+        if (raw == null)
+        {
+            return EmptyMeta;
+        }
+        if (raw is IDictionary<object, object> map)
+        {
+            var result = new Dictionary<string, string>();
+            foreach (var (rawKey, rawVal) in map)
+            {
+                result[rawKey?.ToString()] = rawVal?.ToString();
+            }
+            return result;
+        }
+        throw new FlowerBIException($"{context} must be a mapping of name/value pairs");
+    }
+
+    // Combine an inherited (base) meta map with a derived table's own map, so that the
+    // derived table's keys override the base's on a per-key basis.
+    private static IReadOnlyDictionary<string, string> MergeMeta(
+        IReadOnlyDictionary<string, string> baseMeta,
+        IReadOnlyDictionary<string, string> ownMeta
+    )
+    {
+        if (baseMeta == null || baseMeta.Count == 0)
+        {
+            return ownMeta ?? EmptyMeta;
+        }
+        if (ownMeta == null || ownMeta.Count == 0)
+        {
+            return baseMeta;
+        }
+        var merged = new Dictionary<string, string>();
+        foreach (var (key, value) in baseMeta)
+        {
+            merged[key] = value;
+        }
+        foreach (var (key, value) in ownMeta)
+        {
+            merged[key] = value;
+        }
+        return merged;
     }
 }

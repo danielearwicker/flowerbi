@@ -17,6 +17,8 @@ public interface IColumn : INamed, IDocumented
     object ConvertValue(object fromDb);
 
     string FullName { get; }
+
+    IReadOnlyDictionary<string, string> Meta { get; }
 }
 
 public class Column : Named, IColumn
@@ -34,6 +36,9 @@ public class Column : Named, IColumn
     public string Doc { get; internal set; }
 
     public IReadOnlyList<IDocumented> See { get; internal set; } = Array.Empty<IDocumented>();
+
+    public IReadOnlyDictionary<string, string> Meta { get; internal set; } =
+        new Dictionary<string, string>();
 
     internal Column(string dbName, string refName, DataType dataType, bool nullable)
     {

@@ -18,4 +18,7 @@ public record ResolvedColumn(ResolvedTable Table, string Name, string[] YamlType
     public string Doc { get; set; }
 
     public IReadOnlyList<string> See { get; set; } = Array.Empty<string>();
+
+    public IReadOnlyDictionary<string, string> Meta { get; set; } =
+        new Dictionary<string, string>();
 }

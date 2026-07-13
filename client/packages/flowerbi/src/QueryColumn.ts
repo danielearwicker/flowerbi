@@ -20,7 +20,15 @@ export enum QueryColumnDataType {
 }
 
 export class QueryColumnRuntimeType {
-    constructor(public readonly dataType: QueryColumnDataType, public readonly targetColumn: string) {}
+    constructor(
+        public readonly dataType: QueryColumnDataType,
+        public readonly targetColumn: string,
+        /**
+         * Optional user-defined name/value metadata declared on the column in the
+         * schema's `meta` property. Empty (or absent) when none was declared.
+         */
+        public readonly meta: Readonly<Record<string, string>> = {}
+    ) {}
 }
 
 export class QueryColumn<T extends FilterValue> {

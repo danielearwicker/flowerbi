@@ -17,6 +17,9 @@ public sealed class Table : Named, IDocumented
 
     public IReadOnlyList<IDocumented> See { get; internal set; } = Array.Empty<IDocumented>();
 
+    public IReadOnlyDictionary<string, string> Meta { get; internal set; } =
+        new Dictionary<string, string>();
+
     private readonly Dictionary<Table, IForeignKey> _keys = new();
 
     private readonly Dictionary<string, IColumn> _columns = new();
@@ -34,6 +37,7 @@ public sealed class Table : Named, IDocumented
         DbName = resolved.NameInDb;
         Conjoint = resolved.conjoint;
         Doc = resolved.Doc;
+        Meta = resolved.Meta;
 
         // Create ID column if present
         if (resolved.IdColumn != null)
@@ -41,6 +45,7 @@ public sealed class Table : Named, IDocumented
             var idCol = CreateColumn(resolved.IdColumn, isPrimaryKey: true);
             idCol.Table = this;
             idCol.Doc = resolved.IdColumn.Doc;
+            idCol.Meta = resolved.IdColumn.Meta;
             Id = idCol;
             _columns[idCol.RefName] = idCol;
             columnMap[resolved.IdColumn] = idCol;
@@ -52,6 +57,7 @@ public sealed class Table : Named, IDocumented
             var col = CreateColumn(rc, isPrimaryKey: false);
             col.Table = this;
             col.Doc = rc.Doc;
+            col.Meta = rc.Meta;
             _columns[col.RefName] = col;
             columnMap[rc] = col;
         }

@@ -95,6 +95,51 @@ InvoiceAnnotation:
 
 [This is an obscure enough topic to get its own explanation](./conjoint.md).
 
+## Meta
+
+Tables and columns can carry an optional `meta` property: a free-form set of
+name/value pairs (the value is always a string) for your own use. FlowerBI does
+not interpret these values — it just carries them through so your own tooling
+can read them.
+
+```yaml
+Invoice:
+    meta:
+        owner: finance
+        pii: "false"
+    id:
+        Id: [int]
+    columns:
+        Amount:
+            type: decimal
+            meta:
+                unit: GBP
+                sensitive: "true"
+```
+
+Note that a column can only carry `meta` in its long (mapping) form — the short
+`[type]` array form has nowhere to put it.
+
+`meta` is surfaced in three places:
+
+-   **In-memory `Schema` model** as a `Meta` property of type
+    `IReadOnlyDictionary<string, string>` on every `Table` and `Column` (empty,
+    never null, when none was declared).
+-   **Generated TypeScript** — column meta becomes a third argument to
+    `QueryColumnRuntimeType` (read it as `Invoice.Amount.type.meta`), and
+    table-level meta becomes a `$meta` key on the generated table object (read it
+    as `Invoice.$meta`).
+-   **Generated C#** — available at runtime through the same `Schema` model, e.g.
+    `BugSchema.Schema.GetTable("Invoice").Meta["owner"]`.
+
+### Meta and `extends`
+
+When a table `extends` another, table-level `meta` is **merged per key**: the
+derived table inherits the base table's entries, and any keys it declares itself
+take precedence. Columns inherited via `extends` carry their base column's `meta`
+unchanged (and if the derived table redefines a column, its definition — including
+its `meta` — wins entirely).
+
 ## Documentation
 
 Tables, columns, and a top-level `topics:` section can carry free-text `doc`

@@ -12,4 +12,5 @@ public class YamlTable
     public string[] associative { get; set; }
     public string doc { get; set; }
     public string[] see { get; set; }
+    public Dictionary<string, string> meta { get; set; }
 }

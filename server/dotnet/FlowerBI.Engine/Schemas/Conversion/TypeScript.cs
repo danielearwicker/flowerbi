@@ -78,16 +78,27 @@ public static class TypeScript
 
                 WriteJsDoc(writer, indent: "    ", column.Doc, column.See, topicNames);
 
+                // 8 spaces aligns the meta object with the other QueryColumnRuntimeType args.
+                var metaArg =
+                    column.Meta != null && column.Meta.Count > 0
+                        ? $",\n        {TsMeta(column.Meta)}"
+                        : "";
+
                 tableWriter.WriteLine(
                     $"""
                     {column.Name}: new {tsType}("{table.Name}.{column.Name}",
                         new QueryColumnRuntimeType(
                             QueryColumnDataType.{column.DataType},
-                            "{GetTargetString(column.Target)}"
+                            "{GetTargetString(column.Target)}"{metaArg}
                         )
                     ),
                     """
                 );
+            }
+
+            if (table.Meta != null && table.Meta.Count > 0)
+            {
+                tableWriter.WriteLine($"$meta: {TsMeta(table.Meta)},");
             }
 
             writer.WriteLine("};");
@@ -200,6 +211,12 @@ public static class TypeScript
             }
         }
         return true;
+    }
+
+    private static string TsMeta(IReadOnlyDictionary<string, string> meta)
+    {
+        var pairs = meta.Select(kvp => $"{TsString(kvp.Key)}: {TsString(kvp.Value)}");
+        return $"{{ {string.Join(", ", pairs)} }}";
     }
 
     private static string TsKey(string name) => IsValidJsIdentifier(name) ? name : TsString(name);
