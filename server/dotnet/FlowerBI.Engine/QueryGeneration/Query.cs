@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Dapper;
 using FlowerBI.Engine.JsonModels;
+using FlowerBI.Yaml;
 using HandlebarsDotNet;
 
 namespace FlowerBI;
@@ -97,6 +98,7 @@ public class Query(QueryJson json, Schema schema)
     // This needs to accept filters and use them inside CASE WHEN {filters} THEN {expr} END
     private static string FormatAggFunction(
         AggregationType func,
+        DataType dataType,
         string expr,
         IEnumerable<Filter> filters,
         Joins joins,
@@ -113,10 +115,17 @@ public class Query(QueryJson json, Schema schema)
             expr = $"case when {when} then {expr} end";
         }
 
-        return func == AggregationType.CountDistinct
-            ? $"count(distinct {expr})"
-            : $"{func}({expr})";
+        return func switch
+        {
+            AggregationType.CountDistinct => $"count(distinct {expr})",
+            // SQL Server's avg of an integer column is an integer, truncating the fraction.
+            AggregationType.Avg when IsInteger(dataType) => $"{func}({sql.CastToFloat(expr)})",
+            _ => $"{func}({expr})",
+        };
     }
+
+    private static bool IsInteger(DataType dataType) =>
+        dataType is DataType.Byte or DataType.Short or DataType.Int or DataType.Long;
 
     private static string FormatFilter(
         Filter f,
@@ -182,7 +191,7 @@ public class Query(QueryJson json, Schema schema)
             Aggregations
                 ?.Select(
                     (a, i) =>
-                        $"{FormatAggFunction(a.Function, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}"
+                        $"{FormatAggFunction(a.Function, a.Column.Value.DataType, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}"
                 )
                 .ToList() ?? [];
 
