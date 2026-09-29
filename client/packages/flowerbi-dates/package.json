@@ -24,5 +24,10 @@
         "test": "jest",
         "docs": "typedoc --excludePrivate --readme home.md --out ../../../docs/typedoc/flowerbi-dates src",
         "fbi-release": "npm run test && npm run build && npm run docs"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/danielearwicker/flowerbi.git",
+        "directory": "client/packages/flowerbi-dates"
     }
 }

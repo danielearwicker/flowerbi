@@ -23,5 +23,10 @@
         "watch": "tsc -w",
         "docs": "typedoc --out ../../../docs/typedoc/flowerbi-react-utils src",
         "fbi-release": "npm run build && npm run docs"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/danielearwicker/flowerbi.git",
+        "directory": "client/packages/flowerbi-react-utils"
     }
 }

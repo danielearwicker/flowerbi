@@ -1,0 +1,153 @@
+name: Release
+
+# Publishes the NuGet and npm packages when a GitHub Release is published. The
+# release's tag must match .version (with or without a leading "v").
+#
+# Both registries authenticate via trusted publishing (OIDC), so there are no
+# stored secrets. The trusted publisher settings on nuget.org and npmjs.com must
+# name this workflow file (release.yml) and the "release" environment.
+#
+# Run it manually from the Actions tab to rehearse: with "dry run" ticked it
+# builds and tests everything and shows what would be published, but publishes
+# nothing.
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Dry run (build and test, but don't publish)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+env:
+  DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - id: version
+        run: |
+          version=$(tr -d '[:space:]' < .version)
+          if [ "$GITHUB_EVENT_NAME" = release ]; then
+            tag="${GITHUB_REF_NAME#v}"
+            if [ "$tag" != "$version" ]; then
+              echo "::error::Release tag $GITHUB_REF_NAME doesn't match .version ($version)"
+              exit 1
+            fi
+          fi
+          echo "Version $version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  dotnet-tests:
+    uses: ./.github/workflows/dotnet-tests.yml
+
+  nuget:
+    needs: [version, dotnet-tests]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+    defaults:
+      run:
+        working-directory: server/dotnet
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Apply version
+        run: node apply-version.js
+
+      # GeneratePackageOnBuild writes the .nupkg files to each project's nupkg folder
+      - name: Build packages
+        run: |
+          dotnet build FlowerBI.Engine -c Release
+          dotnet build FlowerBI.Tools -c Release
+          ls -l FlowerBI.Engine/nupkg FlowerBI.Tools/nupkg
+
+      - name: Log in to NuGet
+        id: login
+        if: env.DRY_RUN != 'true'
+        uses: NuGet/login@v1
+        with:
+          user: danielearwicker
+
+      - name: Push packages
+        if: env.DRY_RUN != 'true'
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: |
+          for p in FlowerBI.Engine FlowerBI.Tools; do
+            dotnet nuget push "$p/nupkg/$p.$VERSION.nupkg" \
+              --api-key "$NUGET_API_KEY" \
+              --source https://api.nuget.org/v3/index.json \
+              --skip-duplicate
+          done
+
+  npm:
+    needs: [version, dotnet-tests]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      VERSION: ${{ needs.version.outputs.version }}
+      # In dependency order: flowerbi-react depends on flowerbi
+      PACKAGES: flowerbi flowerbi-react flowerbi-dates flowerbi-react-utils
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+
+      # Trusted publishing needs npm 11.5.1 or later, which Node 24 includes
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Apply version
+        run: node apply-version.js
+
+      - name: Install
+        run: |
+          npm install -g yarn@1
+          yarn install --frozen-lockfile
+
+      # Build and test everything before publishing anything
+      - name: Test and build
+        run: |
+          for p in $PACKAGES; do
+            (cd "packages/$p" && npm run test --if-present && npm run build)
+          done
+
+      - name: Publish
+        run: |
+          npm --version
+          for p in $PACKAGES; do
+            if [ "$DRY_RUN" = true ]; then
+              (cd "packages/$p" && npm pack --dry-run)
+            elif npm view "$p@$VERSION" version > /dev/null 2>&1; then
+              echo "$p@$VERSION is already published, skipping"
+            else
+              (cd "packages/$p" && npm publish)
+            fi
+          done
