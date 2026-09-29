@@ -1,11 +1,13 @@
 name: Release
 
-# Publishes the NuGet and npm packages when a GitHub Release is published. The
-# release's tag must match .version (with or without a leading "v").
+# Publishes the NuGet packages and stages the npm packages when a GitHub Release
+# is published. The release's tag must match .version (with or without a leading
+# "v"). Staged npm packages only go live once approved with 2FA on npmjs.com.
 #
 # Both registries authenticate via trusted publishing (OIDC), so there are no
 # stored secrets. The trusted publisher settings on nuget.org and npmjs.com must
-# name this workflow file (release.yml) and the "release" environment.
+# name this workflow file (release.yml) and the "release" environment. On npm,
+# the trusted publisher only needs the "npm stage publish" allowed action.
 #
 # Run it manually from the Actions tab to rehearse: with "dry run" ticked it
 # builds and tests everything and shows what would be published, but publishes
@@ -119,7 +121,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Trusted publishing needs npm 11.5.1 or later, which Node 24 includes
+      # Staged publishing needs npm 11.15.0 or later, which Node 24 includes
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -139,15 +141,35 @@ jobs:
             (cd "packages/$p" && npm run test --if-present && npm run build)
           done
 
-      - name: Publish
+      # Stages each package rather than publishing it: each one goes live only once
+      # a maintainer approves it with 2FA on npmjs.com (Staged Packages tab) or via
+      # `npm stage approve <stage-id>`. A failure doesn't stop the remaining packages
+      # from being staged, so a re-run only has to deal with the ones that failed.
+      - name: Stage for publishing
         run: |
           npm --version
+          failed=""
           for p in $PACKAGES; do
             if [ "$DRY_RUN" = true ]; then
               (cd "packages/$p" && npm pack --dry-run)
             elif npm view "$p@$VERSION" version > /dev/null 2>&1; then
               echo "$p@$VERSION is already published, skipping"
+            elif (cd "packages/$p" && npm stage publish --provenance); then
+              echo "- \`$p@$VERSION\`" >> staged.md
             else
-              (cd "packages/$p" && npm publish)
+              echo "::error::Failed to stage $p@$VERSION (if it's already staged, approve or reject it on npmjs.com)"
+              failed="$failed $p"
             fi
           done
+          if [ -f staged.md ]; then
+            {
+              echo "### Staged on npm, awaiting approval"
+              echo
+              cat staged.md
+              echo
+              echo "Approve each one with 2FA in the **Staged Packages** tab on npmjs.com."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -n "$failed" ]; then
+            exit 1
+          fi
