@@ -1,0 +1,37 @@
+name: .NET tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server/dotnet
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      # Pull the SQL Server image up front so the test fixture doesn't spend its
+      # startup timeout downloading it.
+      - name: Pull SQL Server image
+        run: docker pull mcr.microsoft.com/mssql/server:2022-latest
+
+      - name: Restore
+        run: dotnet restore FlowerBI.Engine.Tests
+
+      - name: Build
+        run: dotnet build FlowerBI.Engine.Tests --no-restore
+
+      - name: Test
+        run: dotnet test FlowerBI.Engine.Tests --no-build --logger "console;verbosity=normal"
