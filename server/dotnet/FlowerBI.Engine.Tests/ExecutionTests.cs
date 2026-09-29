@@ -82,6 +82,19 @@ public abstract class ExecutionTests
         results.Totals.Should().BeNull();
     }
 
+    [Fact]
+    public void AvgOfIntegerColumnKeepsTheFraction()
+    {
+        var results = ExecuteQuery(
+            new()
+            {
+                Aggregations = [new() { Column = "Vendor.Id", Function = AggregationType.Avg }],
+            }
+        );
+
+        results.Records.Single().Aggregated.Single().Should().Be(7.5);
+    }
+
     [Theory]
     [InlineData(true)]
     [InlineData(false)]
