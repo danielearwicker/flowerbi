@@ -39,7 +39,7 @@ public class Query(QueryJson json, Schema schema)
 
     public bool AllowDuplicates { get; } = json.AllowDuplicates ?? false;
 
-    public int CommandTimeoutSeconds { get; } = 30;
+    public int CommandTimeoutSeconds { get; init; } = 30;
 
     public bool FullJoins { get; } = json.FullJoins ?? false;
 

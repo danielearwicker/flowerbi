@@ -1095,6 +1095,64 @@ public abstract class ExecutionTests
         a.Should().Throw<FlowerBIException>().WithMessage("Filter JSON contains empty array");
     }
 
+    [Fact]
+    public void CommandTimeoutDefaultsToThirtySeconds()
+    {
+        var db = new CommandCapturingConnection(Db());
+
+        new Query(new() { Select = ["Vendor.VendorName"] }, Schema).Run(Formatter, db, _log.Add);
+
+        db.Commands.Should().ContainSingle().Which.CommandTimeout.Should().Be(30);
+    }
+
+    [Fact]
+    public void CommandTimeoutCanBeOverridden()
+    {
+        var db = new CommandCapturingConnection(Db());
+
+        new Query(new() { Select = ["Vendor.VendorName"] }, Schema) { CommandTimeoutSeconds = 600 }
+            .Stream(Formatter, () => db, _log.Add)
+            .ToList();
+
+        db.Commands.Should().ContainSingle().Which.CommandTimeout.Should().Be(600);
+    }
+
+    private sealed class CommandCapturingConnection(IDbConnection inner) : IDbConnection
+    {
+        public List<IDbCommand> Commands { get; } = [];
+
+        public string ConnectionString
+        {
+            get => inner.ConnectionString;
+            set => inner.ConnectionString = value;
+        }
+
+        public int ConnectionTimeout => inner.ConnectionTimeout;
+
+        public string Database => inner.Database;
+
+        public ConnectionState State => inner.State;
+
+        public IDbTransaction BeginTransaction() => inner.BeginTransaction();
+
+        public IDbTransaction BeginTransaction(IsolationLevel il) => inner.BeginTransaction(il);
+
+        public void ChangeDatabase(string databaseName) => inner.ChangeDatabase(databaseName);
+
+        public void Close() => inner.Close();
+
+        public IDbCommand CreateCommand()
+        {
+            var command = inner.CreateCommand();
+            Commands.Add(command);
+            return command;
+        }
+
+        public void Open() => inner.Open();
+
+        public void Dispose() => inner.Dispose();
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
