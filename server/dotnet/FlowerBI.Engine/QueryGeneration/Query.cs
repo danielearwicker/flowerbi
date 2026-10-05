@@ -39,7 +39,7 @@ public class Query(QueryJson json, Schema schema)
 
     public bool AllowDuplicates { get; } = json.AllowDuplicates ?? false;
 
-    public int CommandTimeoutSeconds { get; } = 30;
+    public int CommandTimeoutSeconds { get; init; } = 30;
 
     public bool FullJoins { get; } = json.FullJoins ?? false;
 
@@ -185,7 +185,8 @@ public class Query(QueryJson json, Schema schema)
                     (c, i) =>
                         $"{sql.IdentifierPair(joins.GetAlias(c.Value.Table, c.JoinLabel), c.Value.DbName)} Select{i}"
                 )
-                .ToList() ?? [];
+                .ToList()
+            ?? [];
 
         var aggs =
             Aggregations
@@ -193,7 +194,8 @@ public class Query(QueryJson json, Schema schema)
                     (a, i) =>
                         $"{FormatAggFunction(a.Function, a.Column.Value.DataType, joins.Aliased(a.Column, sql), a.Filters, joins, sql, filterParams)} Value{i}"
                 )
-                .ToList() ?? [];
+                .ToList()
+            ?? [];
 
         selects.AddRange(aggs);
 
@@ -230,7 +232,8 @@ public class Query(QueryJson json, Schema schema)
             Calculations
                 ?.Select(x => x.ToSql(sql, i => $"Value{i}"))
                 .Select((c, i) => $"{c} Value{(Aggregations?.Count ?? 0) + i}")
-                .ToList() ?? [];
+                .ToList()
+            ?? [];
 
         var template =
             calculations.Count == 0 ? _templateWithoutCalculations : _templateWithCalculations;
