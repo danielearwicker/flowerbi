@@ -135,6 +135,22 @@ public class Query(QueryJson json, Schema schema)
     )
     {
         var column = joins.Aliased(f.Column, sql);
+
+        if (f.IncludesNull)
+        {
+            var negated = f.Operator is "<>" or "!=" or "NOT IN";
+            var nullTest = negated ? $"{column} is not null" : $"{column} is null";
+
+            if (f.Value is null)
+            {
+                return nullTest;
+            }
+
+            return negated
+                ? $"({column} not in {filterParams[f]} and {nullTest})"
+                : $"({column} in {filterParams[f]} or {nullTest})";
+        }
+
         var param = filterParams[f];
 
         if (f.Operator == "BITS IN")

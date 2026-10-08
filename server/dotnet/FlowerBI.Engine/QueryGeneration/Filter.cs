@@ -7,15 +7,39 @@ using FlowerBI.Engine.JsonModels;
 
 namespace FlowerBI;
 
-public class Filter(LabelledColumn column, string op, object val, object constant)
+public class Filter
 {
-    public LabelledColumn Column { get; } = column;
+    public Filter(LabelledColumn column, string op, object val, object constant)
+    {
+        Column = column;
+        Operator = CheckOperator(op);
+        (Value, IncludesNull) = SeparateNull(val);
+        Constant = constant;
 
-    public string Operator { get; } = CheckOperator(op);
+        if (IncludesNull && !_nullableOperators.Contains(Operator))
+        {
+            throw new FlowerBIException($"{Operator} filter does not support null values");
+        }
+    }
 
-    public object Value { get; } = val;
+    public LabelledColumn Column { get; }
 
-    public object Constant { get; } = constant;
+    public string Operator { get; }
+
+    /// <summary>
+    /// The non-null part of the filter value: nulls are removed from a list, and a filter
+    /// whose only value is null has a null Value. See <see cref="IncludesNull"/>.
+    /// </summary>
+    public object Value { get; }
+
+    /// <summary>
+    /// True if the filter value was null, or a list containing null. Such a filter is
+    /// rendered with IS NULL / IS NOT NULL, because in SQL a comparison with NULL is
+    /// never true.
+    /// </summary>
+    public bool IncludesNull { get; }
+
+    public object Constant { get; }
 
     public static IList<Filter> Load(IEnumerable<FilterJson> filters, Schema schema) =>
         filters?.Select(x => new Filter(x, schema)).ToList() ?? [];
@@ -30,6 +54,30 @@ public class Filter(LabelledColumn column, string op, object val, object constan
             UnpackAndValidateValue(json.Value),
             UnpackAndValidateValue(json.Constant)
         ) { }
+
+    private static readonly HashSet<string> _nullableOperators = ["=", "<>", "!=", "IN", "NOT IN"];
+
+    private static (object Value, bool IncludesNull) SeparateNull(object val)
+    {
+        if (val is null)
+        {
+            return (null, true);
+        }
+
+        if (val is string || val is not IEnumerable enumerable)
+        {
+            return (val, false);
+        }
+
+        var items = enumerable.Cast<object>().ToList();
+        if (!items.Contains(null))
+        {
+            return (val, false);
+        }
+
+        var nonNull = items.Where(x => x is not null).ToList();
+        return (nonNull.Count == 0 ? null : nonNull, true);
+    }
 
     private static readonly HashSet<Type> _basicValueTypes =
     [
@@ -70,7 +118,11 @@ public class Filter(LabelledColumn column, string op, object val, object constan
 
             foreach (var item in enumerable)
             {
-                ValidateBasicType(item);
+                if (item is not null)
+                {
+                    ValidateBasicType(item);
+                }
+
                 empty = false;
             }
 
@@ -95,7 +147,8 @@ public class Filter(LabelledColumn column, string op, object val, object constan
     {
         if (json is JsonElement e)
         {
-            return e.ValueKind == JsonValueKind.False ? false
+            return e.ValueKind == JsonValueKind.Null ? null
+                : e.ValueKind == JsonValueKind.False ? false
                 : e.ValueKind == JsonValueKind.True ? true
                 : e.ValueKind == JsonValueKind.Number ? e.GetDouble()
                 : e.ValueKind == JsonValueKind.String
@@ -103,7 +156,8 @@ public class Filter(LabelledColumn column, string op, object val, object constan
                 : e.ValueKind == JsonValueKind.Array
                     ? e.EnumerateArray()
                         .Select(item =>
-                            item.ValueKind == JsonValueKind.False ? false
+                            item.ValueKind == JsonValueKind.Null ? null
+                            : item.ValueKind == JsonValueKind.False ? false
                             : item.ValueKind == JsonValueKind.True ? true
                             : item.ValueKind == JsonValueKind.Number ? (object)item.GetDouble()
                             : item.ValueKind == JsonValueKind.String ? item.GetString()

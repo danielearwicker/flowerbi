@@ -148,4 +148,48 @@ public class FilterParametersTests
 
         a.Should().Throw<FlowerBIException>().WithMessage("Unsupported filter value");
     }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ListWithNull_NullSeparatedFromValue(bool newtonSoft)
+    {
+        var filter = MakeFilter(new object[] { "hi", null }, newtonSoft);
+
+        filter.IncludesNull.Should().BeTrue();
+        filter.Value.Should().BeEquivalentTo(new[] { "hi" });
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ListOfOnlyNull_HasNullValue(bool newtonSoft)
+    {
+        var filter = MakeFilter(new object[] { null }, newtonSoft);
+
+        filter.IncludesNull.Should().BeTrue();
+        filter.Value.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ScalarNull_HasNullValue(bool newtonSoft)
+    {
+        var filter = MakeFilter(null, newtonSoft);
+
+        filter.IncludesNull.Should().BeTrue();
+        filter.Value.Should().BeNull();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void ListWithoutNull_DoesNotIncludeNull(bool newtonSoft)
+    {
+        var filter = MakeFilter(new object[] { "hi", "there" }, newtonSoft);
+
+        filter.IncludesNull.Should().BeFalse();
+        filter.Value.Should().BeEquivalentTo(new[] { "hi", "there" });
+    }
 }
