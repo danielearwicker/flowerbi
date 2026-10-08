@@ -934,23 +934,21 @@ public abstract class ExecutionTests
 
         records
             .Should()
-            .BeEquivalentTo(
-                [
-                    ("Stationary Stationery", 1, 28.12m, 1, 1, 31.12m, 28.12m),
-                    ("Party Hats 4 U", 2, 58.12m, 1, 1, 61.12m, 58.12m),
-                    ("Tiles Tiles Tiles", 2, 106.24m, 2, 2, 109.24m, 53.12m),
-                    ("Handbags-a-Plenty", 3, 252.48m, 4, 4, 255.48m, 63.12m),
-                    ("Pleasant Plc", 3, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("Uranium 4 Less", 3, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("Awnings-R-Us", 4, 88.12m, 1, 1, 91.12m, 88.12m),
-                    ("Manchesterford Supplies Inc", 4, 164.36m, 3, 3, 167.36m, 54.7867m),
-                    ("Statues While You Wait", 4, 156.24m, 2, 2, 159.24m, 78.12m),
-                    ("Steve Makes Sandwiches", 4, 176.24m, 2, 2, 179.24m, 88.12m),
-                    ("United Cheese", 4, 406.84m, 7, 7, 409.84m, 58.12m),
-                    ("Disgusting Ltd", 5, 156.14m, 2, 2, 159.14m, 78.07m),
-                    ("Mats and More", 5, 76.24m, 2, 2, 79.24m, 38.12m),
-                ]
-            );
+            .BeEquivalentTo([
+                ("Stationary Stationery", 1, 28.12m, 1, 1, 31.12m, 28.12m),
+                ("Party Hats 4 U", 2, 58.12m, 1, 1, 61.12m, 58.12m),
+                ("Tiles Tiles Tiles", 2, 106.24m, 2, 2, 109.24m, 53.12m),
+                ("Handbags-a-Plenty", 3, 252.48m, 4, 4, 255.48m, 63.12m),
+                ("Pleasant Plc", 3, 88.12m, 1, 1, 91.12m, 88.12m),
+                ("Uranium 4 Less", 3, 88.12m, 1, 1, 91.12m, 88.12m),
+                ("Awnings-R-Us", 4, 88.12m, 1, 1, 91.12m, 88.12m),
+                ("Manchesterford Supplies Inc", 4, 164.36m, 3, 3, 167.36m, 54.7867m),
+                ("Statues While You Wait", 4, 156.24m, 2, 2, 159.24m, 78.12m),
+                ("Steve Makes Sandwiches", 4, 176.24m, 2, 2, 179.24m, 88.12m),
+                ("United Cheese", 4, 406.84m, 7, 7, 409.84m, 58.12m),
+                ("Disgusting Ltd", 5, 156.14m, 2, 2, 159.14m, 78.07m),
+                ("Mats and More", 5, 76.24m, 2, 2, 79.24m, 38.12m),
+            ]);
     }
 
     [Fact]
@@ -983,9 +981,7 @@ public abstract class ExecutionTests
 
         records
             .Should()
-            .BeEquivalentTo(
-                ["Manchesterford Supplies Inc", "United Cheese", "Uranium 4 Less"]
-            );
+            .BeEquivalentTo(["Manchesterford Supplies Inc", "United Cheese", "Uranium 4 Less"]);
     }
 
     [Fact]
@@ -1095,6 +1091,108 @@ public abstract class ExecutionTests
         a.Should().Throw<FlowerBIException>().WithMessage("Filter JSON contains empty array");
     }
 
+    private Dictionary<string, int> CountInvoicesByPaid(params FilterJson[] filters)
+    {
+        var results = ExecuteQuery(
+            new QueryJson
+            {
+                Select = ["Invoice.Paid"],
+                Aggregations = [new() { Column = "Invoice.Id", Function = AggregationType.Count }],
+                Filters = [.. filters],
+            }
+        );
+
+        return results.Records.ToDictionary(
+            x =>
+                x.Selected[0] is null ? "null"
+                : Convert.ToBoolean(x.Selected[0]) ? "true"
+                : "false",
+            x => Convert.ToInt32(x.Aggregated[0])
+        );
+    }
+
+    [Theory]
+    [InlineData("IN", "[true, null]", "true,null")]
+    [InlineData("IN", "[null]", "null")]
+    [InlineData("=", "null", "null")]
+    [InlineData("NOT IN", "[true, null]", "false")]
+    [InlineData("NOT IN", "[null]", "true,false")]
+    [InlineData("<>", "null", "true,false")]
+    [InlineData("!=", "null", "true,false")]
+    public void FilterWithNullValue(string op, string value, string expectedKeys)
+    {
+        var unfiltered = CountInvoicesByPaid();
+        unfiltered.Keys.Should().BeEquivalentTo(["true", "false", "null"]);
+
+        var filtered = CountInvoicesByPaid(
+            new FilterJson
+            {
+                Column = "Invoice.Paid",
+                Operator = op,
+                Value = JsonSerializer.Deserialize<object>(value),
+            }
+        );
+
+        filtered
+            .Should()
+            .BeEquivalentTo(expectedKeys.Split(',').ToDictionary(k => k, k => unfiltered[k]));
+    }
+
+    [Fact]
+    public void StringListFilterWithNull()
+    {
+        var results = ExecuteQuery(
+            new QueryJson
+            {
+                Select = ["Vendor.VendorName"],
+                Aggregations = [new() { Column = "Invoice.Id", Function = AggregationType.Count }],
+                Filters =
+                [
+                    new()
+                    {
+                        Column = "Vendor.VendorName",
+                        Operator = "IN",
+                        Value = new object[] { "United Cheese", null },
+                    },
+                ],
+            }
+        );
+
+        results.Records.Select(x => x.Selected[0]).Should().BeEquivalentTo(["United Cheese"]);
+    }
+
+    [Theory]
+    [InlineData(">", "null")]
+    [InlineData("LIKE", "null")]
+    [InlineData("BITS IN", "[1, null]")]
+    public void NullValueRejectedForOperatorsWithoutNullSemantics(string op, string value)
+    {
+        Action a = () =>
+            ExecuteQuery(
+                new QueryJson
+                {
+                    Select = ["Invoice.Paid"],
+                    Aggregations =
+                    [
+                        new() { Column = "Invoice.Id", Function = AggregationType.Count },
+                    ],
+                    Filters =
+                    [
+                        new()
+                        {
+                            Column = "Invoice.Paid",
+                            Operator = op,
+                            Value = JsonSerializer.Deserialize<object>(value),
+                        },
+                    ],
+                }
+            );
+
+        a.Should()
+            .Throw<FlowerBIException>()
+            .WithMessage($"{op} filter does not support null values");
+    }
+
     [Theory]
     [InlineData(false)]
     [InlineData(true)]
@@ -1161,24 +1259,22 @@ public abstract class ExecutionTests
 
         records
             .Should()
-            .BeEquivalentTo(
-                [
-                    ("United Cheese", 406.84m),
-                    ("Handbags-a-Plenty", 252.48m),
-                    ("Steve Makes Sandwiches", 176.24m),
-                    ("Manchesterford Supplies Inc", 164.36m),
-                    ("Disgusting Ltd", 156.14m),
-                    ("Statues While You Wait", 156.24m),
-                    ("Tiles Tiles Tiles", 106.24m),
-                    ("Uranium 4 Less", 88.12m),
-                    ("Awnings-R-Us", 88.12m),
-                    ("Pleasant Plc", 88.12m),
-                    ("Mats and More", 76.24m),
-                    ("Party Hats 4 U", 58.12m),
-                    ("Stationary Stationery", 28.12m),
-                    ("Acme Ltd", default(decimal?)), // Included due to full join
-                ]
-            );
+            .BeEquivalentTo([
+                ("United Cheese", 406.84m),
+                ("Handbags-a-Plenty", 252.48m),
+                ("Steve Makes Sandwiches", 176.24m),
+                ("Manchesterford Supplies Inc", 164.36m),
+                ("Disgusting Ltd", 156.14m),
+                ("Statues While You Wait", 156.24m),
+                ("Tiles Tiles Tiles", 106.24m),
+                ("Uranium 4 Less", 88.12m),
+                ("Awnings-R-Us", 88.12m),
+                ("Pleasant Plc", 88.12m),
+                ("Mats and More", 76.24m),
+                ("Party Hats 4 U", 58.12m),
+                ("Stationary Stationery", 28.12m),
+                ("Acme Ltd", default(decimal?)), // Included due to full join
+            ]);
 
         records.Select(x => x.Item2).Should().BeInDescendingOrder();
 
